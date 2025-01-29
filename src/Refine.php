@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace Honed\Refine;
 
-use Honed\Core\Primitive;
-use Illuminate\Http\Request;
-use Honed\Refine\Sorts\Sort;
 use Honed\Core\Concerns\HasScope;
+use Honed\Core\Primitive;
 use Honed\Refine\Filters\Filter;
 use Honed\Refine\Searches\Search;
-use Illuminate\Database\Eloquent\Model;
+use Honed\Refine\Sorts\Sort;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\Request;
 use Illuminate\Support\Traits\ForwardsCalls;
 
 /**

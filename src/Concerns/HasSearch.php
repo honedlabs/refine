@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Honed\Refine\Concerns;
 
-use Illuminate\Http\Request;
 use Honed\Refine\Searches\Search;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Contracts\Support\Arrayable;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\Request;
 
 trait HasSearch
 {
