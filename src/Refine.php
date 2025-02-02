@@ -81,17 +81,7 @@ class Refine extends Primitive
      */
     public static function query(Model|string|Builder $query): static
     {
-        if ($query instanceof Model) {
-            $query = $query::query();
-        }
-
-        if (\is_string($query) && \class_exists($query)) {
-            $query = $query::query();
-        }
-
-        if (! $query instanceof Builder) {
-            throw new \InvalidArgumentException('Expected a model class name or a query instance.');
-        }
+        $query = static::createBuilder($query);
 
         return resolve(static::class)->builder($query);
     }
@@ -131,11 +121,12 @@ class Refine extends Primitive
      */
     public function refine(): static
     {
-        if ($this->refined) {
+        if ($this->isRefined()) {
             return $this;
         }
 
         $builder = $this->getBuilder();
+
         $request = $this->getRequest();
 
         $this->search($builder, $request);
@@ -173,5 +164,13 @@ class Refine extends Primitive
     public function for(Request $request): static
     {
         return $this->request($request);
+    }
+
+    /**
+     * Determine if the refine pipeline has been run.
+     */
+    public function isRefined(): bool
+    {
+        return $this->refined;
     }
 }

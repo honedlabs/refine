@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Honed\Refine\Concerns;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 
 trait HasBuilderInstance
 {
@@ -34,5 +35,25 @@ trait HasBuilderInstance
         }
 
         return $this->builder;
+    }
+
+    /**
+     * @param  \Illuminate\Database\Eloquent\Model|class-string<\Illuminate\Database\Eloquent\Model>|\Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model>  $query
+     */
+    protected static function createBuilder(Model|string|Builder $query): Builder
+    {
+        if ($query instanceof Model) {
+            return $query::query();
+        }
+
+        if (\is_string($query) && \class_exists($query)) {
+            return $query::query();
+        }
+
+        if (! $query instanceof Builder) {
+            throw new \InvalidArgumentException('Expected a model class name or a query instance.');
+        }
+
+        return $query;
     }
 }
