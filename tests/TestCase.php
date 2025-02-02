@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Honed\Refine\Tests;
 
-use Honed\Refine\RefineServiceProvider;
 use Honed\Refine\Tests\Stubs\Status;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -29,7 +28,6 @@ class TestCase extends Orchestra
     protected function getPackageProviders($app)
     {
         return [
-            RefineServiceProvider::class,
             InertiaServiceProvider::class,
         ];
     }

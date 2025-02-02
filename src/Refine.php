@@ -104,7 +104,15 @@ class Refine extends Primitive
         return [
             'sorts' => $this->getSorts(),
             'filters' => $this->getFilters(),
-            'searches' => $this->getSearches(),
+            ...($this->hasMatches() ? ['searches' => $this->getSearches()] : []),
+            'search' => [
+                'value' => $this->getSearchValue(),
+            ],
+            'keys' => [
+                'sorts' => $this->getSortKey(),
+                'search' => $this->getSearchKey(),
+                ...($this->hasMatches() ? ['match' => $this->getMatchKey()] : []),
+            ],
         ];
     }
 
@@ -117,6 +125,8 @@ class Refine extends Primitive
     }
 
     /**
+     * Refine the builder using the provided refinements.
+     *
      * @return $this
      */
     public function refine(): static
@@ -125,9 +135,12 @@ class Refine extends Primitive
             return $this;
         }
 
-        $this->search($this->getBuilder(), $this->getRequest());
-        $this->sort($this->getBuilder(), $this->getRequest());
-        $this->filter($this->getBuilder(), $this->getRequest());
+        $builder = $this->getBuilder();
+        $request = $this->getRequest();
+
+        $this->search($builder, $request);
+        $this->sort($builder, $request);
+        $this->filter($builder, $request);
 
         $this->refined = true;
 

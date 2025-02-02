@@ -13,14 +13,21 @@ trait HasSearch
 {
     const SearchKey = 'search';
 
-    const ColumnsKey = 'searches';
+    const MatchKey = 'match';
 
     /**
-     * Whether the search should consider the presence of the columns key in the request.
+     * Whether the search can select which columns are used to search on.
      *
      * @var bool
      */
-    protected $searchAll = false;
+    protected $matches = false;
+
+    /**
+     * The search value as a string without replacements.
+     *
+     * @var string|null
+     */
+    protected $searchValue;
 
     /**
      * An array of the attributes to be used for searching.
@@ -41,7 +48,7 @@ trait HasSearch
      *
      * @var string
      */
-    protected $columnsKey = self::ColumnsKey;
+    protected $matchKey = self::MatchKey;
 
     /**
      * Define new columns to be used for searching.
@@ -93,7 +100,7 @@ trait HasSearch
      */
     public function hasSearch(): bool
     {
-        return ! empty($this->getSearches());
+        return \count($this->getSearches()) > 0;
     }
 
     /**
@@ -104,17 +111,18 @@ trait HasSearch
      */
     public function search(Builder $builder, Request $request): static
     {
-        $columns = $this->getSearchesFromRequest($request);
+        $columns = $this->hasMatches()
+            ? $this->getMatchesFromRequest($request)
+            : true;
+
+        $searchFor = $this->getSearchFromRequest($request);
+
+        $this->searchValue = $searchFor;
 
         $applied = false;
+
         foreach ($this->getSearches() as $search) {
-            $applied |= $search->apply(
-                builder: $builder,
-                request: $request,
-                searchKey: $this->getSearchKey(),
-                and: ! $applied,
-                columns: $this->searchAll ? true : $columns,
-            );
+            $applied |= $search->apply($builder, $searchFor, $columns, $applied ? 'or' : 'and');
         }
 
         return $this;
@@ -125,18 +133,35 @@ trait HasSearch
      *
      * @return array<int,string>|true
      */
-    public function getSearchesFromRequest(Request $request): array|true
+    public function getMatchesFromRequest(Request $request): array|true
     {
-        $value = $request->string($this->getColumnsKey())->toString();
+        $matches = $request->string($this->getMatchKey(), null);
 
-        if (empty($value)) {
+        if ($matches->isEmpty()) {
             return true;
         }
 
-        return \array_map(
-            fn ($v) => \trim($v),
-            \explode(',', (string) $value)
-        );
+        /** @var array<int,string> */
+        return $matches
+            ->explode(',', PHP_INT_MAX)
+            ->map(fn ($v) => \trim($v))
+            ->toArray();
+    }
+
+    /**
+     * Get the search value from the request.
+     */
+    public function getSearchFromRequest(Request $request): ?string
+    {
+        $search = $request->string($this->getSearchKey(), null);
+
+        if ($search->isEmpty()) {
+            return null;
+        }
+
+        return $search
+            ->replace('+', ' ')
+            ->toString();
     }
 
     /**
@@ -160,22 +185,50 @@ trait HasSearch
     }
 
     /**
-     * Sets the columns key to look for in the request.
+     * Sets the match key to look for in the request.
      *
      * @return $this
      */
-    public function columnsKey(string $columnsKey): static
+    public function matchKey(string $matchKey): static
     {
-        $this->columnsKey = $columnsKey;
+        $this->matchKey = $matchKey;
 
         return $this;
     }
 
     /**
-     * Gets the columns key to look for in the request.
+     * Gets the match key to look for in the request.
      */
-    public function getColumnsKey(): string
+    public function getMatchKey(): string
     {
-        return $this->columnsKey;
+        return $this->matchKey;
+    }
+
+    /**
+     * Sets the search to be able to select which columns are used to search on.
+     *
+     * @return $this
+     */
+    public function matches(): static
+    {
+        $this->matches = true;
+
+        return $this;
+    }
+
+    /**
+     * Determine whether the search can select which columns are used to search on.
+     */
+    public function hasMatches(): bool
+    {
+        return $this->matches;
+    }
+
+    /**
+     * Retrieve the search value.
+     */
+    public function getSearchValue(): ?string
+    {
+        return $this->searchValue;
     }
 }

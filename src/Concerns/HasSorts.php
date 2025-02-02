@@ -80,13 +80,26 @@ trait HasSorts
         }
 
         if (! $applied) {
-            /** @var \Honed\Refine\Sorts\Sort|null $sort */
-            $sort = \array_find($sorts, static fn (Sort $sort) => $sort->isDefault());
+            $sort = $this->getDefaultSort($sorts);
 
             $sort?->handle($builder, $sort->getDirection() ?? 'asc', type($sort->getAttribute())->asString());
         }
 
         return $this;
+    }
+
+    /**
+     * @param  array<int, \Honed\Refine\Sorts\Sort>  $sorts
+     */
+    private function getDefaultSort(array $sorts): ?Sort
+    {
+        foreach ($sorts as $sort) {
+            if ($sort->isDefault()) {
+                return $sort;
+            }
+        }
+
+        return null;
     }
 
     /**
