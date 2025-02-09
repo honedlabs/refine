@@ -19,7 +19,7 @@
     ],
     "require": {
         "php": "^8.2",
-        "honed/core": "^0.4.2",
+        "honed/core": "^0.5.2",
         "illuminate/contracts": "^11.0",
         "illuminate/support": "^11.0",
         "laravel/scout": "^10.12",
