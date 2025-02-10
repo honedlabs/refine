@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 namespace Honed\Refine;
 
-use Honed\Core\Primitive;
-use Honed\Refine\Sorts\Sort;
-use Illuminate\Http\Request;
-use Honed\Refine\Filters\Filter;
-use Honed\Core\Concerns\HasScope;
-use Honed\Refine\Searches\Search;
-use Honed\Core\Concerns\HasRequest;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Builder;
 use Honed\Core\Concerns\HasBuilderInstance;
+use Honed\Core\Concerns\HasRequest;
+use Honed\Core\Concerns\HasScope;
+use Honed\Core\Primitive;
+use Honed\Refine\Filters\Filter;
+use Honed\Refine\Searches\Search;
+use Honed\Refine\Sorts\Sort;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\Request;
 use Illuminate\Support\Traits\ForwardsCalls;
 
 /**
@@ -23,12 +23,12 @@ use Illuminate\Support\Traits\ForwardsCalls;
  */
 class Refine extends Primitive
 {
-    use HasBuilderInstance;
     use Concerns\HasFilters;
-    use HasRequest;
     use Concerns\HasSearch;
     use Concerns\HasSorts;
     use ForwardsCalls;
+    use HasBuilderInstance;
+    use HasRequest;
     use HasScope;
 
     protected bool $refined = false;
