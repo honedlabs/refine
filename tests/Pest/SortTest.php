@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use Honed\Refine\Refine;
 use Honed\Refine\Sorts\Sort;
 use Honed\Refine\Tests\Stubs\Product;
 use Illuminate\Support\Facades\Request;
@@ -10,12 +9,13 @@ use Illuminate\Support\Facades\Request;
 beforeEach(function () {
     $this->builder = Product::query();
     $this->sort = Sort::make('name');
+    $this->key = config('refine.sorts');
 });
 
 it('sorts by attribute', function () {
-    $request = Request::create('/', 'GET', [Refine::SortKey => 'name']);
+    $request = Request::create('/', 'GET', [$this->key => 'name']);
 
-    expect($this->sort->apply($this->builder, $request, Refine::SortKey))
+    expect($this->sort->apply($this->builder, $request, $this->key))
         ->toBeTrue();
 
     expect($this->builder->getQuery()->orders)->toBeArray()
@@ -32,14 +32,14 @@ it('sorts by attribute', function () {
 });
 
 it('can enforce a singular direction', function () {
-    $request = Request::create('/', 'GET', [Refine::SortKey => 'name']);
+    $request = Request::create('/', 'GET', [$this->key => 'name']);
 
     expect($this->sort)
         ->isSingularDirection()->toBeFalse()
         ->desc()->toBe($this->sort)
         ->isSingularDirection()->toBeTrue();
 
-    expect($this->sort->apply($this->builder, $request, Refine::SortKey))
+    expect($this->sort->apply($this->builder, $request, $this->key))
         ->toBeTrue();
 
     expect($this->builder->getQuery()->orders)->toBeArray()
@@ -58,7 +58,7 @@ it('can enforce a singular direction', function () {
 it('does not sort if no value', function () {
     $request = Request::create('/', 'GET', ['order' => 'test']);
 
-    expect($this->sort->apply($this->builder, $request, Refine::SortKey))
+    expect($this->sort->apply($this->builder, $request, $this->key))
         ->toBeFalse();
 
     expect($this->builder->getQuery()->orders)->toBeNull();

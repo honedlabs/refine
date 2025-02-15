@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use Honed\Refine\Refine;
 use Honed\Refine\Searches\Search;
 use Honed\Refine\Tests\Stubs\Product;
 
@@ -10,7 +9,7 @@ beforeEach(function () {
     $this->builder = Product::query();
     $this->param = 'name';
     $this->search = Search::make($this->param);
-    $this->key = Refine::SearchKey;
+    $this->key = config('refine.searches');
 });
 
 it('searches', function () {

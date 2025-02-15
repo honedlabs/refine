@@ -11,10 +11,6 @@ use Illuminate\Http\Request;
 
 trait HasSearch
 {
-    const SearchKey = 'search';
-
-    const MatchKey = 'match';
-
     /**
      * Whether the search can select which columns are used to search on.
      *
@@ -39,16 +35,16 @@ trait HasSearch
     /**
      * The query parameter key to look for in the request for the search value.
      *
-     * @var string
+     * @var string|null
      */
-    protected $searchKey = self::SearchKey;
+    protected $searchKey;
 
     /**
      * The query parameter key to look for in the request for the columns to be used for searching.
      *
-     * @var string
+     * @var string|null
      */
-    protected $matchKey = self::MatchKey;
+    protected $matchKey;
 
     /**
      * Define new columns to be used for searching.
@@ -181,7 +177,12 @@ trait HasSearch
      */
     public function getSearchKey(): string
     {
-        return $this->searchKey;
+        if (isset($this->searchKey)) {
+            return $this->searchKey;
+        }
+
+        /** @var string */
+        return config('refine.searches', 'search');
     }
 
     /**
@@ -201,7 +202,12 @@ trait HasSearch
      */
     public function getMatchKey(): string
     {
-        return $this->matchKey;
+        if (isset($this->matchKey)) {
+            return $this->matchKey;
+        }
+
+        /** @var string */
+        return config('refine.matches', 'match');
     }
 
     /**

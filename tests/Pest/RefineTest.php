@@ -54,7 +54,7 @@ beforeEach(function () {
 
         'sort' => '-price',
 
-        RefineFixture::SearchKey => 'search term',
+        config('refine.searches') => 'search term',
     ]);
 });
 
@@ -256,8 +256,8 @@ it('can filter and then retrieve refiners', function () {
 
 it('can change the search columns', function () {
     $request = Request::create('/', 'GET', [
-        Refine::SearchKey => 'search+term',
-        Refine::MatchKey => 'description',
+        config('refine.searches') => 'search+term',
+        config('refine.matches') => 'description',
     ]);
 
     Refine::query($this->builder)->with($this->refiners)->for($request)->matches()->refine();

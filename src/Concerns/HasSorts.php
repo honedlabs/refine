@@ -11,14 +11,17 @@ use Illuminate\Http\Request;
 
 trait HasSorts
 {
-    const SortKey = 'sort';
-
     /**
      * @var array<int,\Honed\Refine\Sorts\Sort>|null
      */
     protected $sorts;
 
-    protected string $sortKey = self::SortKey;
+    /**
+     * The query parameter name for the sort.
+     *
+     * @var string|null
+     */
+    protected $sortKey;
 
     /**
      * @param  iterable<\Honed\Refine\Sorts\Sort>  $sorts
@@ -117,6 +120,11 @@ trait HasSorts
      */
     public function getSortKey(): string
     {
-        return $this->sortKey;
+        if (isset($this->sortKey)) {
+            return $this->sortKey;
+        }
+
+        /** @var string */
+        return config('refine.sorts', 'sort');
     }
 }
