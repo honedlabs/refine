@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-use Honed\Refine\Refine;
-use Honed\Refine\Sorts\Sort;
 use Honed\Refine\Filters\Filter;
+use Honed\Refine\Refine;
 use Honed\Refine\Searches\Search;
+use Honed\Refine\Sorts\Sort;
 use Honed\Refine\Tests\Stubs\Product;
 
 it('can set the sorts key', function () {
@@ -53,8 +53,3 @@ it('has searches method', function () {
         ->searches([Search::make('name')])->toBeInstanceOf(Refine::class)
         ->getSearches()->toHaveCount(1);
 });
-
-
-
-
-

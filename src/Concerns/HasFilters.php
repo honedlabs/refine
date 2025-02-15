@@ -13,14 +13,14 @@ trait HasFilters
 {
     /**
      * List of the filters.
-     * 
+     *
      * @var array<int,\Honed\Refine\Filters\Filter>|null
      */
     protected $filters;
 
     /**
      * Merge a set of filters with the existing filters.
-     * 
+     *
      * @param  iterable<\Honed\Refine\Filters\Filter>  $filters
      * @return $this
      */
@@ -30,8 +30,8 @@ trait HasFilters
             $filters = $filters->toArray();
         }
 
-        /** 
-         * @var array<int, \Honed\Refine\Filters\Filter> $filters 
+        /**
+         * @var array<int, \Honed\Refine\Filters\Filter> $filters
          */
         $this->filters = \array_merge($this->filters ?? [], $filters);
 
@@ -40,7 +40,7 @@ trait HasFilters
 
     /**
      * Add a single filter to the list of filters.
-     * 
+     *
      * @return $this
      */
     public function addFilter(Filter $filter): static
@@ -52,7 +52,7 @@ trait HasFilters
 
     /**
      * Retrieve the filters.
-     * 
+     *
      * @return array<int,\Honed\Refine\Filters\Filter>
      */
     public function getFilters(): array
@@ -62,7 +62,7 @@ trait HasFilters
 
     /**
      * Retrieve the filters which are available..
-     * 
+     *
      * @return array<int,\Honed\Refine\Filters\Filter>
      */
     protected function getSourceFilters(): array
@@ -88,7 +88,7 @@ trait HasFilters
 
     /**
      * Apply the filters to the query.
-     * 
+     *
      * @param  \Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model>  $builder
      * @return $this
      */
@@ -103,13 +103,13 @@ trait HasFilters
 
     /**
      * Get the filters as an array.
-     * 
+     *
      * @return array<int,mixed>
      */
     public function filtersToArray(): array
     {
         return \array_map(
-            static fn (Filter $filter) => $filter->toArray(), 
+            static fn (Filter $filter) => $filter->toArray(),
             $this->getFilters()
         );
     }

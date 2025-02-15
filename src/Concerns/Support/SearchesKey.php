@@ -8,14 +8,14 @@ trait SearchesKey
 {
     /**
      * The query parameter to identify the search string.
-     * 
+     *
      * @var string|null
      */
     protected $searchesKey;
 
     /**
      * Set the query parameter to identify the search string.
-     * 
+     *
      * @return $this
      */
     public function searchesKey(string $searchesKey): static
