@@ -14,19 +14,12 @@ class Filter extends Refiner
     use Validatable;
 
     const Is = '=';
-
     const Not = '!=';
-
     const GreaterThan = '>=';
-
     const LessThan = '<=';
-
     const Exact = 'exact';
-
     const Like = 'like';
-
     const StartsWith = 'starts_with';
-
     const EndsWith = 'ends_with';
 
     /**
@@ -134,7 +127,7 @@ class Filter extends Refiner
 
     /**
      * Retrieve the filter value from the request.
-     *
+     * 
      * @return string|int|float|null
      */
     public function getValueFromRequest(Request $request): mixed
@@ -152,7 +145,7 @@ class Filter extends Refiner
 
     /**
      * Set the mode for the filter.
-     *
+     * 
      * @return $this
      */
     public function mode(string $mode): static
@@ -164,7 +157,7 @@ class Filter extends Refiner
 
     /**
      * Set the mode to exact.
-     *
+     * 
      * @return $this
      */
     public function exact(): static
@@ -174,7 +167,7 @@ class Filter extends Refiner
 
     /**
      * Set the mode to like.
-     *
+     * 
      * @return $this
      */
     public function like(): static
@@ -184,7 +177,7 @@ class Filter extends Refiner
 
     /**
      * Set the mode to starts with.
-     *
+     * 
      * @return $this
      */
     public function startsWith(): static
@@ -194,7 +187,7 @@ class Filter extends Refiner
 
     /**
      * Set the mode to ends with.
-     *
+     * 
      * @return $this
      */
     public function endsWith(): static
@@ -204,7 +197,7 @@ class Filter extends Refiner
 
     /**
      * Set the operator for the filter.
-     *
+     * 
      * @return $this
      */
     public function operator(string $operator): static
@@ -216,7 +209,7 @@ class Filter extends Refiner
 
     /**
      * Set the operator to not.
-     *
+     * 
      * @return $this
      */
     public function not(): static
@@ -226,7 +219,7 @@ class Filter extends Refiner
 
     /**
      * Set the operator to greater than.
-     *
+     * 
      * @return $this
      */
     public function gt(): static
@@ -236,7 +229,7 @@ class Filter extends Refiner
 
     /**
      * Set the operator to less than or equal to.
-     *
+     * 
      * @return $this
      */
     public function lt(): static

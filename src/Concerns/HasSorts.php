@@ -20,10 +20,12 @@ trait HasSorts
      */
     protected $sorts;
 
+
     /**
      * Merge a set of sorts with the existing sorts.
-     *
+     * 
      * @param  iterable<\Honed\Refine\Sorts\Sort>  $sorts
+     * 
      * @return $this
      */
     public function addSorts(iterable $sorts): static
@@ -33,7 +35,7 @@ trait HasSorts
         }
 
         /**
-         * @var array<int, \Honed\Refine\Sorts\Sort> $sorts
+         * @var array<int, \Honed\Refine\Sorts\Sort> $sorts 
          */
         $this->sorts = \array_merge($this->sorts ?? [], $sorts);
 
@@ -42,7 +44,7 @@ trait HasSorts
 
     /**
      * Add a single sort to the list of sorts.
-     *
+     * 
      * @return $this
      */
     public function addSort(Sort $sort): static
@@ -54,7 +56,7 @@ trait HasSorts
 
     /**
      * Retrieve the sorts.
-     *
+     * 
      * @return array<int,\Honed\Refine\Sorts\Sort>
      */
     public function getSorts(): array
@@ -64,7 +66,7 @@ trait HasSorts
 
     /**
      * Retrieve the sorts which are available.
-     *
+     * 
      * @return array<int,\Honed\Refine\Sorts\Sort>
      */
     protected function getSourceSorts(): array
@@ -90,7 +92,7 @@ trait HasSorts
 
     /**
      * Apply a sort to the query.
-     *
+     * 
      * @param  \Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model>  $builder
      * @return $this
      */
@@ -109,8 +111,8 @@ trait HasSorts
             $sort = $this->getDefaultSort($sorts);
 
             $sort?->handle(
-                $builder,
-                $sort->getDirection() ?? 'asc',
+                $builder, 
+                $sort->getDirection() ?? 'asc', 
                 type($sort->getAttribute())->asString()
             );
         }
@@ -120,7 +122,7 @@ trait HasSorts
 
     /**
      * Find the default sort.
-     *
+     * 
      * @param  array<int, \Honed\Refine\Sorts\Sort>  $sorts
      */
     public function getDefaultSort(array $sorts): ?Sort
@@ -130,7 +132,7 @@ trait HasSorts
 
     /**
      * Get the sorts as an array.
-     *
+     * 
      * @return array<int,mixed>
      */
     public function sortsToArray(): array
@@ -140,4 +142,5 @@ trait HasSorts
             $this->getSorts()
         );
     }
+    
 }
