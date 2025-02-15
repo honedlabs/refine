@@ -20,7 +20,7 @@ class Option extends Primitive
 
     /**
      * Create a new option.
-     * 
+     *
      * @param  string|int|float|bool  $value
      * @return $this
      */

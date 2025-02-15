@@ -27,7 +27,7 @@ trait CanMatch
 
     /**
      * Set whether the search can select which columns are used to search on.
-     * 
+     *
      * @return $this
      */
     public function matches(bool $matches = true): static
