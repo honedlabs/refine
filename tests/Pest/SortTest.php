@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Request;
 beforeEach(function () {
     $this->builder = Product::query();
     $this->sort = Sort::make('name');
-    $this->key = config('refine.sorts');
+    $this->key = config('refine.keys.sorts');
 });
 
 it('sorts by attribute', function () {

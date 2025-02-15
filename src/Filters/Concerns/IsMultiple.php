@@ -6,9 +6,14 @@ namespace Honed\Refine\Filters\Concerns;
 
 trait IsMultiple
 {
-    protected bool $multiple = false;
+    /**
+     * @var bool
+     */
+    protected $multiple = false;
 
     /**
+     * Set the filter to allow multiple values.
+     * 
      * @return $this
      */
     public function multiple(bool $multiple = true): static
@@ -18,6 +23,9 @@ trait IsMultiple
         return $this;
     }
 
+    /**
+     * Determine if the filter allows multiple values.
+     */
     public function isMultiple(): bool
     {
         return $this->multiple;

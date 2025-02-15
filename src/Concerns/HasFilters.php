@@ -12,11 +12,15 @@ use Illuminate\Http\Request;
 trait HasFilters
 {
     /**
+     * List of the filters.
+     * 
      * @var array<int,\Honed\Refine\Filters\Filter>|null
      */
     protected $filters;
 
     /**
+     * Merge a set of filters with the existing filters.
+     * 
      * @param  iterable<\Honed\Refine\Filters\Filter>  $filters
      * @return $this
      */
@@ -26,13 +30,17 @@ trait HasFilters
             $filters = $filters->toArray();
         }
 
-        /** @var array<int, \Honed\Refine\Filters\Filter> $filters */
+        /** 
+         * @var array<int, \Honed\Refine\Filters\Filter> $filters 
+         */
         $this->filters = \array_merge($this->filters ?? [], $filters);
 
         return $this;
     }
 
     /**
+     * Add a single filter to the list of filters.
+     * 
      * @return $this
      */
     public function addFilter(Filter $filter): static
@@ -43,14 +51,31 @@ trait HasFilters
     }
 
     /**
+     * Retrieve the filters.
+     * 
      * @return array<int,\Honed\Refine\Filters\Filter>
      */
     public function getFilters(): array
     {
-        return $this->filters ??= match (true) {
+        return $this->filters ??= $this->getSourceFilters();
+    }
+
+    /**
+     * Retrieve the filters which are available..
+     * 
+     * @return array<int,\Honed\Refine\Filters\Filter>
+     */
+    protected function getSourceFilters(): array
+    {
+        $filters = match (true) {
             \method_exists($this, 'filters') => $this->filters(),
             default => [],
         };
+
+        return \array_filter(
+            $filters,
+            fn (Filter $filter) => $filter->isAllowed()
+        );
     }
 
     /**
@@ -58,11 +83,13 @@ trait HasFilters
      */
     public function hasFilters(): bool
     {
-        return ! empty($this->getFilters());
+        return filled($this->getFilters());
     }
 
     /**
-     * @param  Builder<\Illuminate\Database\Eloquent\Model>  $builder
+     * Apply the filters to the query.
+     * 
+     * @param  \Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model>  $builder
      * @return $this
      */
     public function filter(Builder $builder, Request $request): static
@@ -72,5 +99,18 @@ trait HasFilters
         }
 
         return $this;
+    }
+
+    /**
+     * Get the filters as an array.
+     * 
+     * @return array<int,mixed>
+     */
+    public function filtersToArray(): array
+    {
+        return \array_map(
+            static fn (Filter $filter) => $filter->toArray(), 
+            $this->getFilters()
+        );
     }
 }

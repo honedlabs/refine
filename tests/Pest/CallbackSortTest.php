@@ -11,7 +11,7 @@ beforeEach(function () {
     $this->param = 'name';
     $this->sort = CallbackSort::make($this->param);
     $this->fn = fn ($builder, $direction) => $builder->orderBy('description', $direction);
-    $this->key = config('refine.sorts');
+    $this->key = config('refine.keys.sorts');
 });
 
 it('fails if no callback is set', function () {

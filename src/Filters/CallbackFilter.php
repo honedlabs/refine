@@ -11,6 +11,9 @@ class CallbackFilter extends Filter
 {
     use HasCallback;
 
+    /**
+     * {@inheritdoc}
+     */
     public function handle(Builder $builder, mixed $value, string $property): void
     {
         $this->evaluate(

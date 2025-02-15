@@ -27,16 +27,11 @@ abstract class Refiner extends Primitive implements Refines
     use HasType;
     use HasValue;
 
-    public function __construct(string $attribute, ?string $label = null)
-    {
-        $this->attribute($attribute);
-        $this->label($label ?? $this->makeLabel($attribute));
-        $this->setUp();
-    }
-
     public static function make(string $attribute, ?string $label = null): static
     {
-        return resolve(static::class, \compact('attribute', 'label'));
+        return resolve(static::class)
+            ->attribute($attribute)
+            ->label($label ?? static::makeLabel($attribute));
     }
 
     public function getParameter(): string
@@ -44,7 +39,7 @@ abstract class Refiner extends Primitive implements Refines
         return $this->getAlias()
             ?? str($this->getAttribute())
                 ->afterLast('.')
-                ->value();
+                ->toString();
     }
 
     /**

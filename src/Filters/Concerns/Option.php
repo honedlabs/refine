@@ -18,24 +18,22 @@ class Option extends Primitive
     use HasValue;
     use IsActive;
 
-    public function __construct(
-        string|int|float $value,
-        ?string $label = null,
-    ) {
-        $this->value($value);
-        $this->label($label ?? $this->makeLabel((string) $value));
+    /**
+     * Create a new option.
+     * 
+     * @param  string|int|float|bool  $value
+     * @return $this
+     */
+    public static function make(mixed $value, ?string $label = null): static
+    {
+        return resolve(static::class)
+            ->value($value)
+            ->label($label ?? (string) $value);
     }
 
     /**
-     * @return $this
+     * {@inheritdoc}
      */
-    public static function make(
-        string|int|float $value,
-        ?string $label = null,
-    ): static {
-        return resolve(static::class, \compact('value', 'label'));
-    }
-
     public function toArray(): array
     {
         return [

@@ -102,18 +102,21 @@ class SetFilter extends Filter
         );
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function toArray(): array
     {
         return \array_merge(parent::toArray(), [
             'multiple' => $this->isMultiple(),
-            'options' => $this->getOptions(),
+            'options' => $this->optionsToArray(),
         ]);
     }
 
     /**
      * @return array<int,string|int|float>|string|int|float|null
      */
-    public function getValueFromRequest(Request $request)
+    public function getValueFromRequest(Request $request): mixed
     {
         $value = parent::getValueFromRequest($request);
 

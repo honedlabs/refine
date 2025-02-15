@@ -9,7 +9,7 @@ beforeEach(function () {
     $this->builder = Product::query();
     $this->param = 'name';
     $this->search = Search::make($this->param);
-    $this->key = config('refine.searches');
+    $this->key = config('refine.key.searches');
 });
 
 it('searches', function () {

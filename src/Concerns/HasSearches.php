@@ -4,19 +4,19 @@ declare(strict_types=1);
 
 namespace Honed\Refine\Concerns;
 
-use Honed\Refine\Searches\Search;
-use Illuminate\Contracts\Support\Arrayable;
-use Illuminate\Database\Eloquent\Builder;
+use Honed\Refine\Concerns\Support\CanMatch;
 use Illuminate\Http\Request;
+use Honed\Refine\Searches\Search;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Contracts\Support\Arrayable;
+use Honed\Refine\Concerns\Support\MatchesKey;
+use Honed\Refine\Concerns\Support\SearchesKey;
 
-trait HasSearch
+trait HasSearches
 {
-    /**
-     * Whether the search can select which columns are used to search on.
-     *
-     * @var bool
-     */
-    protected $matches = false;
+    use MatchesKey;
+    use SearchesKey;
+    use CanMatch;
 
     /**
      * The search value as a string without replacements.
@@ -26,28 +26,14 @@ trait HasSearch
     protected $searchValue;
 
     /**
-     * An array of the attributes to be used for searching.
+     * List of the searches.
      *
      * @var array<int,\Honed\Refine\Searches\Search>|null
      */
     protected $searches;
 
     /**
-     * The query parameter key to look for in the request for the search value.
-     *
-     * @var string|null
-     */
-    protected $searchKey;
-
-    /**
-     * The query parameter key to look for in the request for the columns to be used for searching.
-     *
-     * @var string|null
-     */
-    protected $matchKey;
-
-    /**
-     * Define new columns to be used for searching.
+     * Merge a set of searches with the existing searches.
      *
      * @param  iterable<\Honed\Refine\Searches\Search>  $searches
      * @return $this
@@ -57,18 +43,18 @@ trait HasSearch
         if ($searches instanceof Arrayable) {
             $searches = $searches->toArray();
         }
-
+        
         /**
-         * @var array<int, \Honed\Refine\Searches\Search>
+         * @var array<int, \Honed\Refine\Searches\Search> $searches
          */
-        $searches = type($searches)->asArray();
-
         $this->searches = \array_merge($this->searches ?? [], $searches);
 
         return $this;
     }
 
     /**
+     * Add a single search to the list of searches.
+     * 
      * @return $this
      */
     public function addSearch(Search $search): static
@@ -85,10 +71,25 @@ trait HasSearch
      */
     public function getSearches(): array
     {
-        return $this->searches ??= match (true) {
+        return $this->searches ??= $this->getSourceSearches();
+    }
+
+    /**
+     * Retrieve the searches which are available.
+     * 
+     * @return array<int,\Honed\Refine\Searches\Search>
+     */
+    protected function getSourceSearches(): array
+    {
+        $searches = match (true) {
             \method_exists($this, 'searches') => $this->searches(),
             default => [],
         };
+
+        return \array_filter(
+            $searches,
+            fn (Search $search) => $search->isAllowed()
+        );
     }
 
     /**
@@ -96,18 +97,18 @@ trait HasSearch
      */
     public function hasSearch(): bool
     {
-        return \count($this->getSearches()) > 0;
+        return filled($this->getSearches());
     }
 
     /**
-     * Search the query.
+     * Apply a search to the query.
      *
      * @param  \Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model>  $builder
      * @return $this
      */
     public function search(Builder $builder, Request $request): static
     {
-        $columns = $this->hasMatches()
+        $columns = $this->canMatch()
             ? $this->getMatchesFromRequest($request)
             : true;
 
@@ -131,7 +132,7 @@ trait HasSearch
      */
     public function getMatchesFromRequest(Request $request): array|true
     {
-        $matches = $request->string($this->getMatchKey(), null);
+        $matches = $request->string($this->getMatchesKey(), null);
 
         if ($matches->isEmpty()) {
             return true;
@@ -139,8 +140,8 @@ trait HasSearch
 
         /** @var array<int,string> */
         return $matches
-            ->explode(',', PHP_INT_MAX)
-            ->map(fn ($v) => \trim($v))
+            ->explode(',')
+            ->map(fn ($value) => \trim($value))
             ->toArray();
     }
 
@@ -149,7 +150,7 @@ trait HasSearch
      */
     public function getSearchFromRequest(Request $request): ?string
     {
-        $search = $request->string($this->getSearchKey(), null);
+        $search = $request->string($this->getSearchesKey(), null);
 
         if ($search->isEmpty()) {
             return null;
@@ -161,80 +162,23 @@ trait HasSearch
     }
 
     /**
-     * Sets the search key to look for in the request.
-     *
-     * @return $this
-     */
-    public function searchKey(string $searchKey): static
-    {
-        $this->searchKey = $searchKey;
-
-        return $this;
-    }
-
-    /**
-     * Gets the search key to look for in the request.
-     */
-    public function getSearchKey(): string
-    {
-        if (isset($this->searchKey)) {
-            return $this->searchKey;
-        }
-
-        /** @var string */
-        return config('refine.searches', 'search');
-    }
-
-    /**
-     * Sets the match key to look for in the request.
-     *
-     * @return $this
-     */
-    public function matchKey(string $matchKey): static
-    {
-        $this->matchKey = $matchKey;
-
-        return $this;
-    }
-
-    /**
-     * Gets the match key to look for in the request.
-     */
-    public function getMatchKey(): string
-    {
-        if (isset($this->matchKey)) {
-            return $this->matchKey;
-        }
-
-        /** @var string */
-        return config('refine.matches', 'match');
-    }
-
-    /**
-     * Sets the search to be able to select which columns are used to search on.
-     *
-     * @return $this
-     */
-    public function matches(): static
-    {
-        $this->matches = true;
-
-        return $this;
-    }
-
-    /**
-     * Determine whether the search can select which columns are used to search on.
-     */
-    public function hasMatches(): bool
-    {
-        return $this->matches;
-    }
-
-    /**
      * Retrieve the search value.
      */
     public function getSearchValue(): ?string
     {
         return $this->searchValue;
+    }
+
+    /**
+     * Get the searches as an array.
+     * 
+     * @return array<int,mixed>
+     */
+    public function searchesToArray(): array
+    {
+        return \array_map(
+            static fn (Search $search) => $search->toArray(), 
+            $this->getSearches()
+        );
     }
 }

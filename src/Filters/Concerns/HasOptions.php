@@ -14,6 +14,8 @@ trait HasOptions
     protected $options;
 
     /**
+     * Set the options for the filter.
+     * 
      * @param  class-string<\BackedEnum>|iterable<mixed>  $options
      */
     public function options(string|iterable $options): static
@@ -42,6 +44,8 @@ trait HasOptions
     }
 
     /**
+     * Get the options.
+     * 
      * @return array<int,\Honed\Refine\Filters\Concerns\Option>
      */
     public function getOptions(): array
@@ -49,12 +53,17 @@ trait HasOptions
         return $this->options ?? [];
     }
 
+    /**
+     * Determine if the filter has options.
+     */
     public function hasOptions(): bool
     {
-        return ! \is_null($this->options) && \count($this->options) > 0;
+        return filled($this->options);
     }
 
     /**
+     * Create options from an enum.
+     * 
      * @param  class-string<\BackedEnum>  $enum
      */
     public function enum(string $enum): static
@@ -62,5 +71,18 @@ trait HasOptions
         $this->options($enum);
 
         return $this;
+    }
+
+    /**
+     * Get the options as an array.
+     * 
+     * @return array<int,mixed>
+     */
+    public function optionsToArray(): array
+    {
+        return \array_map(
+            fn (Option $option) => $option->toArray(),
+            $this->getOptions()
+        );
     }
 }

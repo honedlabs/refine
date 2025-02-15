@@ -24,7 +24,7 @@ use Illuminate\Support\Traits\ForwardsCalls;
 class Refine extends Primitive
 {
     use Concerns\HasFilters;
-    use Concerns\HasSearch;
+    use Concerns\HasSearches;
     use Concerns\HasSorts;
     use ForwardsCalls;
     use HasBuilderInstance;
@@ -32,8 +32,6 @@ class Refine extends Primitive
     use HasScope;
 
     protected bool $refined = false;
-
-    // protected bool $scout = false;
 
     public function __construct(Request $request)
     {
@@ -62,21 +60,18 @@ class Refine extends Primitive
         }
 
         // Delay the refine call until records are retrieved
-        return $this->refine()->forwardDecoratedCallTo($this->getBuilder(), $name, $arguments);
+        return $this->refine()
+            ->forwardDecoratedCallTo(
+                $this->getBuilder(), 
+                $name, 
+                $arguments
+            );
     }
 
     /**
      * @param  \Illuminate\Database\Eloquent\Model|class-string<\Illuminate\Database\Eloquent\Model>|\Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model>  $model
      */
     public static function make($model): static
-    {
-        return static::query($model);
-    }
-
-    /**
-     * @param  \Illuminate\Database\Eloquent\Model|class-string<\Illuminate\Database\Eloquent\Model>  $model
-     */
-    public static function model(Model|string $model): static
     {
         return static::query($model);
     }
@@ -97,26 +92,26 @@ class Refine extends Primitive
     public function toArray()
     {
         return [
-            'sorts' => $this->getSorts(),
-            'filters' => $this->getFilters(),
-            ...($this->hasMatches() ? ['searches' => $this->getSearches()] : []),
-            'search' => [
-                'value' => $this->getSearchValue(),
-            ],
-            'keys' => [
-                'sorts' => $this->getSortKey(),
-                'search' => $this->getSearchKey(),
-                ...($this->hasMatches() ? ['match' => $this->getMatchKey()] : []),
-            ],
+            'sorts' => $this->sortsToArray(),
+            'filters' => $this->filtersToArray(),
+            'search' => $this->getSearchValue(),
+            ...($this->canMatch() ? ['searches' => $this->searchesToArray()] : []),
+            'keys' => $this->keysToArray(),
         ];
     }
 
     /**
-     * @return array<string,mixed>
+     * Get the keys for the refiner as an array.
+     *
+     * @return array<string,string>
      */
-    public function refinements(): array
+    public function keysToArray(): array
     {
-        return $this->toArray();
+        return [
+            'searches' => $this->getSearchesKey(),
+            'sorts' => $this->getSortsKey(),
+            ...($this->canMatch() ? ['matches' => $this->getMatchesKey()] : []),
+        ];
     }
 
     /**

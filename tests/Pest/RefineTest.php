@@ -22,21 +22,44 @@ beforeEach(function () {
     $this->refiners = [
         Filter::make('name')->like(),
 
-        SetFilter::make('price', 'Maximum price')->options([10, 20, 50, 100])->lt(),
-        SetFilter::make('status')->enum(Status::class)->multiple(),
-        SetFilter::make('status', 'Single')->alias('only')->enum(Status::class),
+        SetFilter::make('price', 'Maximum price')
+            ->options([10, 20, 50, 100])->lt(),
 
-        BooleanFilter::make('best_seller', 'Favourite')->alias('favourite'),
+        SetFilter::make('status')
+            ->enum(Status::class)
+            ->multiple(),
 
-        DateFilter::make('created_at', 'Oldest')->alias('oldest')->gt(),
-        DateFilter::make('created_at', 'Newest')->alias('newest')->lt(),
+        SetFilter::make('status', 'Single')
+            ->alias('only')
+            ->enum(Status::class),
 
-        Sort::make('name', 'A-Z')->alias('name-desc')->desc()->default(),
-        Sort::make('name', 'Z-A')->alias('name-asc')->asc(),
+        BooleanFilter::make('best_seller', 'Favourite')
+            ->alias('favourite'),
+
+        DateFilter::make('created_at', 'Oldest')
+            ->alias('oldest')
+            ->gt(),
+
+        DateFilter::make('created_at', 'Newest')
+            ->alias('newest')
+            ->lt(),
+
+        Sort::make('name', 'A-Z')
+            ->alias('name-desc')
+            ->desc()
+            ->default(),
+
+        Sort::make('name', 'Z-A')
+            ->alias('name-asc')
+            ->asc(),
+
         Sort::make('price'),
-        Sort::make('best_seller', 'Favourite')->alias('favourite'),
+
+        Sort::make('best_seller', 'Favourite')
+            ->alias('favourite'),
 
         Search::make('name'),
+
         Search::make('description'),
     ];
 
@@ -52,9 +75,8 @@ beforeEach(function () {
         'oldest' => '2000-01-01',
         'newest' => '2001-01-01',
 
-        'sort' => '-price',
-
-        config('refine.searches') => 'search term',
+        config('refine.keys.sorts') => '-price',
+        config('refine.keys.searches') => 'search term',
     ]);
 });
 
@@ -205,7 +227,7 @@ it('refines all with fixture', function () {
 });
 
 it('requires refiners to be set', function () {
-    expect(Refine::model(Product::class)->with($this->refiners)->getQuery())
+    expect(Refine::make(Product::class)->with($this->refiners)->getQuery())
         ->wheres->scoped(fn ($wheres) => $wheres
         ->toBeArray()
         ->toBeEmpty()
@@ -220,59 +242,28 @@ it('requires refiners to be set', function () {
         );
 });
 
-it('can filter and then retrieve refiners', function () {
+it('can change the search columns', function () {
     $request = Request::create('/', 'GET', [
-        'price' => 110,
-        'favourite' => '1',
+        config('refine.keys.searches') => 'search+term',
+        config('refine.keys.matches') => 'description',
     ]);
 
-    $refine = Refine::make($this->builder)->with($this->refiners)->for($request);
-
-    expect($refine->paginate())
-        ->toBeInstanceOf(LengthAwarePaginator::class);
-
-    expect($refine->refinements())
-        ->toBeArray()
-        ->toHaveKeys(['sorts', 'filters', 'search', 'keys'])
-        ->{'search'}->scoped(fn ($search) => $search
-        ->toBeArray()
-        ->toHaveKey('value')
-        )->{'keys'}->scoped(fn ($keys) => $keys
-        ->toBeArray()
-        ->toHaveKeys(['sorts', 'search'])
-        );
+    Refine::query($this->builder)
+        ->with($this->refiners)
+        ->for($request)
+        ->matches()
+        ->refine();
 
     expect($this->builder->getQuery()->wheres)
         ->toBeArray()
         ->toHaveCount(1)
-        ->{0}->scoped(fn ($filter) => $filter
-        ->{'type'}->toBe('Basic')
-        ->{'column'}->toBe($this->builder->qualifyColumn('best_seller'))
-        ->{'operator'}->toBe('=')
-        ->{'value'}->toBe(true)
-        ->{'boolean'}->toBe('and')
-        );
-});
-
-it('can change the search columns', function () {
-    $request = Request::create('/', 'GET', [
-        config('refine.searches') => 'search+term',
-        config('refine.matches') => 'description',
-    ]);
-
-    Refine::query($this->builder)->with($this->refiners)->for($request)->matches()->refine();
-
-    expect($this->builder->getQuery())
-        ->wheres->scoped(fn ($wheres) => $wheres
-        ->toBeArray()
-        ->toHaveCount(1)
-        ->sequence(
-            fn ($search) => $search
-                ->{'type'}->toBe('raw')
-                ->{'sql'}->toBe("LOWER({$this->builder->qualifyColumn('description')}) LIKE ?")
-                ->{'boolean'}->toBe('and')
-        )
-        );
+        ->toEqualCanonicalizing([
+            [
+                'type' => 'raw',
+                'sql' => "LOWER({$this->builder->qualifyColumn('description')}) LIKE ?",
+                'boolean' => 'and',
+            ]
+        ]);
 
 });
 
@@ -280,29 +271,33 @@ it('throws exception when no builder is set', function () {
     Refine::make('non-existent-class')->with($this->refiners)->getQuery();
 })->throws(\InvalidArgumentException::class);
 
-it('has array representation with matches', function () {
-    $refine = Refine::make(Product::class)->for($this->request)->with($this->refiners);
+it('has array representation', function () {
+    $refine = Refine::make(Product::class)
+        ->for($this->request)
+        ->with($this->refiners);
 
     expect($refine->refine()->toArray())
         ->toBeArray()
         ->toHaveKeys(['sorts', 'filters', 'search', 'keys'])
-        ->{'search'}->scoped(fn ($search) => $search
-        ->toBeArray()
-        ->toEqual(['value' => 'search term'])
-        )->{'keys'}->scoped(fn ($keys) => $keys
-        ->toBeArray()
-        ->toHaveKeys(['sorts', 'search'])
+        ->{'search'}->toBe('search term')
+        ->{'keys'}->scoped(fn ($keys) => $keys
+            ->toBeArray()
+            ->toHaveKeys(['sorts', 'searches'])
+            ->{'searches'}->toBe(config('refine.keys.searches'))
+            ->{'sorts'}->toBe(config('refine.keys.sorts'))
         );
 
     expect($refine->matches()->refine()->toArray())
         ->toBeArray()
-        ->toHaveKeys(['sorts', 'filters', 'searches', 'search', 'keys'])
-        ->{'search'}->scoped(fn ($search) => $search
-        ->toBeArray()
-        ->toEqual(['value' => 'search term'])
-        )->{'keys'}->scoped(fn ($keys) => $keys
-        ->toBeArray()
-        ->toHaveKeys(['sorts', 'search', 'match'])
+        ->toHaveKeys(['sorts', 'filters', 'search', 'searches','keys'])
+        ->{'search'}->toBe('search term')
+        ->{'searches'}->toHaveCount(2)
+        ->{'keys'}->scoped(fn ($keys) => $keys
+            ->toBeArray()
+            ->toHaveKeys(['sorts', 'searches', 'matches'])
+            ->{'searches'}->toBe(config('refine.keys.searches'))
+            ->{'sorts'}->toBe(config('refine.keys.sorts'))
+            ->{'matches'}->toBe(config('refine.keys.matches'))
         );
 });
 
@@ -311,44 +306,4 @@ it('only refines once', function () {
 
     expect($refine->get())->toBeInstanceOf(Collection::class);
     expect($refine->paginate())->toBeInstanceOf(LengthAwarePaginator::class);
-});
-
-it('has magic methods', function () {
-    expect(Refine::make(Product::class))
-        ->addSorts([Sort::make('name', 'A-Z')])->toBeInstanceOf(Refine::class)
-        ->getSorts()->toHaveCount(1);
-
-    expect(Refine::make(Product::class))
-        ->addFilters([Filter::make('name', 'Name')->like()])->toBeInstanceOf(Refine::class)
-        ->getFilters()->toHaveCount(1);
-});
-
-it('can change the sort key', function () {
-    expect(Refine::make(Product::class))
-        ->sortKey('name')->toBeInstanceOf(Refine::class)
-        ->getSortKey()->toBe('name');
-});
-
-it('can change the search key', function () {
-    expect(Refine::make(Product::class))
-        ->searchKey('name')->toBeInstanceOf(Refine::class)
-        ->getSearchKey()->toBe('name');
-});
-
-it('can change columns key', function () {
-    expect(Refine::make(Product::class))
-        ->matchKey('name')->toBeInstanceOf(Refine::class)
-        ->getMatchKey()->toBe('name');
-});
-
-it('has magic methods for setting filters', function () {
-    expect(Refine::make(Product::class))
-        ->filters(Filter::make('name', 'Name')->like())->toBeInstanceOf(Refine::class)
-        ->getFilters()->toHaveCount(1);
-});
-
-it('has magic methods for setting sorts', function () {
-    expect(Refine::make(Product::class))
-        ->sorts(Sort::make('name', 'A-Z'))->toBeInstanceOf(Refine::class)
-        ->getSorts()->toHaveCount(1);
 });
