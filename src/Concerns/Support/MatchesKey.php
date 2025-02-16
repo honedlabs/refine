@@ -8,14 +8,14 @@ trait MatchesKey
 {
     /**
      * The query parameter to identify the columns to search on.
-     * 
+     *
      * @var string|null
      */
     protected $matchesKey;
 
     /**
      * Set the query parameter to identify the columns to search on.
-     * 
+     *
      * @return $this
      */
     public function matchesKey(string $matchesKey): static

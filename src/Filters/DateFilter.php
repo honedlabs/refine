@@ -20,7 +20,7 @@ class DateFilter extends Filter
 
     /**
      * {@inheritdoc}
-     * 
+     *
      * @param  \Illuminate\Support\Carbon  $value
      */
     public function handle(Builder $builder, mixed $value, string $property): void
@@ -37,7 +37,7 @@ class DateFilter extends Filter
 
     /**
      * {@inheritdoc}
-     * 
+     *
      * @return \Illuminate\Support\Carbon|null
      */
     public function getValueFromRequest(Request $request): mixed

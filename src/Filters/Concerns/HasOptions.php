@@ -15,7 +15,7 @@ trait HasOptions
 
     /**
      * Set the options for the filter.
-     * 
+     *
      * @param  class-string<\BackedEnum>|iterable<mixed>  $options
      */
     public function options(string|iterable $options): static
@@ -45,7 +45,7 @@ trait HasOptions
 
     /**
      * Get the options.
-     * 
+     *
      * @return array<int,\Honed\Refine\Filters\Concerns\Option>
      */
     public function getOptions(): array
@@ -63,7 +63,7 @@ trait HasOptions
 
     /**
      * Create options from an enum.
-     * 
+     *
      * @param  class-string<\BackedEnum>  $enum
      */
     public function enum(string $enum): static
@@ -75,7 +75,7 @@ trait HasOptions
 
     /**
      * Get the options as an array.
-     * 
+     *
      * @return array<int,mixed>
      */
     public function optionsToArray(): array

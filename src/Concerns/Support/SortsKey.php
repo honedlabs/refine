@@ -8,14 +8,14 @@ trait SortsKey
 {
     /**
      * The query parameter to identify the sort to apply.
-     * 
+     *
      * @var string|null
      */
     protected $sortsKey;
 
     /**
      * Set the query parameter to identify the sort to apply.
-     * 
+     *
      * @return $this
      */
     public function sortsKey(string $sortsKey): static
