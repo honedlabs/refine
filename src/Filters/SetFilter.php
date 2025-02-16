@@ -34,7 +34,7 @@ class SetFilter extends Filter
 
         return parent::isActive()
             && \is_array($value)
-            && \count($value) > 0;
+            && filled($value);
     }
 
     /**

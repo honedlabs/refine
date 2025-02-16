@@ -62,8 +62,8 @@ class Refine extends Primitive
         // Delay the refine call until records are retrieved
         return $this->refine()
             ->forwardDecoratedCallTo(
-                $this->getBuilder(),
-                $name,
+                $this->getBuilder(), 
+                $name, 
                 $arguments
             );
     }
