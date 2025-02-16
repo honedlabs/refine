@@ -13,7 +13,7 @@ trait IsMultiple
 
     /**
      * Set the filter to allow multiple values.
-     * 
+     *
      * @return $this
      */
     public function multiple(bool $multiple = true): static

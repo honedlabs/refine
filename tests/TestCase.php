@@ -23,7 +23,7 @@ class TestCase extends Orchestra
         Inertia::setRootView('app');
         config()->set('inertia.testing.ensure_pages_exist', false);
         config()->set('inertia.testing.page_paths', [realpath(__DIR__)]);
-        
+
         config()->set('refine', require __DIR__.'/../config/refine.php');
     }
 
