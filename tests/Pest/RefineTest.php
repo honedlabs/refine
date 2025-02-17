@@ -262,7 +262,7 @@ it('can change the search columns', function () {
                 'type' => 'raw',
                 'sql' => "LOWER({$this->builder->qualifyColumn('description')}) LIKE ?",
                 'boolean' => 'and',
-            ],
+            ]
         ]);
 
 });
@@ -281,23 +281,23 @@ it('has array representation', function () {
         ->toHaveKeys(['sorts', 'filters', 'search', 'keys'])
         ->{'search'}->toBe('search term')
         ->{'keys'}->scoped(fn ($keys) => $keys
-        ->toBeArray()
-        ->toHaveKeys(['sorts', 'searches'])
-        ->{'searches'}->toBe(config('refine.keys.searches'))
-        ->{'sorts'}->toBe(config('refine.keys.sorts'))
+            ->toBeArray()
+            ->toHaveKeys(['sorts', 'searches'])
+            ->{'searches'}->toBe(config('refine.keys.searches'))
+            ->{'sorts'}->toBe(config('refine.keys.sorts'))
         );
 
     expect($refine->matches()->refine()->toArray())
         ->toBeArray()
-        ->toHaveKeys(['sorts', 'filters', 'search', 'searches', 'keys'])
+        ->toHaveKeys(['sorts', 'filters', 'search', 'searches','keys'])
         ->{'search'}->toBe('search term')
         ->{'searches'}->toHaveCount(2)
         ->{'keys'}->scoped(fn ($keys) => $keys
-        ->toBeArray()
-        ->toHaveKeys(['sorts', 'searches', 'matches'])
-        ->{'searches'}->toBe(config('refine.keys.searches'))
-        ->{'sorts'}->toBe(config('refine.keys.sorts'))
-        ->{'matches'}->toBe(config('refine.keys.matches'))
+            ->toBeArray()
+            ->toHaveKeys(['sorts', 'searches', 'matches'])
+            ->{'searches'}->toBe(config('refine.keys.searches'))
+            ->{'sorts'}->toBe(config('refine.keys.sorts'))
+            ->{'matches'}->toBe(config('refine.keys.matches'))
         );
 });
 
