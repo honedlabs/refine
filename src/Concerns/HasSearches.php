@@ -5,18 +5,18 @@ declare(strict_types=1);
 namespace Honed\Refine\Concerns;
 
 use Honed\Refine\Concerns\Support\CanMatch;
-use Illuminate\Http\Request;
-use Honed\Refine\Searches\Search;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Contracts\Support\Arrayable;
 use Honed\Refine\Concerns\Support\MatchesKey;
 use Honed\Refine\Concerns\Support\SearchesKey;
+use Honed\Refine\Searches\Search;
+use Illuminate\Contracts\Support\Arrayable;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\Request;
 
 trait HasSearches
 {
+    use CanMatch;
     use MatchesKey;
     use SearchesKey;
-    use CanMatch;
 
     /**
      * The search value as a string without replacements.
@@ -43,7 +43,7 @@ trait HasSearches
         if ($searches instanceof Arrayable) {
             $searches = $searches->toArray();
         }
-        
+
         /**
          * @var array<int, \Honed\Refine\Searches\Search> $searches
          */
@@ -54,7 +54,7 @@ trait HasSearches
 
     /**
      * Add a single search to the list of searches.
-     * 
+     *
      * @return $this
      */
     public function addSearch(Search $search): static
@@ -76,7 +76,7 @@ trait HasSearches
 
     /**
      * Retrieve the searches which are available.
-     * 
+     *
      * @return array<int,\Honed\Refine\Searches\Search>
      */
     protected function getSourceSearches(): array
@@ -171,13 +171,13 @@ trait HasSearches
 
     /**
      * Get the searches as an array.
-     * 
+     *
      * @return array<int,mixed>
      */
     public function searchesToArray(): array
     {
         return \array_map(
-            static fn (Search $search) => $search->toArray(), 
+            static fn (Search $search) => $search->toArray(),
             $this->getSearches()
         );
     }

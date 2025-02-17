@@ -8,14 +8,14 @@ trait HasCallback
 {
     /**
      * The callback to apply to the query.
-     * 
+     *
      * @var string|callable|object|null
      */
     protected $callback;
 
     /**
      * Set the callback to apply to the query.
-     * 
+     *
      * @param  string|callable|object  $callback
      * @return $this
      */
@@ -25,7 +25,6 @@ trait HasCallback
 
         return $this;
     }
-
 
     /**
      * Retrieve the callback.
