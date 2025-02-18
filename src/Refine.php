@@ -69,6 +69,8 @@ class Refine extends Primitive
     }
 
     /**
+     * Create a new refine instance.
+     *
      * @param  \Illuminate\Database\Eloquent\Model|class-string<\Illuminate\Database\Eloquent\Model>|\Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model>  $model
      */
     public static function make($model): static
