@@ -28,6 +28,9 @@ class Sort extends Refiner
         $this->type('sort');
     }
 
+    /**
+     * Determine if the sort is currently active.
+     */
     public function isActive(): bool
     {
         return $this->getValue() === $this->getParameter();
@@ -81,6 +84,9 @@ class Sort extends Refiner
         };
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function toArray(): array
     {
         return \array_merge(parent::toArray(), [
@@ -90,6 +96,8 @@ class Sort extends Refiner
     }
 
     /**
+     * Set the direction to use for the query parameter.
+     *
      * @param  'asc'|'desc'|null  $direction
      * @return $this
      */
@@ -101,6 +109,8 @@ class Sort extends Refiner
     }
 
     /**
+     * Get the direction to use for the query parameter.
+     *
      * @return 'asc'|'desc'|null
      */
     public function getDirection(): ?string
@@ -108,6 +118,9 @@ class Sort extends Refiner
         return $this->isSingularDirection() ? $this->only : $this->direction;
     }
 
+    /**
+     * Get the next value to use for the query parameter.
+     */
     public function getNextDirection(): ?string
     {
         return match (true) {
