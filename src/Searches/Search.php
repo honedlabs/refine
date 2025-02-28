@@ -35,7 +35,7 @@ class Search extends Refiner
 
     /**
      * Search the builder using the request.
-     * 
+     *
      * @param  \Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model>  $builder
      * @param  string|null  $search
      * @param  array<int,string>|true  $columns
@@ -63,7 +63,7 @@ class Search extends Refiner
 
     /**
      * Add the search query scope to the builder.
-     * 
+     *
      * @param  \Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model>  $builder
      * @param  string  $value
      * @param  string  $property
