@@ -14,9 +14,10 @@ trait IsMultiple
     /**
      * Set the filter to allow multiple values.
      *
+     * @param  bool  $multiple
      * @return $this
      */
-    public function multiple(bool $multiple = true): static
+    public function multiple($multiple = true)
     {
         $this->multiple = $multiple;
 
@@ -25,8 +26,10 @@ trait IsMultiple
 
     /**
      * Determine if the filter allows multiple values.
+     *
+     * @return bool
      */
-    public function isMultiple(): bool
+    public function isMultiple()
     {
         return $this->multiple;
     }

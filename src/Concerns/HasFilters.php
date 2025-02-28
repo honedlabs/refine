@@ -60,12 +60,12 @@ trait HasFilters
             $methodFilters = method_exists($this, 'filters') ? $this->filters() : [];
             $propertyFilters = $this->filters ?? [];
 
-            return \array_values(
-                \array_filter(
-                    \array_merge($propertyFilters, $methodFilters),
-                    static fn (Filter $filter) => $filter->isAllowed()
-                )
-            );
+            return collect($propertyFilters)
+                ->merge($methodFilters)
+                ->filter(static fn (Filter $filter) => $filter->isAllowed())
+                ->unique(static fn (Filter $filter) => $filter->getUniqueKey())
+                ->values()
+                ->all();
         });
     }
 

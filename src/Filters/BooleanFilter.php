@@ -4,15 +4,12 @@ declare(strict_types=1);
 
 namespace Honed\Refine\Filters;
 
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Http\Request;
-
 class BooleanFilter extends Filter
 {
     /**
      * {@inheritdoc}
      */
-    public function setUp(): void
+    public function setUp()
     {
         $this->type('boolean');
     }
@@ -20,7 +17,7 @@ class BooleanFilter extends Filter
     /**
      * {@inheritdoc}
      */
-    public function handle(Builder $builder, mixed $value, string $property): void
+    public function handle($builder, $value, $property)
     {
         $column = $builder->qualifyColumn($property);
 
@@ -35,15 +32,17 @@ class BooleanFilter extends Filter
     /**
      * {@inheritdoc}
      */
-    public function isActive(): bool
+    public function isActive()
     {
         return (bool) $this->getValue();
     }
 
     /**
      * {@inheritdoc}
+     *
+     * @return bool
      */
-    public function getValueFromRequest(Request $request): bool // @phpstan-ignore-line
+    public function getValueFromRequest($request)
     {
         return $request->boolean($this->getParameter());
     }

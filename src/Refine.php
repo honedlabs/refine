@@ -47,25 +47,16 @@ class Refine extends Primitive
     }
 
     /**
-     * Mark the refine pipeline as refined.
+     * Create a new refine instance.
      *
-     * @return $this
+     * @param  TModel|class-string<TModel>|\Illuminate\Database\Eloquent\Builder<TModel>  $query
+     * @return static
      */
-    protected function markAsRefined()
+    public static function make($query)
     {
-        $this->refined = true;
+        $query = static::createBuilder($query);
 
-        return $this;
-    }
-
-    /**
-     * Determine if the refine pipeline has been run.
-     *
-     * @return bool
-     */
-    public function isRefined()
-    {
-        return $this->refined;
+        return resolve(static::class)->builder($query);
     }
 
     /**
@@ -108,16 +99,25 @@ class Refine extends Primitive
     }
 
     /**
-     * Create a new refine instance.
+     * Mark the refine pipeline as refined.
      *
-     * @param  TModel|class-string<TModel>|\Illuminate\Database\Eloquent\Builder<TModel>  $query
-     * @return static
+     * @return $this
      */
-    public static function make($query)
+    protected function markAsRefined()
     {
-        $query = static::createBuilder($query);
+        $this->refined = true;
 
-        return resolve(static::class)->builder($query);
+        return $this;
+    }
+
+    /**
+     * Determine if the refine pipeline has been run.
+     *
+     * @return bool
+     */
+    public function isRefined()
+    {
+        return $this->refined;
     }
 
     /**

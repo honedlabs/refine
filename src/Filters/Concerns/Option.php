@@ -22,9 +22,10 @@ class Option extends Primitive
      * Create a new option.
      *
      * @param  string|int|float|bool  $value
-     * @return $this
+     * @param  string|null  $label
+     * @return static
      */
-    public static function make(mixed $value, ?string $label = null): static
+    public static function make($value, $label = null)
     {
         return resolve(static::class)
             ->value($value)
@@ -34,7 +35,7 @@ class Option extends Primitive
     /**
      * {@inheritdoc}
      */
-    public function toArray(): array
+    public function toArray()
     {
         return [
             'value' => $this->getValue(),

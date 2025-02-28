@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Honed\Refine\Filters\Concerns;
 
-use Illuminate\Contracts\Support\Arrayable;
+use Illuminate\Support\Collection;
 
 trait HasOptions
 {
@@ -16,12 +16,13 @@ trait HasOptions
     /**
      * Set the options for the filter.
      *
-     * @param  class-string<\BackedEnum>|iterable<mixed>  $options
+     * @param  class-string<\BackedEnum>|array<int,mixed>|Collection<int,mixed>  $options
+     * @return $this
      */
-    public function options(string|iterable $options): static
+    public function options($options)
     {
-        if ($options instanceof Arrayable) {
-            $options = $options->toArray();
+        if ($options instanceof Collection) {
+            $options = $options->all();
         }
 
         $this->options = match (true) {
@@ -29,7 +30,7 @@ trait HasOptions
                 fn ($case) => Option::make($case->value, $case->name),
                 $options::cases()
             ),
-            \array_is_list($o = type($options)->asArray()) => \array_map(
+            \array_is_list($o = $options) => \array_map(
                 fn ($value) => $value instanceof Option ? $value : Option::make($value),
                 $o
             ),
@@ -48,15 +49,17 @@ trait HasOptions
      *
      * @return array<int,\Honed\Refine\Filters\Concerns\Option>
      */
-    public function getOptions(): array
+    public function getOptions()
     {
         return $this->options ?? [];
     }
 
     /**
      * Determine if the filter has options.
+     *
+     * @return bool
      */
-    public function hasOptions(): bool
+    public function hasOptions()
     {
         return filled($this->options);
     }
@@ -65,8 +68,9 @@ trait HasOptions
      * Create options from an enum.
      *
      * @param  class-string<\BackedEnum>  $enum
+     * @return $this
      */
-    public function enum(string $enum): static
+    public function enum($enum)
     {
         $this->options($enum);
 
@@ -78,7 +82,7 @@ trait HasOptions
      *
      * @return array<int,mixed>
      */
-    public function optionsToArray(): array
+    public function optionsToArray()
     {
         return \array_map(
             fn (Option $option) => $option->toArray(),

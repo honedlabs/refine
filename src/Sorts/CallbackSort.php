@@ -11,7 +11,15 @@ class CallbackSort extends Sort
 {
     use HasCallback;
 
-    public function handle(Builder $builder, string $direction, string $property): void
+    /**
+     * Handle the sort.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model>  $builder
+     * @param  string  $direction
+     * @param  string  $property
+     * @return void
+     */
+    public function handle($builder, $direction, $property)
     {
         $this->evaluate(
             value: $this->getCallback(),

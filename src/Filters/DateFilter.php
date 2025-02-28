@@ -5,15 +5,13 @@ declare(strict_types=1);
 namespace Honed\Refine\Filters;
 
 use Carbon\Exceptions\InvalidFormatException;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Http\Request;
 
 class DateFilter extends Filter
 {
     /**
      * {@inheritdoc}
      */
-    public function setUp(): void
+    public function setUp()
     {
         $this->type('date');
     }
@@ -23,7 +21,7 @@ class DateFilter extends Filter
      *
      * @param  \Illuminate\Support\Carbon  $value
      */
-    public function handle(Builder $builder, mixed $value, string $property): void
+    public function handle($builder, $value, $property)
     {
         $column = $builder->qualifyColumn($property);
 
@@ -40,7 +38,7 @@ class DateFilter extends Filter
      *
      * @return \Illuminate\Support\Carbon|null
      */
-    public function getValueFromRequest(Request $request): mixed
+    public function getValueFromRequest($request)
     {
         try {
             return $request->date($this->getParameter());

@@ -185,12 +185,12 @@ trait HasSearches
             $methodSearches = method_exists($this, 'searches') ? $this->searches() : [];
             $propertySearches = $this->searches ?? [];
 
-            return \array_values(
-                \array_filter(
-                    \array_merge($propertySearches, $methodSearches),
-                    static fn (Search $search) => $search->isAllowed()
-                )
-            );
+            return collect($propertySearches)
+                ->merge($methodSearches)
+                ->filter(static fn (Search $search) => $search->isAllowed())
+                ->unique(static fn (Search $search) => $search->getUniqueKey())
+                ->values()
+                ->all();
         });
     }
 

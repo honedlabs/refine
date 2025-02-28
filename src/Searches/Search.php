@@ -9,21 +9,40 @@ use Illuminate\Database\Eloquent\Builder;
 
 class Search extends Refiner
 {
+    /**
+     * {@inheritdoc}
+     */
     public function setUp()
     {
         $this->type('search');
     }
 
-    public function isActive(): bool
+    /**
+     * {@inheritdoc}
+     */
+    public function getUniqueKey()
+    {
+        return type($this->getAttribute())->asString();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function isActive()
     {
         return $this->hasValue();
     }
 
     /**
+     * Search the builder using the request.
+     * 
      * @param  \Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model>  $builder
+     * @param  string|null  $search
      * @param  array<int,string>|true  $columns
+     * @param  string  $boolean
+     * @return bool
      */
-    public function apply(Builder $builder, ?string $search, array|true $columns, string $boolean = 'and'): bool
+    public function apply($builder, $search, $columns, $boolean = 'and')
     {
         $shouldBeApplied = $columns === true || \in_array($this->getParameter(), $columns);
 
@@ -43,9 +62,15 @@ class Search extends Refiner
     }
 
     /**
+     * Add the search query scope to the builder.
+     * 
      * @param  \Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model>  $builder
+     * @param  string  $value
+     * @param  string  $property
+     * @param  string  $boolean
+     * @return void
      */
-    public function handle(Builder $builder, string $value, string $property, string $boolean = 'and'): void
+    public function handle($builder, $value, $property, $boolean = 'and')
     {
         $qualified = $builder->qualifyColumn($property);
 

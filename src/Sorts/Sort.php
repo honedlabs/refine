@@ -23,23 +23,39 @@ class Sort extends Refiner
      */
     protected $only;
 
+    /**
+     * {@inheritdoc}
+     */
     public function setUp()
     {
         $this->type('sort');
     }
 
     /**
-     * Determine if the sort is currently active.
+     * {@inheritdoc}
      */
-    public function isActive(): bool
+    public function getUniqueKey()
+    {
+        return \sprintf('%s.%s', $this->getAttribute(), $this->getDirection());
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function isActive()
     {
         return $this->getValue() === $this->getParameter();
     }
 
     /**
+     * Apply the request to the builder.
+     *
      * @param  \Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model>  $builder
+     * @param  \Illuminate\Http\Request  $request
+     * @param  string  $sortKey
+     * @return bool
      */
-    public function apply(Builder $builder, Request $request, string $sortKey): bool
+    public function apply($builder, $request, $sortKey)
     {
         [$this->value, $this->direction] = $this->getValueFromRequest($request, $sortKey);
 
@@ -58,9 +74,14 @@ class Sort extends Refiner
     }
 
     /**
+     * Add the sort query scope to the builder.
+     *
      * @param  \Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model>  $builder
+     * @param  string  $direction
+     * @param  string  $property
+     * @return void
      */
-    public function handle(Builder $builder, string $direction, string $property): void
+    public function handle($builder, $direction, $property)
     {
         $builder->orderBy(
             column: $builder->qualifyColumn($property),
@@ -71,9 +92,11 @@ class Sort extends Refiner
     /**
      * Retrieve the sort value and direction from the request.
      *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  string  $sortKey
      * @return array{0: string|null, 1: 'asc'|'desc'|null}
      */
-    public function getValueFromRequest(Request $request, string $sortKey): array
+    public function getValueFromRequest($request, $sortKey)
     {
         $sort = $request->string($sortKey);
 
@@ -87,7 +110,7 @@ class Sort extends Refiner
     /**
      * {@inheritDoc}
      */
-    public function toArray(): array
+    public function toArray()
     {
         return \array_merge(parent::toArray(), [
             'direction' => $this->getDirection(),
@@ -101,7 +124,7 @@ class Sort extends Refiner
      * @param  'asc'|'desc'|null  $direction
      * @return $this
      */
-    public function direction(?string $direction): static
+    public function direction($direction = null)
     {
         $this->direction = $direction;
 
@@ -113,15 +136,17 @@ class Sort extends Refiner
      *
      * @return 'asc'|'desc'|null
      */
-    public function getDirection(): ?string
+    public function getDirection()
     {
         return $this->isSingularDirection() ? $this->only : $this->direction;
     }
 
     /**
      * Get the next value to use for the query parameter.
+     *
+     * @return string|null
      */
-    public function getNextDirection(): ?string
+    public function getNextDirection()
     {
         return match (true) {
             $this->isSingularDirection() && $this->only === 'desc' => $this->getDescendingValue(),
@@ -132,31 +157,56 @@ class Sort extends Refiner
         };
     }
 
-    public function getDescendingValue(): string
+    /**
+     * Get the value for the sort indicating a descending direction.
+     *
+     * @return string
+     */
+    public function getDescendingValue()
     {
         return \sprintf('-%s', $this->getParameter());
     }
 
-    public function getAscendingValue(): string
+    /**
+     * Get the value for the sort indicating an ascending direction.
+     *
+     * @return string
+     */
+    public function getAscendingValue()
     {
         return $this->getParameter();
     }
 
-    public function asc(): static
+    /**
+     * Set the sort to be ascending.
+     *
+     * @return $this
+     */
+    public function asc()
     {
         $this->only = 'asc';
 
         return $this;
     }
 
-    public function desc(): static
+    /**
+     * Set the sort to be descending.
+     *
+     * @return $this
+     */
+    public function desc()
     {
         $this->only = 'desc';
 
         return $this;
     }
 
-    public function isSingularDirection(): bool
+    /**
+     * Determine if the sort only acts in a single direction.
+     *
+     * @return bool
+     */
+    public function isSingularDirection()
     {
         return ! \is_null($this->only);
     }

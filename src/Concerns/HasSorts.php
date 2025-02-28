@@ -104,12 +104,12 @@ trait HasSorts
             $methodSorts = method_exists($this, 'sorts') ? $this->sorts() : [];
             $propertySorts = $this->sorts ?? [];
 
-            return \array_values(
-                \array_filter(
-                    \array_merge($propertySorts, $methodSorts),
-                    static fn (Sort $sort) => $sort->isAllowed()
-                )
-            );
+            return collect($propertySorts)
+                ->merge($methodSorts)
+                ->filter(static fn (Sort $sort) => $sort->isAllowed())
+                ->unique(static fn (Sort $sort) => $sort->getUniqueKey())
+                ->values()
+                ->all();
         });
     }
 
