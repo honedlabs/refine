@@ -27,14 +27,26 @@ abstract class Refiner extends Primitive implements Refines
     use HasType;
     use HasValue;
 
-    public static function make(string $attribute, ?string $label = null): static
+    /**
+     * Create a new refiner instance.
+     *
+     * @param  string  $attribute
+     * @param  string|null  $label
+     * @return static
+     */
+    public static function make($attribute, $label = null)
     {
         return resolve(static::class)
             ->attribute($attribute)
             ->label($label ?? static::makeLabel($attribute));
     }
 
-    public function getParameter(): string
+    /**
+     * Get the parameter for the refiner.
+     *
+     * @return string
+     */
+    public function getParameter()
     {
         return $this->getAlias()
             ?? str($this->getAttribute())
@@ -44,10 +56,17 @@ abstract class Refiner extends Primitive implements Refines
 
     /**
      * Determine if the refiner is currently being applied.
+     *
+     * @return bool
      */
-    abstract public function isActive(): bool;
+    abstract public function isActive();
 
-    public function toArray(): array
+    /**
+     * Get the refiner as an array.
+     *
+     * @return array<string,mixed>
+     */
+    public function toArray()
     {
         return [
             'name' => $this->getParameter(),

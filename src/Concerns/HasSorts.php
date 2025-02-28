@@ -4,16 +4,20 @@ declare(strict_types=1);
 
 namespace Honed\Refine\Concerns;
 
-use Honed\Refine\Concerns\Support\SortsKey;
 use Honed\Refine\Sorts\Sort;
-use Illuminate\Contracts\Support\Arrayable;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
 
 trait HasSorts
 {
-    use SortsKey;
+    use AccessesRequest;
+
+    /**
+     * The query parameter to identify the sort to apply.
+     *
+     * @var string|null
+     */
+    protected $sortsKey;
 
     /**
      * List of the sorts.
@@ -23,20 +27,54 @@ trait HasSorts
     protected $sorts;
 
     /**
-     * Merge a set of sorts with the existing sorts.
+     * Set the query parameter to identify the sort to apply.
      *
-     * @param  iterable<\Honed\Refine\Sorts\Sort>  $sorts
+     * @param  string  $sortsKey
      * @return $this
      */
-    public function addSorts(iterable $sorts): static
+    public function sortsKey($sortsKey)
     {
-        if ($sorts instanceof Arrayable) {
-            $sorts = $sorts->toArray();
+        $this->sortsKey = $sortsKey;
+
+        return $this;
+    }
+
+    /**
+     * Get the query parameter to identify the sort to apply.
+     *
+     * @return string
+     */
+    public function getSortsKey()
+    {
+        if (isset($this->sortsKey)) {
+            return $this->sortsKey;
         }
 
-        /**
-         * @var array<int, \Honed\Refine\Sorts\Sort> $sorts
-         */
+        return $this->getFallbackSortsKey();
+    }
+
+    /**
+     * Get the fallback query parameter to identify the sort to apply.
+     *
+     * @return string
+     */
+    protected function getFallbackSortsKey()
+    {
+        return type(config('refine.config.sorts', 'sort'))->asString();
+    }
+
+    /**
+     * Merge a set of sorts with the existing sorts.
+     *
+     * @param  array<int, \Honed\Refine\Sorts\Sort>|\Illuminate\Support\Collection<int, \Honed\Refine\Sorts\Sort>  $sorts
+     * @return $this
+     */
+    public function addSorts($sorts)
+    {
+        if ($sorts instanceof Collection) {
+            $sorts = $sorts->all();
+        }
+
         $this->sorts = \array_merge($this->sorts ?? [], $sorts);
 
         return $this;
@@ -45,9 +83,10 @@ trait HasSorts
     /**
      * Add a single sort to the list of sorts.
      *
+     * @param  \Honed\Refine\Sorts\Sort  $sort
      * @return $this
      */
-    public function addSort(Sort $sort): static
+    public function addSort($sort)
     {
         $this->sorts[] = $sort;
 
@@ -59,33 +98,27 @@ trait HasSorts
      *
      * @return array<int,\Honed\Refine\Sorts\Sort>
      */
-    public function getSorts(): array
+    public function getSorts()
     {
-        return $this->sorts ??= $this->getSourceSorts();
-    }
+        return once(function () {
+            $methodSorts = method_exists($this, 'sorts') ? $this->sorts() : [];
+            $propertySorts = $this->sorts ?? [];
 
-    /**
-     * Retrieve the sorts which are available.
-     *
-     * @return array<int,\Honed\Refine\Sorts\Sort>
-     */
-    protected function getSourceSorts(): array
-    {
-        $sorts = match (true) {
-            \method_exists($this, 'sorts') => $this->sorts(),
-            default => [],
-        };
-
-        return \array_filter(
-            $sorts,
-            fn (Sort $sort) => $sort->isAllowed()
-        );
+            return \array_values(
+                \array_filter(
+                    \array_merge($propertySorts, $methodSorts),
+                    static fn (Sort $sort) => $sort->isAllowed()
+                )
+            );
+        });
     }
 
     /**
      * Determines if the instance has any sorts.
+     *
+     * @return bool
      */
-    public function hasSorts(): bool
+    public function hasSorts()
     {
         return filled($this->getSorts());
     }
@@ -96,10 +129,11 @@ trait HasSorts
      * @param  \Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model>  $builder
      * @return $this
      */
-    public function sort(Builder $builder, Request $request): static
+    public function sort($builder)
     {
         $sorts = $this->getSorts();
-        $key = $this->getSortsKey();
+        $key = $this->formatScope($this->getSortsKey());
+        $request = $this->getRequest();
 
         $applied = false;
 
@@ -108,34 +142,50 @@ trait HasSorts
         }
 
         if (! $applied) {
-            $sort = $this->getDefaultSort($sorts);
-
-            $sort?->handle(
-                $builder,
-                $sort->getDirection() ?? 'asc',
-                type($sort->getAttribute())->asString()
-            );
+            $this->sortByDefault($builder, $sorts);
         }
 
         return $this;
     }
 
     /**
+     * Apply a default sort to the query.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model>  $builder
+     * @param  array<int, \Honed\Refine\Sorts\Sort>  $sorts
+     * @return void
+     */
+    protected function sortByDefault($builder, $sorts)
+    {
+        $sort = $this->getDefaultSort($sorts);
+
+        $sort?->handle(
+            $builder,
+            $sort->getDirection() ?? 'asc',
+            type($sort->getAttribute())->asString()
+        );
+    }
+
+    /**
      * Find the default sort.
      *
      * @param  array<int, \Honed\Refine\Sorts\Sort>  $sorts
+     * @return \Honed\Refine\Sorts\Sort|null
      */
-    public function getDefaultSort(array $sorts): ?Sort
+    protected function getDefaultSort($sorts)
     {
-        return Arr::first($sorts, fn (Sort $sort) => $sort->isDefault());
+        return Arr::first(
+            $sorts,
+            static fn (Sort $sort) => $sort->isDefault()
+        );
     }
 
     /**
      * Get the sorts as an array.
      *
-     * @return array<int,mixed>
+     * @return array<int,array<string,mixed>>
      */
-    public function sortsToArray(): array
+    public function sortsToArray()
     {
         return \array_map(
             static fn (Sort $sort) => $sort->toArray(),

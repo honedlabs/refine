@@ -19,7 +19,7 @@ trait HasCallback
      * @param  string|callable|object  $callback
      * @return $this
      */
-    public function callback($callback): static
+    public function callback($callback)
     {
         $this->callback = $callback;
 
@@ -28,8 +28,10 @@ trait HasCallback
 
     /**
      * Retrieve the callback.
+     *
+     * @return mixed
      */
-    public function getCallback(): mixed
+    public function getCallback()
     {
         if (\is_null($this->callback)) {
             throw new \InvalidArgumentException('No callback has been set.');

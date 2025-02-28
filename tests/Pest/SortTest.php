@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Request;
 beforeEach(function () {
     $this->builder = Product::query();
     $this->sort = Sort::make('name');
-    $this->key = config('refine.keys.sorts');
+    $this->key = config('refine.config.sorts');
 });
 
 it('sorts by attribute', function () {
@@ -21,8 +21,8 @@ it('sorts by attribute', function () {
     expect($this->builder->getQuery()->orders)->toBeArray()
         ->toHaveCount(1)
         ->{0}->scoped(fn ($order) => $order
-        ->{'column'}->toBe($this->builder->qualifyColumn('name'))
-        ->{'direction'}->toBe('asc')
+            ->{'column'}->toBe($this->builder->qualifyColumn('name'))
+            ->{'direction'}->toBe('asc')
         );
 
     expect($this->sort)
@@ -45,8 +45,8 @@ it('can enforce a singular direction', function () {
     expect($this->builder->getQuery()->orders)->toBeArray()
         ->toHaveCount(1)
         ->{0}->scoped(fn ($order) => $order
-        ->{'column'}->toBe($this->builder->qualifyColumn('name'))
-        ->{'direction'}->toBe('desc')
+            ->{'column'}->toBe($this->builder->qualifyColumn('name'))
+            ->{'direction'}->toBe('desc')
         );
 
     expect($this->sort)

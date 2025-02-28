@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace Honed\Refine\Concerns;
 
+use Honed\Core\Concerns\HasRequest;
 use Honed\Refine\Filters\Filter;
-use Illuminate\Contracts\Support\Arrayable;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 
 trait HasFilters
 {
+    use HasRequest;
+
     /**
      * List of the filters.
      *
@@ -21,18 +22,15 @@ trait HasFilters
     /**
      * Merge a set of filters with the existing filters.
      *
-     * @param  iterable<\Honed\Refine\Filters\Filter>  $filters
+     * @param  array<int, \Honed\Refine\Filters\Filter>|\Illuminate\Support\Collection<int, \Honed\Refine\Filters\Filter>  $filters
      * @return $this
      */
-    public function addFilters(iterable $filters): static
+    public function addFilters($filters)
     {
-        if ($filters instanceof Arrayable) {
-            $filters = $filters->toArray();
+        if ($filters instanceof Collection) {
+            $filters = $filters->all();
         }
 
-        /**
-         * @var array<int, \Honed\Refine\Filters\Filter> $filters
-         */
         $this->filters = \array_merge($this->filters ?? [], $filters);
 
         return $this;
@@ -41,9 +39,10 @@ trait HasFilters
     /**
      * Add a single filter to the list of filters.
      *
+     * @param  \Honed\Refine\Filters\Filter  $filter
      * @return $this
      */
-    public function addFilter(Filter $filter): static
+    public function addFilter($filter)
     {
         $this->filters[] = $filter;
 
@@ -55,33 +54,27 @@ trait HasFilters
      *
      * @return array<int,\Honed\Refine\Filters\Filter>
      */
-    public function getFilters(): array
+    public function getFilters()
     {
-        return $this->filters ??= $this->getSourceFilters();
-    }
+        return once(function () {
+            $methodFilters = method_exists($this, 'filters') ? $this->filters() : [];
+            $propertyFilters = $this->filters ?? [];
 
-    /**
-     * Retrieve the filters which are available..
-     *
-     * @return array<int,\Honed\Refine\Filters\Filter>
-     */
-    protected function getSourceFilters(): array
-    {
-        $filters = match (true) {
-            \method_exists($this, 'filters') => $this->filters(),
-            default => [],
-        };
-
-        return \array_filter(
-            $filters,
-            fn (Filter $filter) => $filter->isAllowed()
-        );
+            return \array_values(
+                \array_filter(
+                    \array_merge($propertyFilters, $methodFilters),
+                    static fn (Filter $filter) => $filter->isAllowed()
+                )
+            );
+        });
     }
 
     /**
      * Determines if the instance has any filters.
+     *
+     * @return bool
      */
-    public function hasFilters(): bool
+    public function hasFilters()
     {
         return filled($this->getFilters());
     }
@@ -92,8 +85,10 @@ trait HasFilters
      * @param  \Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model>  $builder
      * @return $this
      */
-    public function filter(Builder $builder, Request $request): static
+    public function filter($builder)
     {
+        $request = $this->getRequest();
+
         foreach ($this->getFilters() as $filter) {
             $filter->apply($builder, $request);
         }
@@ -104,9 +99,9 @@ trait HasFilters
     /**
      * Get the filters as an array.
      *
-     * @return array<int,mixed>
+     * @return array<int,array<string,mixed>>
      */
-    public function filtersToArray(): array
+    public function filtersToArray()
     {
         return \array_map(
             static fn (Filter $filter) => $filter->toArray(),

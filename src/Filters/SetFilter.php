@@ -44,7 +44,7 @@ class SetFilter extends Filter
     {
         $rawValue = $this->getValueFromRequest($request);
 
-        $options = \array_filter(
+        $options = \array_values(\array_filter(
             $this->getOptions(),
             fn (Option $option) => $option->active(
                 \in_array(
@@ -52,7 +52,7 @@ class SetFilter extends Filter
                     (array) $rawValue,
                     true
                 ))->isActive(),
-        );
+        ));
 
         $value = match (true) {
             $this->isMultiple() => \array_map(

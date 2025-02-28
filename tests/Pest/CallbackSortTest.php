@@ -11,7 +11,7 @@ beforeEach(function () {
     $this->param = 'name';
     $this->sort = CallbackSort::make($this->param);
     $this->fn = fn ($builder, $direction) => $builder->orderBy('description', $direction);
-    $this->key = config('refine.keys.sorts');
+    $this->key = config('refine.config.sorts');
 });
 
 it('fails if no callback is set', function () {
@@ -28,8 +28,8 @@ it('sorts with callback', function () {
     expect($this->builder->getQuery()->orders)->toBeArray()
         ->toHaveCount(1)
         ->{0}->scoped(fn ($order) => $order
-        ->{'column'}->toBe('description')
-        ->{'direction'}->toBe('desc')
+            ->{'column'}->toBe('description')
+            ->{'direction'}->toBe('desc')
         );
 
     expect($this->sort)
