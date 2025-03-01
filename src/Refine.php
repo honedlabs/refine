@@ -37,10 +37,11 @@ class Refine extends Primitive
     use HasFilters;
 
     use HasRequest;
-
     use HasScope;
+
     /** @use HasSearches<TModel> */
     use HasSearches;
+
     /** @use HasSorts<TModel> */
     use HasSorts;
 
