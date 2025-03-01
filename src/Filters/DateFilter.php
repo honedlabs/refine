@@ -38,7 +38,7 @@ class DateFilter extends Filter
      *
      * @return \Illuminate\Support\Carbon|null
      */
-    public function getValueFromRequest($request)
+    public function getRefiningValue($request)
     {
         try {
             return $request->date($this->getParameter());

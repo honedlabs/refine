@@ -13,6 +13,7 @@ use Honed\Core\Concerns\HasType;
 use Honed\Core\Concerns\HasValue;
 use Honed\Core\Primitive;
 use Honed\Refine\Contracts\Refines;
+use Illuminate\Support\Str;
 
 /**
  * @extends Primitive<string, mixed>
@@ -49,9 +50,9 @@ abstract class Refiner extends Primitive implements Refines
     public function getParameter()
     {
         return $this->getAlias()
-            ?? str($this->getAttribute())
+            ?? Str::of(type($this->getAttribute())->asString())
                 ->afterLast('.')
-                ->toString();
+                ->value();
     }
 
     /**

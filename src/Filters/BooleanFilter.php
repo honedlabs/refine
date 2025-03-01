@@ -42,8 +42,8 @@ class BooleanFilter extends Filter
      *
      * @return bool
      */
-    public function getValueFromRequest($request)
+    public function getRefiningValue($request)
     {
-        return $request->boolean($this->getParameter());
+        return $request->safeBoolean($this->getParameter());
     }
 }

@@ -6,7 +6,7 @@ namespace Honed\Refine;
 
 use Illuminate\Support\ServiceProvider;
 
-class RefineServiceProvider extends ServiceProvider
+final class RefineServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
@@ -17,6 +17,6 @@ class RefineServiceProvider extends ServiceProvider
     {
         $this->publishes([
             __DIR__.'/../config/refine.php' => config_path('refine.php'),
-        ], 'refine');
+        ], 'config');
     }
 }

@@ -51,7 +51,7 @@ class SetFilter extends Filter
      */
     public function apply($builder, $request)
     {
-        $rawValue = $this->getValueFromRequest($request);
+        $rawValue = $this->getRefiningValue($request);
 
         $options = \array_values(\array_filter(
             $this->getOptions(),
@@ -131,9 +131,9 @@ class SetFilter extends Filter
      *
      * @return array<int,string|int|float>|string|int|float|null
      */
-    public function getValueFromRequest($request)
+    public function getRefiningValue($request)
     {
-        $value = parent::getValueFromRequest($request);
+        $value = parent::getRefiningValue($request);
 
         if (! $this->isMultiple()) {
             /** @var string|int|float|null $value */

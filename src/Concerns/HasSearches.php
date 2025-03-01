@@ -7,10 +7,11 @@ namespace Honed\Refine\Concerns;
 use Honed\Refine\Searches\Search;
 use Illuminate\Support\Collection;
 
+/**
+ * @template TModel of \Illuminate\Database\Eloquent\Model
+ */
 trait HasSearches
 {
-    use AccessesRequest;
-
     /**
      * The query parameter to identify the search string.
      *
@@ -94,7 +95,7 @@ trait HasSearches
             return $this->matchesKey;
         }
 
-        return $this->getFallbackMatchesKey();
+        return $this->fallbackMatchesKey();
     }
 
     /**
@@ -102,7 +103,7 @@ trait HasSearches
      *
      * @return string
      */
-    protected function getFallbackMatchesKey()
+    protected function fallbackMatchesKey()
     {
         return type(config('refine.config.matches', 'match'))->asString();
     }
@@ -131,7 +132,7 @@ trait HasSearches
             return $this->match;
         }
 
-        return $this->getFallbackCanMatch();
+        return $this->fallbackCanMatch();
     }
 
     /**
@@ -139,7 +140,7 @@ trait HasSearches
      *
      * @return bool
      */
-    protected function getFallbackCanMatch()
+    protected function fallbackCanMatch()
     {
         return (bool) config('refine.matches', false);
     }
@@ -205,47 +206,51 @@ trait HasSearches
     }
 
     /**
-     * Apply a search to the query.
+     * Get the search columns from the request.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model>  $builder
-     * @return $this
+     * @param  \Illuminate\Http\Request  $request
+     * @return array<int,string>|true
      */
-    public function search($builder)
+    public function getSearchColumns($request)
     {
-        $columns = ($this->canMatch()
-            ? $this->getArrayFromQueryParameter($this->getMatchesKey())
-            : null) ?? true;
-
-        $term = $this->getSearchTerm();
-
-        $this->term = $term;
-
-        $applied = false;
-
-        foreach ($this->getSearches() as $search) {
-            $boolean = $applied ? 'or' : 'and';
-
-            $applied |= $search->apply($builder, $term, $columns, $boolean);
+        if (! $this->canMatch()) {
+            return true;
         }
 
-        return $this;
+        /** @var string */
+        $key = $this->formatScope($this->getMatchesKey());
+
+        $columns = $request->safeArray($key, null, $this->getDelimiter());
+
+        if (\is_null($columns) || $columns->isEmpty()) {
+            return true;
+        }
+
+        return $columns
+            ->map(\trim(...))
+            ->filter()
+            ->values()
+            ->all();
     }
 
     /**
      * Get the search value from the request.
      *
+     * @param  \Illuminate\Http\Request  $request
      * @return string|null
      */
-    public function getSearchTerm()
+    public function getSearchTerm($request)
     {
-        /** @var string|null */
-        $param = $this->getQueryParameter($this->getSearchesKey());
+        /** @var string */
+        $key = $this->formatScope($this->getSearchesKey());
 
-        if (empty($param)) {
+        $param = $request->safeString($key);
+
+        if ($param->isEmpty()) {
             return null;
         }
 
-        return \str_replace('+', ' ', $param);
+        return $param->replace('+', ' ')->value();
     }
 
     /**
@@ -256,6 +261,30 @@ trait HasSearches
     public function getTerm()
     {
         return $this->term;
+    }
+
+    /**
+     * Apply a search to the query.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder<TModel>  $builder
+     * @param  \Illuminate\Http\Request  $request
+     * @return $this
+     */
+    public function search($builder, $request)
+    {
+        $columns = $this->getSearchColumns($request);
+        $this->term = $this->getSearchTerm($request);
+
+        $searches = $this->getSearches();
+        $applied = false;
+
+        foreach ($searches as $search) {
+            $boolean = $applied ? 'or' : 'and';
+
+            $applied |= $search->apply($builder, $this->term, $columns, $boolean);
+        }
+
+        return $this;
     }
 
     /**

@@ -13,15 +13,30 @@ class Sort extends Refiner
 {
     use IsDefault;
 
+    const ASCENDING = 'asc';
+
+    const DESCENDING = 'desc';
+
     /**
+     * The request direction of the sort.
+     *
      * @var 'asc'|'desc'|null
      */
     protected $direction;
 
     /**
+     * Indicate that the sort only acts in a single direction.
+     *
      * @var 'asc'|'desc'|null
      */
     protected $only;
+
+    /**
+     * Invert the direction for sorts which are not singular.
+     *
+     * @var bool
+     */
+    protected $invert = false;
 
     /**
      * {@inheritdoc}
@@ -44,7 +59,13 @@ class Sort extends Refiner
      */
     public function isActive()
     {
-        return $this->getValue() === $this->getParameter();
+        $isSorting = $this->getValue() === $this->getParameter();
+
+        if ($this->isSingularDirection()) {
+            return $isSorting && $this->getDirection() === $this->only;
+        }
+
+        return $isSorting;
     }
 
     /**
@@ -52,12 +73,12 @@ class Sort extends Refiner
      *
      * @param  \Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model>  $builder
      * @param  \Illuminate\Http\Request  $request
-     * @param  string  $sortKey
+     * @param  string  $key
      * @return bool
      */
-    public function apply($builder, $request, $sortKey)
+    public function apply($builder, $request, $key)
     {
-        [$this->value, $this->direction] = $this->getValueFromRequest($request, $sortKey);
+        [$this->value, $this->direction] = $this->getRefiningValue($request, $key);
 
         if (! $this->isActive()) {
             return false;
@@ -93,17 +114,17 @@ class Sort extends Refiner
      * Retrieve the sort value and direction from the request.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  string  $sortKey
+     * @param  string  $key
      * @return array{0: string|null, 1: 'asc'|'desc'|null}
      */
-    public function getValueFromRequest($request, $sortKey)
+    public function getRefiningValue($request, $key)
     {
-        $sort = $request->string($sortKey);
+        $sort = $request->safeString($key);
 
         return match (true) {
             $sort->isEmpty() => [null, null],
-            $sort->startsWith('-') => [$sort->after('-')->toString(), 'desc'],
-            default => [$sort->toString(), 'asc'],
+            $sort->startsWith('-') => [$sort->after('-')->value(), self::DESCENDING],
+            default => [$sort->value(), self::ASCENDING],
         };
     }
 
@@ -148,11 +169,23 @@ class Sort extends Refiner
      */
     public function getNextDirection()
     {
+        if ($this->isSingularDirection()) {
+            return $this->only === self::DESCENDING
+                ? $this->getDescendingValue()
+                : $this->getAscendingValue();
+        }
+
+        if ($this->isInverted()) {
+            return match (true) {
+                $this->direction === self::DESCENDING => $this->getAscendingValue(),
+                $this->direction === self::ASCENDING => null,
+                default => $this->getDescendingValue(),
+            };
+        }
+
         return match (true) {
-            $this->isSingularDirection() && $this->only === 'desc' => $this->getDescendingValue(),
-            $this->isSingularDirection() => $this->getAscendingValue(),
-            $this->direction === 'desc' => null,
-            $this->direction === 'asc' => $this->getDescendingValue(),
+            $this->direction === self::DESCENDING => null,
+            $this->direction === self::ASCENDING => $this->getDescendingValue(),
             default => $this->getAscendingValue(),
         };
     }
@@ -184,7 +217,7 @@ class Sort extends Refiner
      */
     public function asc()
     {
-        $this->only = 'asc';
+        $this->only = self::ASCENDING;
 
         return $this;
     }
@@ -196,7 +229,7 @@ class Sort extends Refiner
      */
     public function desc()
     {
-        $this->only = 'desc';
+        $this->only = self::DESCENDING;
 
         return $this;
     }
@@ -209,5 +242,27 @@ class Sort extends Refiner
     public function isSingularDirection()
     {
         return ! \is_null($this->only);
+    }
+
+    /**
+     * Invert the direction of the sort.
+     *
+     * @return $this
+     */
+    public function invert()
+    {
+        $this->invert = true;
+
+        return $this;
+    }
+
+    /**
+     * Determine if the sort is inverted.
+     *
+     * @return bool
+     */
+    public function isInverted()
+    {
+        return $this->invert;
     }
 }

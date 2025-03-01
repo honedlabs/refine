@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Honed\Refine\Filters;
 
+use Honed\Core\Concerns\HasScope;
 use Honed\Core\Concerns\Validatable;
 use Honed\Refine\Refiner;
 use Illuminate\Database\Eloquent\Builder;
@@ -11,6 +12,7 @@ use Illuminate\Http\Request;
 
 class Filter extends Refiner
 {
+    use HasScope;
     use Validatable;
 
     const Is = '=';
@@ -65,6 +67,16 @@ class Filter extends Refiner
     }
 
     /**
+     * Determine if the filter is active.
+     *
+     * @return bool
+     */
+    public function isActive()
+    {
+        return $this->hasValue();
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function toArray()
@@ -75,7 +87,7 @@ class Filter extends Refiner
     }
 
     /**
-     * Apply the request to the builder.
+     * Filter the builder using the request.
      *
      * @param  \Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model>  $builder
      * @param  \Illuminate\Http\Request  $request
@@ -84,7 +96,7 @@ class Filter extends Refiner
     public function apply($builder, $request)
     {
         /** @var string|int|float|null */
-        $value = $this->getValueFromRequest($request);
+        $value = $this->getRefiningValue($request);
 
         $this->value($value);
 
@@ -154,19 +166,11 @@ class Filter extends Refiner
      * @param  \Illuminate\Http\Request  $request
      * @return string|int|float|bool|null
      */
-    public function getValueFromRequest($request)
+    public function getRefiningValue($request)
     {
-        return $request->input($this->getParameter()); // @phpstan-ignore-line
-    }
+        $key = $this->formatScope($this->getParameter());
 
-    /**
-     * Determine if the filter is active.
-     *
-     * @return bool
-     */
-    public function isActive()
-    {
-        return $this->hasValue();
+        return $request->safe($key);
     }
 
     /**

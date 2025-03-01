@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Honed\Refine\Tests;
 
+use Honed\Core\CoreServiceProvider;
 use Honed\Refine\RefineServiceProvider;
 use Honed\Refine\Tests\Stubs\Status;
 use Illuminate\Database\Schema\Blueprint;
@@ -32,6 +33,7 @@ class TestCase extends Orchestra
         return [
             InertiaServiceProvider::class,
             RefineServiceProvider::class,
+            CoreServiceProvider::class,
         ];
     }
 

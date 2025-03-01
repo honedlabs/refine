@@ -8,6 +8,9 @@ use Honed\Core\Concerns\HasRequest;
 use Honed\Refine\Filters\Filter;
 use Illuminate\Support\Collection;
 
+/**
+ * @template TModel of \Illuminate\Database\Eloquent\Model
+ */
 trait HasFilters
 {
     use HasRequest;
@@ -82,15 +85,16 @@ trait HasFilters
     /**
      * Apply the filters to the query.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model>  $builder
+     * @param  \Illuminate\Database\Eloquent\Builder<TModel>  $builder
+     * @param  \Illuminate\Http\Request  $request
      * @return $this
      */
-    public function filter($builder)
+    public function filter($builder, $request)
     {
-        $request = $this->getRequest();
+        $filters = $this->getFilters();
 
-        foreach ($this->getFilters() as $filter) {
-            $filter->apply($builder, $request);
+        foreach ($filters as $filter) {
+            $filter->scope($this->getScope())->apply($builder, $request);
         }
 
         return $this;

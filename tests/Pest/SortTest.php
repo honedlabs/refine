@@ -7,13 +7,14 @@ use Honed\Refine\Tests\Stubs\Product;
 use Illuminate\Support\Facades\Request;
 
 beforeEach(function () {
+    $this->param = 'name';
     $this->builder = Product::query();
-    $this->sort = Sort::make('name');
+    $this->sort = Sort::make($this->param);
     $this->key = config('refine.config.sorts');
 });
 
 it('sorts by attribute', function () {
-    $request = Request::create('/', 'GET', [$this->key => 'name']);
+    $request = Request::create('/', 'GET', [$this->key => $this->param]);
 
     expect($this->sort->apply($this->builder, $request, $this->key))
         ->toBeTrue();
@@ -21,18 +22,18 @@ it('sorts by attribute', function () {
     expect($this->builder->getQuery()->orders)->toBeArray()
         ->toHaveCount(1)
         ->{0}->scoped(fn ($order) => $order
-            ->{'column'}->toBe($this->builder->qualifyColumn('name'))
-            ->{'direction'}->toBe('asc')
+            ->{'column'}->toBe($this->builder->qualifyColumn($this->param))
+            ->{'direction'}->toBe(Sort::ASCENDING)
         );
 
     expect($this->sort)
         ->isActive()->toBeTrue()
         ->getNextDirection()->toBe('-name')
-        ->getDirection()->toBe('asc');
+        ->getDirection()->toBe(Sort::ASCENDING);
 });
 
 it('can enforce a singular direction', function () {
-    $request = Request::create('/', 'GET', [$this->key => 'name']);
+    $request = Request::create('/', 'GET', [$this->key => $this->param]);
 
     expect($this->sort)
         ->isSingularDirection()->toBeFalse()
@@ -45,13 +46,13 @@ it('can enforce a singular direction', function () {
     expect($this->builder->getQuery()->orders)->toBeArray()
         ->toHaveCount(1)
         ->{0}->scoped(fn ($order) => $order
-            ->{'column'}->toBe($this->builder->qualifyColumn('name'))
-            ->{'direction'}->toBe('desc')
+            ->{'column'}->toBe($this->builder->qualifyColumn($this->param))
+            ->{'direction'}->toBe(Sort::DESCENDING)
         );
 
     expect($this->sort)
         ->isActive()->toBeTrue()
-        ->getDirection()->toBe('desc')
+        ->getDirection()->toBe(Sort::DESCENDING)
         ->getNextDirection()->toBe('-name');
 });
 
@@ -66,25 +67,34 @@ it('does not sort if no value', function () {
 
 it('has direction', function () {
     expect($this->sort)
-        ->getAscendingValue()->toBe('name')
-        ->getDescendingValue()->toBe('-name');
+        ->getAscendingValue()->toBe($this->param)
+        ->getDescendingValue()->toBe('-'.$this->param);
 });
 
 it('has array representation', function () {
     expect($this->sort->toArray())->toEqual([
-        'name' => 'name',
-        'label' => 'Name',
+        'name' => $this->param,
+        'label' => ucfirst($this->param),
         'type' => 'sort',
         'meta' => [],
         'active' => false,
         'direction' => null,
-        'next' => 'name',
+        'next' => $this->sort->getAscendingValue(),
     ]);
 });
 
 it('has next direction', function () {
     expect($this->sort)
-        ->getNextDirection()->toBe('name')
-        ->direction('asc')->getNextDirection()->toBe('-name')
-        ->direction('desc')->getNextDirection()->toBeNull();
+        ->getNextDirection()->toBe($this->sort->getAscendingValue())
+        ->direction(Sort::ASCENDING)
+        ->getNextDirection()->toBe($this->sort->getDescendingValue())
+        ->direction(Sort::DESCENDING)
+        ->getNextDirection()->toBeNull();
+});
+
+it('can invert direction', function () {
+    expect($this->sort)
+        ->invert()->toBe($this->sort)
+        ->isInverted()->toBeTrue()
+        ->getNextDirection()->toBe($this->sort->getDescendingValue());
 });
