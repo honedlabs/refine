@@ -208,7 +208,7 @@ class Refine extends Primitive
     public function getFor()
     {
         return $this->for ??= \method_exists($this, 'for')
-            ? $this->createBuilder($this->for())
+            ? type($this->createBuilder($this->for()))->as(Builder::class)
             : static::throwMissingBuilderException();
     }
 
