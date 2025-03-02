@@ -71,7 +71,7 @@ trait HasSearches
             return $this->searchesKey;
         }
 
-        return $this->getFallbackSearchesKey();
+        return $this->fallbackSearchesKey();
     }
 
     /**
@@ -79,7 +79,7 @@ trait HasSearches
      *
      * @return string
      */
-    protected function getFallbackSearchesKey()
+    protected function fallbackSearchesKey()
     {
         return type(config('refine.config.searches', 'search'))->asString();
     }

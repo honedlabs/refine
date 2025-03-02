@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Honed\Refine;
 
-use Honed\Core\Concerns\HasBuilderInstance;
 use Honed\Core\Concerns\HasRequest;
 use Honed\Core\Concerns\HasScope;
 use Honed\Core\Primitive;
@@ -14,7 +13,8 @@ use Honed\Refine\Concerns\HasSorts;
 use Honed\Refine\Filters\Filter;
 use Honed\Refine\Searches\Search;
 use Honed\Refine\Sorts\Sort;
-use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Contracts\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Traits\ForwardsCalls;
 
@@ -29,9 +29,6 @@ use Illuminate\Support\Traits\ForwardsCalls;
 class Refine extends Primitive
 {
     use ForwardsCalls;
-
-    /** @use HasBuilderInstance<TBuilder, TModel> */
-    use HasBuilderInstance;
 
     /** @use HasFilters<TModel> */
     use HasFilters;
@@ -53,6 +50,20 @@ class Refine extends Primitive
     protected $refined = false;
 
     /**
+     * The builder instance to refine.
+     *
+     * @var TBuilder|null
+     */
+    protected $for;
+
+    /**
+     * A closure to be called before the refiners have been applied.
+     *
+     * @var \Closure|null
+     */
+    protected $before;
+
+    /**
      * A closure to be called after the refiners have been applied.
      *
      * @var \Closure|null
@@ -66,51 +77,145 @@ class Refine extends Primitive
      */
     protected $delimiter;
 
-    /**
-     * Create a new refine instance.
-     */
     public function __construct(Request $request)
     {
         $this->request($request);
     }
 
     /**
-     * Create a new refine instance.
+     * {@inheritdoc}
      *
-     * @param  TModel|class-string<TModel>|TBuilder  $query
-     * @return static
+     * @param  array<int, mixed>  $parameters
      */
-    public static function make($query)
+    public function __call($method, $parameters)
     {
-        $query = static::createBuilder($query);
+        switch ($method) {
+            case 'for':
+                /** @var TModel|class-string<TModel>|TBuilder $for */
+                $for = $parameters[0];
+                $this->for = static::createBuilder($for);
 
-        return resolve(static::class)->builder($query);
+                return $this;
+
+            case 'before':
+                /** @var \Closure $before */
+                $before = $parameters[0];
+                $this->before = $before;
+
+                return $this;
+
+            case 'after':
+                /** @var \Closure $after */
+                $after = $parameters[0];
+                $this->after = $after;
+
+                return $this;
+
+            case 'sorts':
+                /** @var array<int, \Honed\Refine\Sorts\Sort> $args */
+                $args = $parameters[0];
+
+                return $this->addSorts($args);
+
+            case 'filters':
+                /** @var array<int, \Honed\Refine\Filters\Filter> $args */
+                $args = $parameters[0];
+
+                return $this->addFilters($args);
+
+            case 'searches':
+                /** @var array<int, \Honed\Refine\Searches\Search> $args */
+                $args = $parameters[0];
+
+                return $this->addSearches($args);
+
+            default:
+                return $this->forwardBuilderCall($method, $parameters);
+        }
     }
 
     /**
-     * Dynamically handle calls to the class.
+     * Create a new refine instance.
      *
-     * @param  string  $name
-     * @param  array<int, mixed>  $arguments
+     * @param  TModel|class-string<TModel>|TBuilder|null  $query
+     * @return static
+     */
+    public static function make($query = null)
+    {
+        return resolve(static::class)
+            ->for(static::createBuilder($query));
+    }
+
+    /**
+     * Create a new builder instance.
+     *
+     * @param  TModel|class-string<TModel>|TBuilder|null  $query
+     * @return TBuilder|null
+     *
+     * @throws \InvalidArgumentException
+     */
+    public static function createBuilder($query)
+    {
+        /** @var TBuilder|null */
+        return match (true) {
+            $query instanceof Builder,
+            \is_null($query) => $query,
+
+            $query instanceof Model,
+            static::isModelClassString($query) => $query::query(),
+
+            default => static::throwInvalidBuilderException($query),
+        };
+    }
+
+    /**
+     * Determine if the query is a model class string.
+     *
+     * @param  mixed  $query
+     * @return bool
+     */
+    public static function isModelClassString($query)
+    {
+        return \is_string($query)
+            && \class_exists($query)
+            && \is_subclass_of($query, Model::class);
+    }
+
+    /**
+     * Forward a call to the builder.
+     *
+     * @param  string  $method
+     * @param  array<int, mixed>  $parameters
      * @return mixed
      */
-    public function __call($name, $arguments)
+    protected function forwardBuilderCall($method, $parameters)
     {
-        return match (true) {
-            // @phpstan-ignore-next-line
-            $name === 'sorts' => $this->addSorts($arguments[0]),
-            // @phpstan-ignore-next-line
-            $name === 'filters' => $this->addFilters($arguments[0]),
-            // @phpstan-ignore-next-line
-            $name === 'searches' => $this->addSearches($arguments[0]),
-            // @phpstan-ignore-next-line
-            $name === 'after' => $this->after = $arguments[0],
-            default => $this->refine()->forwardDecoratedCallTo(
-                $this->getBuilder(),
-                $name,
-                $arguments
-            ),
-        };
+        return $this->refine()
+            ->forwardDecoratedCallTo(
+                $this->getFor(),
+                $method,
+                $parameters
+            );
+    }
+
+    /**
+     * Get the builder the refiner is for.
+     *
+     * @return TBuilder
+     *
+     * @throws \RuntimeException
+     */
+    public function getFor()
+    {
+        if (\method_exists($this, 'for')) {
+            return $this->for();
+        }
+
+        if (\is_null($this->for)) {
+            static::throwMissingBuilderException();
+        }
+
+        return $this->for;
     }
 
     /**
@@ -173,6 +278,62 @@ class Refine extends Primitive
     }
 
     /**
+     * Execute a closure before refiners have been applied.
+     *
+     * @param  TBuilder<TModel>  $builder
+     * @param  \Illuminate\Http\Request  $request
+     * @return void
+     */
+    protected function beforeRefining($builder, $request)
+    {
+        if (isset($this->before)) {
+            \call_user_func($this->before, $builder, $request);
+        }
+
+        if (\method_exists($this, 'before')) {
+            \call_user_func([$this, 'before'], $builder, $request);
+        }
+    }
+
+    /**
+     * Execute a closure after refiners have been applied.
+     *
+     * @param  TBuilder<TModel>  $builder
+     * @param  \Illuminate\Http\Request  $request
+     * @return void
+     */
+    protected function afterRefining($builder, $request)
+    {
+        if (isset($this->after)) {
+            \call_user_func($this->after, $builder, $request);
+        }
+
+        if (\method_exists($this, 'after')) {
+            \call_user_func([$this, 'after'], $builder, $request);
+        }
+    }
+
+    /**
+     * Add the given filters or sorts to the refine pipeline.
+     *
+     * @param  array<int, \Honed\Refine\Refiner>|\Illuminate\Support\Collection<int, \Honed\Refine\Refiner>  $refiners
+     * @return $this
+     */
+    public function using($refiners)
+    {
+        foreach ($refiners as $refiner) {
+            match (true) {
+                $refiner instanceof Filter => $this->addFilter($refiner),
+                $refiner instanceof Sort => $this->addSort($refiner),
+                $refiner instanceof Search => $this->addSearch($refiner),
+                default => null,
+            };
+        }
+
+        return $this;
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function toArray()
@@ -212,23 +373,24 @@ class Refine extends Primitive
             return $this;
         }
 
-        $builder = $this->getBuilder();
+        $for = $this->getFor();
         $request = $this->getRequest();
 
-        $this->pipeline($builder, $request);
+        $this->pipeline($for, $request);
 
         return $this->markAsRefined();
     }
 
     /**
-     * Execute the refine pipeline.
+     * Execute the refiner pipeline.
      *
-     * @param  TBuilder<TModel>  $builder
+     * @param  TBuilder  $builder
      * @param  \Illuminate\Http\Request  $request
      * @return void
      */
     protected function pipeline($builder, $request)
     {
+        $this->beforeRefining($builder, $request);
         $this->search($builder, $request);
         $this->filter($builder, $request);
         $this->sort($builder, $request);
@@ -236,40 +398,32 @@ class Refine extends Primitive
     }
 
     /**
-     * Execute a closure after refiners have been applied.
+     * Throw an exception if the builder instance has not been set when called.
      *
-     * @param  TBuilder<TModel>  $builder
-     * @param  \Illuminate\Http\Request  $request
-     * @return void
+     * @return never
+     *
+     * @throws \RuntimeException
      */
-    protected function afterRefining($builder, $request)
+    protected static function throwMissingBuilderException()
     {
-        if (isset($this->after)) {
-            \call_user_func($this->after, $builder, $request);
-        }
-
-        if (\method_exists($this, 'after')) {
-            \call_user_func([$this, 'after'], $builder, $request);
-        }
+        throw new \RuntimeException('Builder instance has not been set.');
     }
 
     /**
-     * Add the given filters or sorts to the refine pipeline.
+     * Throw an exception if the argument cannot be resolved to a builder instance.
      *
-     * @param  array<int, \Honed\Refine\Refiner>|\Illuminate\Support\Collection<int, \Honed\Refine\Refiner>  $refiners
-     * @return $this
+     * @param  string  $query
+     * @return never
+     *
+     * @throws \InvalidArgumentException
      */
-    public function using($refiners)
+    protected static function throwInvalidBuilderException($query)
     {
-        collect($refiners)->each(function ($refiner) {
-            match (true) {
-                $refiner instanceof Filter => $this->addFilter($refiner),
-                $refiner instanceof Sort => $this->addSort($refiner),
-                $refiner instanceof Search => $this->addSearch($refiner),
-                default => null,
-            };
-        });
-
-        return $this;
+        throw new \InvalidArgumentException(
+            \sprintf(
+                'The provided query [%s] cannot be resolved to a builder instance.',
+                $query
+            )
+        );
     }
 }

@@ -6,8 +6,6 @@ namespace Honed\Refine\Sorts;
 
 use Honed\Core\Concerns\IsDefault;
 use Honed\Refine\Refiner;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Http\Request;
 
 class Sort extends Refiner
 {

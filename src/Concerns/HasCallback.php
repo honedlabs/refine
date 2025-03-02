@@ -30,11 +30,13 @@ trait HasCallback
      * Retrieve the callback.
      *
      * @return mixed
+     *
+     * @throws \InvalidArgumentException
      */
     public function getCallback()
     {
         if (\is_null($this->callback)) {
-            throw new \InvalidArgumentException('No callback has been set.');
+            static::throwMissingCallbackException();
         }
 
         if (\is_string($this->callback) && \class_exists($this->callback)) {
@@ -42,5 +44,17 @@ trait HasCallback
         }
 
         return $this->callback;
+    }
+
+    /**
+     * Throw an exception if the callback is missing.
+     *
+     * @return never
+     *
+     * @throws \InvalidArgumentException
+     */
+    protected static function throwMissingCallbackException()
+    {
+        throw new \InvalidArgumentException('No callback has been set.');
     }
 }
