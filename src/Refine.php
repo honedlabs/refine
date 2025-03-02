@@ -98,14 +98,14 @@ class Refine extends Primitive
                 return $this;
 
             case 'before':
-                /** @var \Closure $before */
+                /** @var \Closure|null $before */
                 $before = $parameters[0];
                 $this->before = $before;
 
                 return $this;
 
             case 'after':
-                /** @var \Closure $after */
+                /** @var \Closure|null $after */
                 $after = $parameters[0];
                 $this->after = $after;
 
