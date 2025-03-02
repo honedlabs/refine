@@ -9,9 +9,31 @@ use Honed\Refine\Sorts\Sort;
 use Honed\Refine\Filters\Filter;
 use Honed\Refine\Searches\Search;
 use Honed\Refine\Tests\Stubs\Product;
+use Illuminate\Database\Eloquent\Builder;
 
 beforeEach(function () {
     $this->refine = Refine::make(Product::class);
+});
+
+
+it('has for method', function () {
+    expect($this->refine)
+        ->for(Product::class)->toBe($this->refine)
+        ->getFor()->toBeInstanceOf(Builder::class);
+});
+
+it('has before method', function () {
+    expect($this->refine)
+        ->before(function () {
+            return $this->refine;
+        })->toBe($this->refine);
+});
+
+it('has after method', function () {
+    expect($this->refine)
+        ->after(function () {
+            return $this->refine;
+        })->toBe($this->refine);
 });
 
 it('calls sorts', function () {
