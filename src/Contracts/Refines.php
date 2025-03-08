@@ -11,9 +11,16 @@ namespace Honed\Refine\Contracts;
 interface Refines
 {
     /**
-     * Get the unique key to identify the refiner.
+     * Get the parameter for the refiner.
      *
      * @return string
      */
-    public function getUniqueKey();
+    public function getParameter();
+
+    /**
+     * Determine if the refiner is currently being applied.
+     *
+     * @return bool
+     */
+    public function isActive();
 }

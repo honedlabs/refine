@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Honed\Refine\Sorts\Sort;
+use Honed\Refine\Sort;
 use Honed\Refine\Tests\Stubs\Product;
 use Illuminate\Support\Facades\Request;
 
@@ -12,6 +12,27 @@ beforeEach(function () {
     $this->sort = Sort::make($this->param);
     $this->key = config('refine.config.sorts');
 });
+
+it('has next direction', function () {
+    expect($this->sort)
+        ->getNextDirection()->toBe($this->sort->getAscendingValue())
+        ->direction(Sort::ASCENDING)
+        ->getNextDirection()->toBe($this->sort->getDescendingValue())
+        ->direction(Sort::DESCENDING)
+        ->getNextDirection()->toBeNull();
+});
+
+// it('can be singular', function () {
+
+// });
+
+it('can invert direction', function () {
+    expect($this->sort)
+        ->invert()->toBe($this->sort)
+        ->isInverted()->toBeTrue()
+        ->getNextDirection()->toBe($this->sort->getDescendingValue());
+});
+
 
 it('sorts by attribute', function () {
     $request = Request::create('/', 'GET', [$this->key => $this->param]);
@@ -81,20 +102,4 @@ it('has array representation', function () {
         'direction' => null,
         'next' => $this->sort->getAscendingValue(),
     ]);
-});
-
-it('has next direction', function () {
-    expect($this->sort)
-        ->getNextDirection()->toBe($this->sort->getAscendingValue())
-        ->direction(Sort::ASCENDING)
-        ->getNextDirection()->toBe($this->sort->getDescendingValue())
-        ->direction(Sort::DESCENDING)
-        ->getNextDirection()->toBeNull();
-});
-
-it('can invert direction', function () {
-    expect($this->sort)
-        ->invert()->toBe($this->sort)
-        ->isInverted()->toBeTrue()
-        ->getNextDirection()->toBe($this->sort->getDescendingValue());
 });

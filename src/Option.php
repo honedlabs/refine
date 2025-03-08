@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Honed\Refine\Filters\Concerns;
+namespace Honed\Refine;
 
 use Honed\Core\Concerns\HasLabel;
 use Honed\Core\Concerns\HasValue;

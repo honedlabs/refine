@@ -10,9 +10,9 @@ use Honed\Core\Primitive;
 use Honed\Refine\Concerns\HasFilters;
 use Honed\Refine\Concerns\HasSearches;
 use Honed\Refine\Concerns\HasSorts;
-use Honed\Refine\Filters\Filter;
-use Honed\Refine\Searches\Search;
-use Honed\Refine\Sorts\Sort;
+use Honed\Refine\Filter;
+use Honed\Refine\Search;
+use Honed\Refine\Sort;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
@@ -112,19 +112,19 @@ class Refine extends Primitive
                 return $this;
 
             case 'sorts':
-                /** @var array<int, \Honed\Refine\Sorts\Sort> $args */
+                /** @var array<int, \Honed\Refine\Sort> $args */
                 $args = $parameters[0];
 
                 return $this->addSorts($args);
 
             case 'filters':
-                /** @var array<int, \Honed\Refine\Filters\Filter> $args */
+                /** @var array<int, \Honed\Refine\Filter> $args */
                 $args = $parameters[0];
 
                 return $this->addFilters($args);
 
             case 'searches':
-                /** @var array<int, \Honed\Refine\Searches\Search> $args */
+                /** @var array<int, \Honed\Refine\Search> $args */
                 $args = $parameters[0];
 
                 return $this->addSearches($args);

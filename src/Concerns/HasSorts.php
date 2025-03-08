@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Honed\Refine\Concerns;
 
-use Honed\Refine\Sorts\Sort;
+use Honed\Refine\Sort;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 
@@ -14,6 +14,13 @@ use Illuminate\Support\Collection;
 trait HasSorts
 {
     /**
+     * List of the sorts.
+     *
+     * @var array<int,\Honed\Refine\Sort>|null
+     */
+    protected $sorts;
+
+    /**
      * The query parameter to identify the sort to apply.
      *
      * @var string|null
@@ -21,53 +28,23 @@ trait HasSorts
     protected $sortsKey;
 
     /**
-     * List of the sorts.
-     *
-     * @var array<int,\Honed\Refine\Sorts\Sort>|null
+     * Whether to not apply the sorts.
+     * 
+     * @var bool
      */
-    protected $sorts;
+    protected $withoutSorting = false;
 
     /**
-     * Set the query parameter to identify the sort to apply.
-     *
-     * @param  string  $sortsKey
-     * @return $this
+     * Whether to not provide the sorts.
+     * 
+     * @var bool
      */
-    public function sortsKey($sortsKey)
-    {
-        $this->sortsKey = $sortsKey;
-
-        return $this;
-    }
-
-    /**
-     * Get the query parameter to identify the sort to apply.
-     *
-     * @return string
-     */
-    public function getSortsKey()
-    {
-        if (isset($this->sortsKey)) {
-            return $this->sortsKey;
-        }
-
-        return $this->getFallbackSortsKey();
-    }
-
-    /**
-     * Get the fallback query parameter to identify the sort to apply.
-     *
-     * @return string
-     */
-    protected function getFallbackSortsKey()
-    {
-        return type(config('refine.config.sorts', 'sort'))->asString();
-    }
+    protected $withoutSorts = false;
 
     /**
      * Merge a set of sorts with the existing sorts.
      *
-     * @param  array<int, \Honed\Refine\Sorts\Sort>|\Illuminate\Support\Collection<int, \Honed\Refine\Sorts\Sort>  $sorts
+     * @param  array<int, \Honed\Refine\Sort>|\Illuminate\Support\Collection<int, \Honed\Refine\Sort>  $sorts
      * @return $this
      */
     public function addSorts($sorts)
@@ -84,7 +61,7 @@ trait HasSorts
     /**
      * Add a single sort to the list of sorts.
      *
-     * @param  \Honed\Refine\Sorts\Sort  $sort
+     * @param  \Honed\Refine\Sort  $sort
      * @return $this
      */
     public function addSort($sort)
@@ -97,18 +74,18 @@ trait HasSorts
     /**
      * Retrieve the sorts.
      *
-     * @return array<int,\Honed\Refine\Sorts\Sort>
+     * @return array<int,\Honed\Refine\Sort>
      */
     public function getSorts()
     {
         return once(function () {
-            $methodSorts = method_exists($this, 'sorts') ? $this->sorts() : [];
-            $propertySorts = $this->sorts ?? [];
+            $sorts = \method_exists($this, 'sorts') ? $this->sorts() : [];
 
-            return collect($propertySorts)
-                ->merge($methodSorts)
+            $sorts = \array_merge($sorts, $this->sorts ?? []);
+
+            return collect($sorts)
                 ->filter(static fn (Sort $sort) => $sort->isAllowed())
-                ->unique(static fn (Sort $sort) => $sort->getUniqueKey())
+                // ->unique(static fn (Sort $sort) => $sort->())
                 ->values()
                 ->all();
         });
@@ -125,18 +102,117 @@ trait HasSorts
     }
 
     /**
-     * Apply a sort to the query.
+     * Set the query parameter to identify the sort to apply.
+     *
+     * @param  string  $sortsKey
+     * @return $this
+     */
+    public function sortsKey($sortsKey)
+    {
+        $this->sortsKey = $sortsKey;
+
+        return $this;
+    }
+
+    /**
+     * Determine if the sorts key is set.
+     * 
+     * @return bool
+     */
+    public function hasSortsKey()
+    {
+        return isset($this->sortsKey);
+    }
+
+    /**
+     * Get the query parameter to identify the sort to apply.
+     *
+     * @return string
+     */
+    public function getSortsKey()
+    {
+        if ($this->hasSortsKey()) {
+            return $this->sortsKey;
+        }
+
+        return $this->fallbackSortsKey();
+    }
+
+    /**
+     * Get the query parameter to identify the sort to apply from the config.
+     *
+     * @return string
+     */
+    protected function fallbackSortsKey()
+    {
+        return type(config('refine.config.sorts', 'sort'))->asString();
+    }
+
+    /**
+     * Set the instance to not apply the sorts.
+     *
+     * @param  bool  $withoutSorting
+     * @return $this
+     */
+    public function withoutSorting($withoutSorting = true)
+    {
+        $this->withoutSorting = $withoutSorting;
+
+        return $this;
+    }
+
+    /**
+     * Determine if the instance should not apply the sorts.
+     *
+     * @return bool
+     */
+    public function isWithoutSorting()
+    {
+        return $this->withoutSorting;
+    }
+
+    /**
+     * Set the instance to not provide the sorts.
+     *
+     * @param  bool  $withoutSorts
+     * @return $this
+     */
+    public function withoutSorts($withoutSorts = true)
+    {
+        $this->withoutSorts = $withoutSorts;
+
+        return $this;
+    }
+
+    /**
+     * Determine if the instance should not provide the sorts.
+     *
+     * @return bool
+     */
+    public function isWithoutSorts()
+    {
+        return $this->withoutSorts;
+    }
+
+    /**
+     * Apply the sort to the query.
      *
      * @param  \Illuminate\Database\Eloquent\Builder<TModel>  $builder
      * @param  \Illuminate\Http\Request  $request
+     * @param  array<int, \Honed\Refine\Sort>  $sorts
      * @return $this
      */
-    public function sort($builder, $request)
+    public function sort($builder, $request, $sorts = [])
     {
+        if ($this->isWithoutSorting()) {
+            return $this;
+        }
+
         /** @var string */
         $key = $this->formatScope($this->getSortsKey());
 
-        $sorts = $this->getSorts();
+        $sorts = \array_merge($this->getSorts(), $sorts);
+
         $applied = false;
 
         foreach ($sorts as $sort) {
@@ -144,7 +220,7 @@ trait HasSorts
         }
 
         if (! $applied) {
-            $this->sortByDefault($builder, $sorts);
+            $this->sortDefault($builder, $sorts);
         }
 
         return $this;
@@ -154,31 +230,20 @@ trait HasSorts
      * Apply a default sort to the query.
      *
      * @param  \Illuminate\Database\Eloquent\Builder<TModel>  $builder
-     * @param  array<int, \Honed\Refine\Sorts\Sort>  $sorts
+     * @param  array<int, \Honed\Refine\Sort>  $sorts
      * @return void
      */
-    protected function sortByDefault($builder, $sorts)
+    protected function sortDefault($builder, $sorts)
     {
-        $sort = $this->getDefaultSort($sorts);
+        $sort = Arr::first(
+            $sorts,
+            static fn (Sort $sort) => $sort->isDefault()
+        );
 
         $sort?->handle(
             $builder,
             $sort->getDirection() ?? 'asc',
-            type($sort->getAttribute())->asString()
-        );
-    }
-
-    /**
-     * Find the default sort.
-     *
-     * @param  array<int, \Honed\Refine\Sorts\Sort>  $sorts
-     * @return \Honed\Refine\Sorts\Sort|null
-     */
-    protected function getDefaultSort($sorts)
-    {
-        return Arr::first(
-            $sorts,
-            static fn (Sort $sort) => $sort->isDefault()
+            $sort->getName()
         );
     }
 
@@ -189,6 +254,10 @@ trait HasSorts
      */
     public function sortsToArray()
     {
+        if ($this->isWithoutSorts()) {
+            return [];
+        }
+
         return \array_map(
             static fn (Sort $sort) => $sort->toArray(),
             $this->getSorts()

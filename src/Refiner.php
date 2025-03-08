@@ -6,9 +6,9 @@ namespace Honed\Refine;
 
 use Honed\Core\Concerns\Allowable;
 use Honed\Core\Concerns\HasAlias;
-use Honed\Core\Concerns\HasAttribute;
 use Honed\Core\Concerns\HasLabel;
 use Honed\Core\Concerns\HasMeta;
+use Honed\Core\Concerns\HasName;
 use Honed\Core\Concerns\HasType;
 use Honed\Core\Concerns\HasValue;
 use Honed\Core\Primitive;
@@ -22,7 +22,7 @@ abstract class Refiner extends Primitive implements Refines
 {
     use Allowable;
     use HasAlias;
-    use HasAttribute;
+    use HasName;
     use HasLabel;
     use HasMeta;
     use HasType;
@@ -31,36 +31,27 @@ abstract class Refiner extends Primitive implements Refines
     /**
      * Create a new refiner instance.
      *
-     * @param  string  $attribute
+     * @param  string  $name
      * @param  string|null  $label
      * @return static
      */
-    public static function make($attribute, $label = null)
+    public static function make($name, $label = null)
     {
         return resolve(static::class)
-            ->attribute($attribute)
-            ->label($label ?? static::makeLabel($attribute));
+            ->name($name)
+            ->label($label ?? static::makeLabel($name));
     }
 
     /**
-     * Get the parameter for the refiner.
-     *
-     * @return string
+     * {@inheritdoc}
      */
     public function getParameter()
     {
         return $this->getAlias()
-            ?? Str::of(type($this->getAttribute())->asString())
+            ?? Str::of($this->getName())
                 ->afterLast('.')
                 ->value();
     }
-
-    /**
-     * Determine if the refiner is currently being applied.
-     *
-     * @return bool
-     */
-    abstract public function isActive();
 
     /**
      * Get the refiner as an array.

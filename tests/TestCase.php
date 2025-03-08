@@ -61,6 +61,7 @@ class TestCase extends Orchestra
 
     public function getEnvironmentSetUp($app)
     {
+        config()->set('refine', require __DIR__.'/../config/refine.php');
         config()->set('database.default', 'testing');
         config()->set('scout.driver', 'array');
     }

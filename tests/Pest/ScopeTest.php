@@ -3,9 +3,9 @@
 declare(strict_types=1);
 
 use Honed\Refine\Refine;
-use Honed\Refine\Sorts\Sort;
-use Honed\Refine\Filters\Filter;
-use Honed\Refine\Searches\Search;
+use Honed\Refine\Sort;
+use Honed\Refine\Filter;
+use Honed\Refine\Search;
 use Honed\Refine\Tests\Stubs\Product;
 use Illuminate\Support\Facades\Request;
 

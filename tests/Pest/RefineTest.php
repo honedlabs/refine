@@ -2,13 +2,10 @@
 
 declare(strict_types=1);
 
-use Honed\Refine\Filters\BooleanFilter;
-use Honed\Refine\Filters\DateFilter;
-use Honed\Refine\Filters\Filter;
-use Honed\Refine\Filters\SetFilter;
 use Honed\Refine\Refine;
-use Honed\Refine\Searches\Search;
-use Honed\Refine\Sorts\Sort;
+use Honed\Refine\Search;
+use Honed\Refine\Sort;
+use Honed\Refine\Filter;
 use Honed\Refine\Tests\Fixtures\RefineFixture;
 use Honed\Refine\Tests\Stubs\Product;
 use Honed\Refine\Tests\Stubs\Status;
@@ -22,27 +19,33 @@ beforeEach(function () {
     $this->refiners = [
         Filter::make('name')->like(),
 
-        SetFilter::make('price', 'Maximum price')
-            ->options([10, 20, 50, 100])->lt(),
+        Filter::make('price', 'Maximum price')
+            ->strict()
+            ->operator('>=')
+            ->options([10, 20, 50, 100]),
 
-        SetFilter::make('status')
+        Filter::make('status')
+            ->strict()
             ->enum(Status::class)
             ->multiple(),
 
-        SetFilter::make('status', 'Single')
+        Filter::make('status', 'Single')
             ->alias('only')
             ->enum(Status::class),
 
-        BooleanFilter::make('best_seller', 'Favourite')
+        Filter::make('best_seller', 'Favourite')
+            ->asBoolean()
             ->alias('favourite'),
 
-        DateFilter::make('created_at', 'Oldest')
+        Filter::make('created_at', 'Oldest')
             ->alias('oldest')
-            ->gt(),
+            ->asTime()
+            ->operator('>='),
 
-        DateFilter::make('created_at', 'Newest')
+        Filter::make('created_at', 'Newest')
             ->alias('newest')
-            ->lt(),
+            ->asTime()
+            ->operator('<='),
 
         Sort::make('name', 'A-Z')
             ->alias('name-desc')

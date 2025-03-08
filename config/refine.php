@@ -18,6 +18,20 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Strictness
+    |--------------------------------------------------------------------------
+    |
+    | You can specify if the filter should be strict about the options that are
+    | allowed. If true, only the options provided will be allowed. If false,
+    | the filter will allow any options that are provided even if not explicitly
+    | provided.
+    |
+    */
+    
+    'strict' => false,
+
+    /*
+    |--------------------------------------------------------------------------
     | Enable matches
     |--------------------------------------------------------------------------
     |

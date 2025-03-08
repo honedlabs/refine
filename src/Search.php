@@ -2,10 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Honed\Refine\Searches;
+namespace Honed\Refine;
 
 use Honed\Refine\Refiner;
-use Illuminate\Database\Eloquent\Builder;
 
 class Search extends Refiner
 {
@@ -15,14 +14,6 @@ class Search extends Refiner
     public function setUp()
     {
         $this->type('search');
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getUniqueKey()
-    {
-        return type($this->getAttribute())->asString();
     }
 
     /**
@@ -38,13 +29,13 @@ class Search extends Refiner
      *
      * @param  \Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model>  $builder
      * @param  string|null  $search
-     * @param  array<int,string>|true  $columns
+     * @param  array<int,string>|null  $columns
      * @param  string  $boolean
      * @return bool
      */
     public function apply($builder, $search, $columns, $boolean = 'and')
     {
-        $shouldBeApplied = $columns === true || \in_array($this->getParameter(), $columns);
+        $shouldBeApplied = \is_null($columns) || \in_array($this->getParameter(), $columns);
 
         $this->value($shouldBeApplied ? $search : null);
 
@@ -52,11 +43,9 @@ class Search extends Refiner
             return false;
         }
 
-        $attribute = type($this->getAttribute())->asString();
-
         $value = type($search)->asString();
 
-        $this->handle($builder, $value, $attribute, $boolean);
+        $this->handle($builder, $value, $this->getName(), $boolean);
 
         return true;
     }
