@@ -27,7 +27,7 @@ return [
     | provided.
     |
     */
-    
+
     'strict' => false,
 
     /*

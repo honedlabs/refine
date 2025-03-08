@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Honed\Refine\Concerns;
 
-use Honed\Core\Concerns\HasRequest;
 use Honed\Refine\Filter;
 use Illuminate\Support\Collection;
 
@@ -22,14 +21,14 @@ trait HasFilters
 
     /**
      * Whether to not apply the filters.
-     * 
+     *
      * @var bool
      */
     protected $withoutFiltering = false;
 
     /**
      * Whether to provide the filters.
-     * 
+     *
      * @var bool
      */
     protected $withoutFilters = false;
@@ -73,7 +72,7 @@ trait HasFilters
     {
         return once(function () {
             $filters = \method_exists($this, 'filters') ? $this->filters() : [];
-            
+
             $filters = \array_merge($filters, $this->filters ?? []);
 
             return \array_values(

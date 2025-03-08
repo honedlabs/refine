@@ -29,14 +29,14 @@ trait HasSorts
 
     /**
      * Whether to not apply the sorts.
-     * 
+     *
      * @var bool
      */
     protected $withoutSorting = false;
 
     /**
      * Whether to not provide the sorts.
-     * 
+     *
      * @var bool
      */
     protected $withoutSorts = false;
@@ -116,7 +116,7 @@ trait HasSorts
 
     /**
      * Determine if the sorts key is set.
-     * 
+     *
      * @return bool
      */
     public function hasSortsKey()

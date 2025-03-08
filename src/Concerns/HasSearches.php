@@ -49,14 +49,14 @@ trait HasSearches
 
     /**
      * Whether to not apply the searches.
-     * 
+     *
      * @var bool
      */
     protected $withoutSearching = false;
 
     /**
      * Whether to not provide the searches.
-     * 
+     *
      * @var bool
      */
     protected $withoutSearches = false;
@@ -136,7 +136,7 @@ trait HasSearches
 
     /**
      * Determine if the searches key is set.
-     * 
+     *
      * @return bool
      */
     public function hasSearchesKey()
@@ -183,7 +183,7 @@ trait HasSearches
 
     /**
      * Determine if the matches key is set.
-     * 
+     *
      * @return bool
      */
     public function hasMatchesKey()
@@ -230,7 +230,7 @@ trait HasSearches
 
     /**
      * Determine if the matching value is set.
-     * 
+     *
      * @return bool
      */
     public function hasMatch()
@@ -240,7 +240,7 @@ trait HasSearches
 
     /**
      * Determine if matching is enabled
-     * 
+     *
      * @return bool
      */
     public function isMatching()

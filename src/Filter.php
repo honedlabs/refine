@@ -4,32 +4,31 @@ declare(strict_types=1);
 
 namespace Honed\Refine;
 
-use Honed\Refine\Refiner;
 use BadMethodCallException;
 use Honed\Core\Concerns\HasScope;
 use Honed\Core\Concerns\Validatable;
+use Honed\Refine\Concerns\HasOptions;
 use Honed\Refine\Concerns\HasQueryExpression;
 use Honed\Refine\Concerns\InterpretsRequest;
-use Honed\Refine\Concerns\HasOptions;
 
 /**
  * @mixin \Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model>
  */
 class Filter extends Refiner
 {
-    use HasScope;
-    use Validatable;
     use HasOptions {
         multiple as protected setMultiple;
     }
-    use InterpretsRequest;
     use HasQueryExpression {
         __call as queryCall;
     }
+    use HasScope;
+    use InterpretsRequest;
+    use Validatable;
 
     /**
      * The operator to use for the filter.
-     * 
+     *
      * @var string
      */
     protected $operator = '=';
@@ -64,7 +63,7 @@ class Filter extends Refiner
 
     /**
      * Get the expression partials supported by the filter.
-     * 
+     *
      * @return array<int,string>
      */
     public function expressions()
@@ -78,7 +77,7 @@ class Filter extends Refiner
 
     /**
      * Allow multiple values to be used.
-     * 
+     *
      * @return $this
      */
     public function multiple()
@@ -92,20 +91,20 @@ class Filter extends Refiner
 
     /**
      * Determine if the value is invalid.
-     * 
+     *
      * @param  mixed  $value
      * @return bool
      */
     public function invalidValue($value)
     {
-        return ! $this->isActive() || 
+        return ! $this->isActive() ||
             ! $this->validate($value) ||
             ($this->hasOptions() && empty($value));
     }
 
     /**
      * Get the operator to use for the filter.
-     * 
+     *
      * @return string
      */
     public function getOperator()
@@ -115,7 +114,7 @@ class Filter extends Refiner
 
     /**
      * Set the operator to use for the filter.
-     * 
+     *
      * @param  string  $operator
      * @return $this
      */
@@ -168,7 +167,7 @@ class Filter extends Refiner
 
     /**
      * Handle the filter using a default refinement.
-     * 
+     *
      * @param  \Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model>  $builder
      * @param  mixed  $value
      * @return void
@@ -179,7 +178,7 @@ class Filter extends Refiner
         $operator = $this->getOperator();
 
         match (true) {
-            \in_array($operator, 
+            \in_array($operator,
                 ['like', 'not like', 'ilike', 'not ilike']
             ) => $builder->whereRaw("LOWER({$column}) {$operator} ?", ['%'.\mb_strtolower($value).'%']),
 
@@ -196,7 +195,7 @@ class Filter extends Refiner
 
     /**
      * Dynamically handle calls to the class.
-     * 
+     *
      * @param  string  $method
      * @param  array  $parameters
      * @return mixed
