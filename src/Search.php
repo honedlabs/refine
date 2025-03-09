@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Honed\Refine;
 
+use Honed\Refine\Refiner;
+
 class Search extends Refiner
 {
     /**
@@ -31,7 +33,7 @@ class Search extends Refiner
      * @param  string  $boolean
      * @return bool
      */
-    public function apply($builder, $search, $columns, $boolean = 'and')
+    public function refine($builder, $search, $columns, $boolean = 'and')
     {
         $shouldBeApplied = \is_null($columns) || \in_array($this->getParameter(), $columns);
 
@@ -43,7 +45,7 @@ class Search extends Refiner
 
         $value = type($search)->asString();
 
-        $this->handle($builder, $value, $this->getName(), $boolean);
+        $this->apply($builder, $value, $this->getName(), $boolean);
 
         return true;
     }
@@ -53,16 +55,16 @@ class Search extends Refiner
      *
      * @param  \Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model>  $builder
      * @param  string  $value
-     * @param  string  $property
+     * @param  string  $column
      * @param  string  $boolean
      * @return void
      */
-    public function handle($builder, $value, $property, $boolean = 'and')
+    public function apply($builder, $value, $column, $boolean = 'and')
     {
-        $qualified = $builder->qualifyColumn($property);
+        $column = $builder->qualifyColumn($column);
 
         $builder->whereRaw(
-            sql: "LOWER({$qualified}) LIKE ?",
+            sql: "LOWER({$column}) LIKE ?",
             bindings: ['%'.mb_strtolower($value, 'UTF8').'%'],
             boolean: $boolean,
         );

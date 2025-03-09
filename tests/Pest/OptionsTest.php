@@ -91,7 +91,7 @@ it('applies lax', function () {
 
     $request = Request::create('/', 'GET', [$this->name => $value]);
 
-    expect($filter->apply($builder, $request))
+    expect($filter->refine($builder, $request))
         ->toBeTrue();
 
     expect($builder->getQuery()->wheres)
@@ -114,7 +114,7 @@ it('applies strict', function () {
 
     $request = Request::create('/', 'GET', [$this->name => $value]);
 
-    expect($filter->apply($builder, $request))
+    expect($filter->refine($builder, $request))
         ->toBeFalse();
 
     expect($builder->getQuery()->wheres)
@@ -150,7 +150,7 @@ it('applies multiple', function () {
 
     $request = Request::create('/', 'GET', [$this->name => $valueString]);
 
-    expect($filter->apply($builder, $request))
+    expect($filter->refine($builder, $request))
         ->toBeTrue();
 
     expect($builder->getQuery()->wheres)

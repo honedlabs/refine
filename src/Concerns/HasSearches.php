@@ -49,14 +49,14 @@ trait HasSearches
 
     /**
      * Whether to not apply the searches.
-     *
+     * 
      * @var bool
      */
     protected $withoutSearching = false;
 
     /**
      * Whether to not provide the searches.
-     *
+     * 
      * @var bool
      */
     protected $withoutSearches = false;
@@ -136,7 +136,7 @@ trait HasSearches
 
     /**
      * Determine if the searches key is set.
-     *
+     * 
      * @return bool
      */
     public function hasSearchesKey()
@@ -152,7 +152,7 @@ trait HasSearches
     public function getSearchesKey()
     {
         if ($this->hasSearchesKey()) {
-            return $this->searchesKey;
+            return type($this->searchesKey)->asString();
         }
 
         return $this->fallbackSearchesKey();
@@ -183,7 +183,7 @@ trait HasSearches
 
     /**
      * Determine if the matches key is set.
-     *
+     * 
      * @return bool
      */
     public function hasMatchesKey()
@@ -199,7 +199,7 @@ trait HasSearches
     public function getMatchesKey()
     {
         if ($this->hasMatchesKey()) {
-            return $this->matchesKey;
+            return type($this->matchesKey)->asString();
         }
 
         return $this->fallbackMatchesKey();
@@ -230,7 +230,7 @@ trait HasSearches
 
     /**
      * Determine if the matching value is set.
-     *
+     * 
      * @return bool
      */
     public function hasMatch()
@@ -240,13 +240,13 @@ trait HasSearches
 
     /**
      * Determine if matching is enabled
-     *
+     * 
      * @return bool
      */
     public function isMatching()
     {
         if ($this->hasMatch()) {
-            return $this->match;
+            return (bool) $this->match;
         }
 
         return $this->fallbackIsMatching();
@@ -371,9 +371,10 @@ trait HasSearches
      *
      * @param  \Illuminate\Database\Eloquent\Builder<TModel>  $builder
      * @param  \Illuminate\Http\Request  $request
+     * @param  array<int, \Honed\Refine\Search>  $searches
      * @return $this
      */
-    public function search($builder, $request)
+    public function search($builder, $request, $searches = [])
     {
         if ($this->isWithoutSearching()) {
             return $this;
@@ -382,13 +383,14 @@ trait HasSearches
         $columns = $this->getMatches($request);
         $this->term = $this->getSearch($request);
 
-        $searches = $this->getSearches();
+        /** @var array<int, \Honed\Refine\Search> */
+        $searches = \array_merge($this->getSearches(), $searches);
         $applied = false;
 
         foreach ($searches as $search) {
             $boolean = $applied ? 'or' : 'and';
 
-            $applied |= $search->apply($builder, $this->term, $columns, $boolean);
+            $applied |= $search->refine($builder, $this->term, $columns, $boolean);
         }
 
         return $this;

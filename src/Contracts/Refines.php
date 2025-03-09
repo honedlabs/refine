@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Honed\Refine\Contracts;
 
 /**
- * @method void handle(mixed ...$parameters)
- * @method bool apply(mixed ...$parameters)
+ * @method bool refine(mixed ...$parameters)
+ * @method void apply(mixed ...$parameters)
  */
 interface Refines
 {

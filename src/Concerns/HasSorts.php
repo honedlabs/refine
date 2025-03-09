@@ -29,14 +29,14 @@ trait HasSorts
 
     /**
      * Whether to not apply the sorts.
-     *
+     * 
      * @var bool
      */
     protected $withoutSorting = false;
 
     /**
      * Whether to not provide the sorts.
-     *
+     * 
      * @var bool
      */
     protected $withoutSorts = false;
@@ -116,7 +116,7 @@ trait HasSorts
 
     /**
      * Determine if the sorts key is set.
-     *
+     * 
      * @return bool
      */
     public function hasSortsKey()
@@ -132,7 +132,7 @@ trait HasSorts
     public function getSortsKey()
     {
         if ($this->hasSortsKey()) {
-            return $this->sortsKey;
+            return type($this->sortsKey)->asString();
         }
 
         return $this->fallbackSortsKey();
@@ -211,12 +211,13 @@ trait HasSorts
         /** @var string */
         $key = $this->formatScope($this->getSortsKey());
 
+        /** @var array<int, \Honed\Refine\Sort> */
         $sorts = \array_merge($this->getSorts(), $sorts);
 
         $applied = false;
 
         foreach ($sorts as $sort) {
-            $applied |= $sort->apply($builder, $request, $key);
+            $applied |= $sort->refine($builder, $request, $key);
         }
 
         if (! $applied) {
@@ -240,10 +241,10 @@ trait HasSorts
             static fn (Sort $sort) => $sort->isDefault()
         );
 
-        $sort?->handle(
+        $sort?->apply(
             $builder,
+            $sort->getName(),
             $sort->getDirection() ?? 'asc',
-            $sort->getName()
         );
     }
 

@@ -20,7 +20,7 @@ it('uses alias over name', function () {
 
     $filter = Filter::make($name)->alias($alias);
 
-    expect($filter->apply($this->builder, $request))
+    expect($filter->refine($this->builder, $request))
         ->toBeTrue();
 
     expect($this->builder->getQuery()->wheres)
@@ -44,7 +44,7 @@ it('scopes the filter query parameter', function () {
     $key = $filter->formatScope($alias);
     $request = Request::create('/', 'GET', [$key => $value]);
 
-    expect($filter->apply($this->builder, $request))
+    expect($filter->refine($this->builder, $request))
         ->toBeTrue();
 
     expect($this->builder->getQuery()->wheres)
@@ -64,7 +64,7 @@ it('requires the parameter name to be present', function () {
 
     $filter = Filter::make($name)->alias($alias);
 
-    expect($filter->apply($this->builder, $request))
+    expect($filter->refine($this->builder, $request))
         ->toBeFalse();
 
     expect($this->builder->getQuery()->wheres)
@@ -84,7 +84,7 @@ it('uses `where` by default', function () {
 
     $filter = Filter::make($name);
 
-    expect($filter->apply($this->builder, $request))
+    expect($filter->refine($this->builder, $request))
         ->toBeTrue();
 
     expect($this->builder->getQuery()->wheres)
@@ -105,7 +105,7 @@ it('can change the `where` operator', function () {
     $filter = Filter::make($name)
         ->operator($operator);
 
-    expect($filter->apply($this->builder, $request))
+    expect($filter->refine($this->builder, $request))
         ->toBeTrue();
 
     expect($this->builder->getQuery()->wheres)
@@ -125,7 +125,7 @@ it('can use `like` operators', function () {
     $filter = Filter::make($name)
         ->operator('like');
 
-    expect($filter->apply($this->builder, $request))
+    expect($filter->refine($this->builder, $request))
         ->toBeTrue();
 
     expect($this->builder->getQuery()->wheres)
@@ -147,7 +147,7 @@ it('can use dates', function () {
         ->operator($operator)
         ->as('date');
 
-    expect($filter->apply($this->builder, $request))
+    expect($filter->refine($this->builder, $request))
         ->toBeTrue();
 
     expect($this->builder->getQuery()->wheres)
@@ -176,7 +176,7 @@ it('can use times', function () {
         ->operator($operator)
         ->as('time');
 
-    expect($filter->apply($this->builder, $request))
+    expect($filter->refine($this->builder, $request))
         ->toBeTrue();
 
     expect($this->builder->getQuery()->wheres)
@@ -203,7 +203,7 @@ it('supports closures', function () {
     $filter = Filter::make($name)
         ->using(fn ($builder, $value) => $builder->where($name, 'like', $value.'%'));
 
-    expect($filter->apply($this->builder, $request))
+    expect($filter->refine($this->builder, $request))
         ->toBeTrue();
 
     expect($this->builder->getQuery()->wheres)
@@ -222,7 +222,7 @@ it('supports reference only clauses (`has` method)', function () {
 
     $request = Request::create('/', 'GET', [$name => 'true']);
 
-    expect($filter->apply($this->builder, $request))
+    expect($filter->refine($this->builder, $request))
         ->toBeTrue();
 
     expect($this->builder->getQuery()->wheres)
@@ -246,7 +246,7 @@ it('supports reference, explicit operator, value clauses (`where` method)', func
     $filter = Filter::make($name)
         ->where('quantity', $operator, ':value');
 
-    expect($filter->apply($this->builder, $request))
+    expect($filter->refine($this->builder, $request))
         ->toBeTrue();
 
     expect($this->builder->getQuery()->wheres)
@@ -267,7 +267,7 @@ it('supports reference, implicit operator, value clauses (`whereRelation` method
     $filter = Filter::make($name)
         ->whereRelation('details', ':column', $operator, ':value');
 
-    expect($filter->apply($this->builder, $request))
+    expect($filter->refine($this->builder, $request))
         ->toBeTrue();
 
     expect($this->builder->getQuery()->wheres)
@@ -293,7 +293,7 @@ it('supports reference, closure clauses (`whereHas` method)', function () {
             ->where('quantity', '>=', $value)
         );
 
-    expect($filter->apply($this->builder, $request))
+    expect($filter->refine($this->builder, $request))
         ->toBeTrue();
 
     expect($this->builder->getQuery()->wheres)
@@ -317,7 +317,7 @@ it('supports binding names', function () {
     $filter = Filter::make($name)
         ->where(':table.:column', '>=', ':value');
 
-    expect($filter->apply($this->builder, $request))
+    expect($filter->refine($this->builder, $request))
         ->toBeTrue();
 
     expect($this->builder->getQuery()->wheres)

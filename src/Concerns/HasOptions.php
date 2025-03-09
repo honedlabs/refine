@@ -4,22 +4,23 @@ declare(strict_types=1);
 
 namespace Honed\Refine\Concerns;
 
-use Honed\Refine\Option;
+use BackedEnum;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
+use Honed\Refine\Option;
 
 trait HasOptions
 {
     /**
      * The available options.
-     *
+     * 
      * @var array<int,\Honed\Refine\Option>
      */
     protected $options = [];
 
     /**
      * Whether to restrict options to only those provided.
-     *
+     * 
      * @var bool|null
      */
     protected $strict;
@@ -44,7 +45,8 @@ trait HasOptions
         }
 
         $this->options = match (true) {
-            \is_string($options) && \enum_exists($options) => $this->optionsEnumerated($options),
+            \is_string($options) => 
+                $this->optionsEnumerated($options),
 
             Arr::isAssoc($options) => $this->optionsAssociative($options),
 
@@ -70,7 +72,7 @@ trait HasOptions
     /**
      * Allow any options to be used.
      *
-     * @param  bool  $restrict
+     * @param  bool  $strict
      * @return $this
      */
     public function lax($strict = false)
@@ -193,7 +195,7 @@ trait HasOptions
     public function optionsAssociative($options)
     {
         return \array_map(
-            static fn ($value, $key) => Option::make($value, $key),
+            static fn ($value, $key) => Option::make($value, \strval($key)), // @phpstan-ignore-line
             \array_keys($options),
             \array_values($options)
         );
@@ -208,14 +210,14 @@ trait HasOptions
     public function optionsList($options)
     {
         return \array_map(
-            static fn ($value) => Option::make($value, $value),
+            static fn ($value) => Option::make($value, \strval($value)), // @phpstan-ignore-line
             $options
         );
     }
 
     /**
      * Activate the options and return the valid options.
-     *
+     * 
      * @param  mixed  $value
      * @return mixed
      */
@@ -240,7 +242,7 @@ trait HasOptions
 
     /**
      * Determine if the option should be activated.
-     *
+     * 
      * @param  \Honed\Refine\Option  $option
      * @param  mixed  $value
      * @return bool
@@ -248,7 +250,7 @@ trait HasOptions
     public static function shouldActivate($option, $value)
     {
         $optionValue = $option->getValue();
-
+        
         if (\is_array($value)) {
             return \in_array($optionValue, $value, true);
         }

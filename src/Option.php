@@ -21,7 +21,7 @@ class Option extends Primitive
     /**
      * Create a new option.
      *
-     * @param  string|int|float|bool  $value
+     * @param  mixed  $value
      * @param  string|null  $label
      * @return static
      */
@@ -29,7 +29,7 @@ class Option extends Primitive
     {
         return resolve(static::class)
             ->value($value)
-            ->label($label ?? (string) $value);
+            ->label($label ?? (string) $value); // @phpstan-ignore-line
     }
 
     /**
