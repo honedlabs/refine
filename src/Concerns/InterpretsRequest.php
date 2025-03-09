@@ -8,14 +8,14 @@ trait InterpretsRequest
 {
     /**
      * The request interpreter.
-     * 
+     *
      * @var string|null
      */
     protected $as;
 
     /**
      * Interpret the request.
-     * 
+     *
      * @param  \Illuminate\Http\Request  $request
      * @param  string  $key
      * @return mixed
@@ -36,8 +36,8 @@ trait InterpretsRequest
 
     /**
      * Set the interpreter to use.
-     * 
-     * @param  string $as
+     *
+     * @param  string  $as
      * @return $this
      */
     public function as($as)
@@ -49,7 +49,7 @@ trait InterpretsRequest
 
     /**
      * Set the request to interpret as an array.
-     * 
+     *
      * @return $this
      */
     public function asArray()
@@ -59,7 +59,7 @@ trait InterpretsRequest
 
     /**
      * Set the request to interpret as a boolean.
-     * 
+     *
      * @return $this
      */
     public function asBoolean()
@@ -69,7 +69,7 @@ trait InterpretsRequest
 
     /**
      * Set the request to interpret as a date.
-     * 
+     *
      * @return $this
      */
     public function asDate()
@@ -79,7 +79,7 @@ trait InterpretsRequest
 
     /**
      * Set the request to interpret as a decimal. Alias for `asFloat`.
-     * 
+     *
      * @return $this
      */
     public function asDecimal()
@@ -89,7 +89,7 @@ trait InterpretsRequest
 
     /**
      * Set the request to interpret as a timestamp.
-     * 
+     *
      * @return $this
      */
     public function asFloat()
@@ -99,7 +99,7 @@ trait InterpretsRequest
 
     /**
      * Set the request to interpret as an integer.
-     * 
+     *
      * @return $this
      */
     public function asInteger()
@@ -109,7 +109,7 @@ trait InterpretsRequest
 
     /**
      * Set the request to interpret as a string.
-     * 
+     *
      * @return $this
      */
     public function asString()
@@ -119,7 +119,7 @@ trait InterpretsRequest
 
     /**
      * Set the request to interpret as a time.
-     * 
+     *
      * @return $this
      */
     public function asTime()
@@ -129,7 +129,7 @@ trait InterpretsRequest
 
     /**
      * Get the interpreter.
-     * 
+     *
      * @return string|null
      */
     public function getAs()
@@ -139,7 +139,7 @@ trait InterpretsRequest
 
     /**
      * Determine if the filter interprets an array.
-     * 
+     *
      * @return bool
      */
     public function interpretsArray()
@@ -149,7 +149,7 @@ trait InterpretsRequest
 
     /**
      * Determine if the filter interprets a boolean.
-     * 
+     *
      * @return bool
      */
     public function interpretsBoolean()
@@ -159,7 +159,7 @@ trait InterpretsRequest
 
     /**
      * Determine if the filter interprets a date.
-     * 
+     *
      * @return bool
      */
     public function interpretsDate()
@@ -169,7 +169,7 @@ trait InterpretsRequest
 
     /**
      * Determine if the filter interprets a float.
-     * 
+     *
      * @return bool
      */
     public function interpretsFloat()
@@ -179,7 +179,7 @@ trait InterpretsRequest
 
     /**
      * Determine if the filter interprets an integer.
-     * 
+     *
      * @return bool
      */
     public function interpretsInteger()
@@ -189,7 +189,7 @@ trait InterpretsRequest
 
     /**
      * Determine if the filter interprets a string.
-     * 
+     *
      * @return bool
      */
     public function interpretsString()
@@ -199,7 +199,7 @@ trait InterpretsRequest
 
     /**
      * Determine if the filter interprets a time.
-     * 
+     *
      * @return bool
      */
     public function interpretsTime()

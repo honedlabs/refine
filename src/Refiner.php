@@ -22,9 +22,9 @@ abstract class Refiner extends Primitive implements Refines
 {
     use Allowable;
     use HasAlias;
-    use HasName;
     use HasLabel;
     use HasMeta;
+    use HasName;
     use HasType;
     use HasValue;
 

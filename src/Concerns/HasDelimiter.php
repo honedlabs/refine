@@ -8,15 +8,15 @@ trait HasDelimiter
 {
     /**
      * The delimiter to use for parsing array values.
-     * 
+     *
      * @var string|null
      */
     protected $delimiter;
 
     /**
      * Set the delimiter.
-     * 
-     * @param string $delimiter
+     *
+     * @param  string  $delimiter
      * @return $this
      */
     public function delimiter($delimiter)
@@ -28,7 +28,7 @@ trait HasDelimiter
 
     /**
      * Determine if the delimiter is set.
-     * 
+     *
      * @return bool
      */
     public function hasDelimiter()
@@ -38,7 +38,7 @@ trait HasDelimiter
 
     /**
      * Get the delimiter.
-     * 
+     *
      * @return string
      */
     public function getDelimiter()
@@ -52,7 +52,7 @@ trait HasDelimiter
 
     /**
      * Get the delimiter from the config.
-     * 
+     *
      * @return string
      */
     public function fallbackDelimiter()

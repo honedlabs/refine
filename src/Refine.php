@@ -11,9 +11,6 @@ use Honed\Refine\Concerns\HasDelimiter;
 use Honed\Refine\Concerns\HasFilters;
 use Honed\Refine\Concerns\HasSearches;
 use Honed\Refine\Concerns\HasSorts;
-use Honed\Refine\Filter;
-use Honed\Refine\Search;
-use Honed\Refine\Sort;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
@@ -29,8 +26,8 @@ use Illuminate\Support\Traits\ForwardsCalls;
  */
 class Refine extends Primitive
 {
-    use HasDelimiter;
     use ForwardsCalls;
+    use HasDelimiter;
 
     /** @use HasFilters<TModel> */
     use HasFilters;
@@ -298,7 +295,6 @@ class Refine extends Primitive
         $this->afterRefining($builder, $request);
     }
 
-    
     /**
      * Forward a call to the builder.
      *
