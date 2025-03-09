@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Honed\Refine\Concerns;
 
 use BadMethodCallException;
@@ -174,7 +176,7 @@ trait HasQueryExpression
                 return $value;
             }
             // @phpstan-ignore-next-line
-            $reference = \str_replace(':'.$key, $value, $reference);
+            $reference = \str_replace(':'.$key, \strval($value), $reference);
         }
 
         return $reference;

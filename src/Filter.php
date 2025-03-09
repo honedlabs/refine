@@ -6,11 +6,11 @@ namespace Honed\Refine;
 
 use BadMethodCallException;
 use Honed\Core\Concerns\HasScope;
+use Honed\Core\Concerns\InterpretsRequest;
 use Honed\Core\Concerns\Validatable;
 use Honed\Refine\Concerns\HasDelimiter;
 use Honed\Refine\Concerns\HasOptions;
 use Honed\Refine\Concerns\HasQueryExpression;
-use Honed\Refine\Concerns\InterpretsRequest;
 
 /**
  * @mixin \Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model>
@@ -200,13 +200,17 @@ class Filter extends Refiner
     public function apply($builder, $column, $operator, $value)
     {
         $column = $builder->qualifyColumn($column);
+        $operator = $operator ?? '=';
 
         match (true) {
             // If the operator is fuzzy, we do a whereRaw to make it simpler and
             // handle case sensitivity.
             \in_array($operator,
                 ['like', 'not like', 'ilike', 'not ilike']
-            ) => $builder->whereRaw("LOWER({$column}) {$operator} ?", ['%'.\mb_strtolower($value).'%']), // @phpstan-ignore-line
+            ) => $builder->whereRaw(
+                \sprintf('LOWER(%s) %s ?', $column, \mb_strtoupper($operator, 'UTF8')),
+                ['%'.\mb_strtolower(type($value)->asString(), 'UTF8').'%']
+            ),
 
             // The `whereIn` clause should be used if the filter is set to multiple,
             // or if the filter interprets an array. Generally, both should be true

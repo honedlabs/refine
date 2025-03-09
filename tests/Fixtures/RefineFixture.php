@@ -5,9 +5,6 @@ declare(strict_types=1);
 namespace Honed\Refine\Tests\Fixtures;
 
 use Honed\Refine\Filter;
-use Honed\Refine\Filters\BooleanFilter;
-use Honed\Refine\Filters\DateFilter;
-use Honed\Refine\Filters\SetFilter;
 use Honed\Refine\Refine;
 use Honed\Refine\Search;
 use Honed\Refine\Sort;
@@ -18,24 +15,55 @@ class RefineFixture extends Refine
     public function filters()
     {
         return [
-            Filter::make('name')->like(),
-            SetFilter::make('price', 'Maximum price')->options([10, 20, 50, 100])->lt(),
-            SetFilter::make('status')->enum(Status::class)->multiple(),
-            SetFilter::make('status', 'Single')->alias('only')->enum(Status::class),
-            BooleanFilter::make('best_seller', 'Favourite')->alias('favourite'),
-            DateFilter::make('created_at', 'Oldest')->alias('oldest')->gt(),
-            DateFilter::make('created_at', 'Newest')->alias('newest')->lt(),
+            Filter::make('name')
+                ->operator('like'),
 
+            Filter::make('price', 'Maximum price')
+                ->strict()
+                ->operator('>=')
+                ->options([10, 20, 50, 100]),
+
+            Filter::make('status')
+                ->strict()
+                ->enum(Status::class)
+                ->multiple(),
+
+            Filter::make('status', 'Single')
+                ->alias('only')
+                ->enum(Status::class),
+
+            Filter::make('best_seller', 'Favourite')
+                ->asBoolean()
+                ->alias('favourite'),
+
+            Filter::make('created_at', 'Oldest')
+                ->alias('oldest')
+                ->asDate()
+                ->operator('>='),
+
+            Filter::make('created_at', 'Newest')
+                ->alias('newest')
+                ->asDate()
+                ->operator('<='),
         ];
     }
 
     public function sorts()
     {
         return [
-            Sort::make('name', 'A-Z')->alias('name-desc')->desc()->default(),
-            Sort::make('name', 'Z-A')->alias('name-asc')->asc(),
+            Sort::make('name', 'A-Z')
+                ->alias('name-desc')
+                ->desc()
+                ->default(),
+
+            Sort::make('name', 'Z-A')
+                ->alias('name-asc')
+                ->asc(),
+
             Sort::make('price'),
-            Sort::make('best_seller', 'Favourite')->alias('favourite'),
+
+            Sort::make('best_seller', 'Favourite')
+                ->alias('favourite'),
         ];
     }
 

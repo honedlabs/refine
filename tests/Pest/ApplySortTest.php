@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Request;
 
 beforeEach(function () {
     $this->builder = Product::query();
-    $this->key = config('refine.config.sorts');
+    $this->key = config('refine.sorts_key');
 });
 
 it('is not active when the params do not match', function () {

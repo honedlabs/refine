@@ -185,13 +185,13 @@ it('can use times', function () {
             ->{'type'}->toBe('Time')
             ->{'column'}->toBe($this->builder->qualifyColumn($name))
             ->{'operator'}->toBe($operator)
-            ->{'value'}->toBe($value->toDateTimeString())
+            ->{'value'}->toBe($value->toTimeString())
             ->{'boolean'}->toBe('and')
         );
 
     expect($filter)
         ->isActive()->toBeTrue()
-        ->getValue()->toBe($value->toDateTimeString());
+        ->getValue()->toBeInstanceOf(Carbon::class);
 });
 
 it('supports closures', function () {

@@ -145,7 +145,7 @@ trait HasSorts
      */
     protected function fallbackSortsKey()
     {
-        return type(config('refine.config.sorts', 'sort'))->asString();
+        return type(config('refine.sorts_key', 'sort'))->asString();
     }
 
     /**

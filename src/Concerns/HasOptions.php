@@ -227,15 +227,12 @@ trait HasOptions
                 ->isActive()
             )->values();
 
-        if ($this->isStrict()) {
-            $value = $options->map->getValue()->toArray();
-        }
-
-        if ($this->isMultiple()) {
-            return Arr::wrap($value);
-        }
-
-        return $value;
+        return match (true) {
+            $this->isStrict() && $this->isMultiple() => $options->map->getValue()->all(),
+            $this->isMultiple() => Arr::wrap($value),
+            $this->isStrict() => $options->first()?->getValue(),
+            default => $value
+        };
     }
 
     /**

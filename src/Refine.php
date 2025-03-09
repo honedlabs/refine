@@ -69,13 +69,6 @@ class Refine extends Primitive
      */
     protected $after;
 
-    /**
-     * The delimiter to use for array access.
-     *
-     * @var string|null
-     */
-    protected $delimiter;
-
     public function __construct(Request $request)
     {
         $this->request($request);
@@ -135,18 +128,6 @@ class Refine extends Primitive
     }
 
     /**
-     * Mark the refine pipeline as refined.
-     *
-     * @return $this
-     */
-    protected function markAsRefined()
-    {
-        $this->refined = true;
-
-        return $this;
-    }
-
-    /**
      * Determine if the refine pipeline has been run.
      *
      * @return bool
@@ -200,6 +181,7 @@ class Refine extends Primitive
      */
     public function using($refiners)
     {
+
         foreach ($refiners as $refiner) {
             match (true) {
                 $refiner instanceof Filter => $this->addFilter($refiner),
@@ -219,9 +201,9 @@ class Refine extends Primitive
      */
     public function withoutRefining()
     {
+        $this->withoutSearching();
         $this->withoutFiltering();
         $this->withoutSorting();
-        $this->withoutSearching();
 
         return $this;
     }
@@ -271,7 +253,7 @@ class Refine extends Primitive
 
         $this->pipeline($for, $request);
 
-        $this->markAsRefined();
+        $this->refined = true;
 
         return $this;
     }

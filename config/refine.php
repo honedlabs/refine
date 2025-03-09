@@ -43,11 +43,11 @@ return [
     |
     */
 
-    'matches' => false,
+    'match' => false,
 
     /*
     |--------------------------------------------------------------------------
-    | Config
+    | Query parameter keys
     |--------------------------------------------------------------------------
     |
     | You can customise the query parameters that are used to refine the query
@@ -56,12 +56,13 @@ return [
     |
     */
 
-    'config' => [
-        /** The parameter name when using a text search. */
-        'searches' => 'search',
-        /** The parameter name when selecting which columns to match on. */
-        'matches' => 'match',
-        /** The parameter name for the sort field and direction. */
-        'sorts' => 'sort',
-    ],
+    /** The parameter name for the sort field and direction. */
+    'sorts_key' => 'sort',
+
+    /** The parameter name when using a text search. */
+    'searches_key' => 'search',
+
+    /** The parameter name when selecting which columns to match on. */
+    'matches_key' => 'match',
+
 ];

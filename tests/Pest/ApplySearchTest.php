@@ -12,60 +12,55 @@ beforeEach(function () {
     $this->key = config('refine.key.searches');
 });
 
-it('is not active when the params do not match', function () {
+it('applies', function () {
     $name = 'name';
 
     $search = Search::make($name);
 
-    // expect($search->refine($this->builder, ))
+    expect($search)
+        ->refine($this->builder, 'search term', null, 'and')->toBeTrue();
+
+    expect($this->builder->getQuery()->wheres)
+        ->toBeOnlySearch($this->builder->qualifyColumn($name));
+
+    expect($search)
+        ->isActive()->toBeTrue()
+        ->getValue()->toBe('search term');
 });
 
-// it('uses alias over', function () {
-//     expect($this->search)
-//         ->apply($this->builder, 'test', true, 'and')->toBeTrue()
-//         ->isActive()->toBeTrue();
+it('changes query boolean', function () {
+    $name = 'name';
 
-//     expect($this->builder->getQuery()->wheres)->toBeArray()
-//         ->toHaveCount(1)
-//         ->{0}->scoped(fn ($order) => $order
-//         ->{'type'}->toBe('raw')
-//         ->{'sql'}->toBe("LOWER({$this->builder->qualifyColumn('name')}) LIKE ?")
-//         ->{'boolean'}->toBe('and')
-//         );
-// });
+    $search = Search::make($name);
 
-// it('changes query boolean', function () {
-//     expect($this->search)
-//         ->apply($this->builder, 'test', true, 'or')->toBeTrue()
-//         ->isActive()->toBeTrue();
+    expect($search)
+        ->refine($this->builder, 'test', null, 'or')->toBeTrue()
+        ->isActive()->toBeTrue();
 
-//     expect($this->builder->getQuery()->wheres)->toBeArray()
-//         ->toHaveCount(1)
-//         ->{0}->scoped(fn ($order) => $order
-//         ->{'type'}->toBe('raw')
-//         ->{'sql'}->toBe("LOWER({$this->builder->qualifyColumn('name')}) LIKE ?")
-//         ->{'boolean'}->toBe('or')
-//         );
-// });
+    expect($this->builder->getQuery()->wheres)->toBeArray()
+        ->toBeOnlySearch($this->builder->qualifyColumn($name), 'or');
+});
 
-// it('prevents searching if no value is provided', function () {
-//     expect($this->search->apply($this->builder, null, true, 'and'))->toBeFalse();
+it('prevents searching if no value is provided', function () {
+    $name = 'name';
 
-//     expect($this->builder->getQuery()->wheres)->toBeEmpty();
-// });
+    $search = Search::make($name);
 
-// it('only executes if it is in array', function () {
-//     $columns = [$this->param, 'description'];
+    expect($search->refine($this->builder, null, null, 'and'))->toBeFalse();
 
-//     expect($this->search)
-//         ->apply($this->builder, 'test', $columns, 'and')->toBeTrue()
-//         ->isActive()->toBeTrue();
+    expect($this->builder->getQuery()->wheres)->toBeEmpty();
+});
 
-//     expect($this->builder->getQuery()->wheres)->toBeArray()
-//         ->toHaveCount(1)
-//         ->{0}->scoped(fn ($where) => $where
-//             ->{'type'}->toBe('raw')
-//             ->{'sql'}->toBe("LOWER({$this->builder->qualifyColumn('name')}) LIKE ?")
-//             ->{'boolean'}->toBe('and')
-//         );
-// });
+it('only executes if it is in array', function () {
+    $name = 'name';
+    $columns = [$name, 'description'];
+
+    $search = Search::make($name);
+
+    expect($search)
+        ->refine($this->builder, 'test', $columns, 'and')->toBeTrue()
+        ->isActive()->toBeTrue();
+
+    expect($this->builder->getQuery()->wheres)->toBeArray()
+        ->toBeOnlySearch($this->builder->qualifyColumn($name), 'and');
+});
