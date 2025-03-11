@@ -200,7 +200,6 @@ class Filter extends Refiner
     public function apply($builder, $column, $operator, $value)
     {
         $column = $builder->qualifyColumn($column);
-        $operator = $operator ?? '=';
 
         match (true) {
             // If the operator is fuzzy, we do a whereRaw to make it simpler and
@@ -208,7 +207,7 @@ class Filter extends Refiner
             \in_array($operator,
                 ['like', 'not like', 'ilike', 'not ilike']
             ) => $builder->whereRaw(
-                \sprintf('LOWER(%s) %s ?', $column, \mb_strtoupper($operator, 'UTF8')),
+                \sprintf('LOWER(%s) %s ?', $column, \mb_strtoupper(type($operator)->asString(), 'UTF8')),
                 ['%'.\mb_strtolower(type($value)->asString(), 'UTF8').'%']
             ),
 
