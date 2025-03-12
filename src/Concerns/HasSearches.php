@@ -145,25 +145,21 @@ trait HasSearches
     }
 
     /**
-     * Get the query parameter to identify the search string.
+     * Get the query parameter to identify the search.
      *
      * @return string
      */
     public function getSearchesKey()
     {
-        if ($this->hasSearchesKey()) {
-            return type($this->searchesKey)->asString();
-        }
-
-        return $this->fallbackSearchesKey();
+        return $this->searchesKey ?? static::fallbackSearchesKey();
     }
 
     /**
-     * Get the query parameter to identify the search string from the config.
+     * Get the query parameter to identify the search from the config.
      *
      * @return string
      */
-    protected function fallbackSearchesKey()
+    public static function fallbackSearchesKey()
     {
         return type(config('refine.searches_key', 'search'))->asString();
     }
@@ -198,11 +194,7 @@ trait HasSearches
      */
     public function getMatchesKey()
     {
-        if ($this->hasMatchesKey()) {
-            return type($this->matchesKey)->asString();
-        }
-
-        return $this->fallbackMatchesKey();
+        return $this->matchesKey ?? static::fallbackMatchesKey();
     }
 
     /**
@@ -210,7 +202,7 @@ trait HasSearches
      *
      * @return string
      */
-    protected function fallbackMatchesKey()
+    public static function fallbackMatchesKey()
     {
         return type(config('refine.matches_key', 'match'))->asString();
     }
@@ -245,11 +237,7 @@ trait HasSearches
      */
     public function isMatching()
     {
-        if ($this->hasMatch()) {
-            return (bool) $this->match;
-        }
-
-        return $this->fallbackIsMatching();
+        return (bool) ($this->match ?? static::fallbackMatching());
     }
 
     /**
@@ -257,7 +245,7 @@ trait HasSearches
      *
      * @return bool
      */
-    protected function fallbackIsMatching()
+    public static function fallbackMatching()
     {
         return (bool) config('refine.match', false);
     }

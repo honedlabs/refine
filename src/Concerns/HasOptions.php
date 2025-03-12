@@ -130,11 +130,7 @@ trait HasOptions
      */
     public function isStrict()
     {
-        if (isset($this->strict)) {
-            return $this->strict;
-        }
-
-        return $this->fallbackStrict();
+        return (bool) ($this->strict ?? static::fallbackStrict());
     }
 
     /**
@@ -142,7 +138,7 @@ trait HasOptions
      *
      * @return bool
      */
-    public function fallbackStrict()
+    public static function fallbackStrict()
     {
         return (bool) config('refine.strict', false);
     }

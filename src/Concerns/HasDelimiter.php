@@ -43,11 +43,7 @@ trait HasDelimiter
      */
     public function getDelimiter()
     {
-        if (isset($this->delimiter)) {
-            return $this->delimiter; // @phpstan-ignore-line
-        }
-
-        return $this->fallbackDelimiter();
+        return $this->delimiter ?? static::fallbackDelimiter();
     }
 
     /**
@@ -55,7 +51,7 @@ trait HasDelimiter
      *
      * @return string
      */
-    public function fallbackDelimiter()
+    public static function fallbackDelimiter()
     {
         return type(config('refine.delimiter', ','))->asString();
     }

@@ -4,12 +4,11 @@ declare(strict_types=1);
 
 use Honed\Refine\Search;
 use Honed\Refine\Tests\Stubs\Product;
-use Illuminate\Support\Facades\Request;
 
 beforeEach(function () {
     $this->builder = Product::query();
     $this->search = 'search term';
-    $this->key = config('refine.key.searches');
+    $this->key = config('refine.searches_key');
 });
 
 it('applies', function () {

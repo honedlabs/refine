@@ -130,11 +130,7 @@ trait HasSorts
      */
     public function getSortsKey()
     {
-        if ($this->hasSortsKey()) {
-            return type($this->sortsKey)->asString();
-        }
-
-        return $this->fallbackSortsKey();
+        return $this->sortsKey ?? static::fallbackSortsKey();
     }
 
     /**
@@ -142,7 +138,7 @@ trait HasSorts
      *
      * @return string
      */
-    protected function fallbackSortsKey()
+    public static function fallbackSortsKey()
     {
         return type(config('refine.sorts_key', 'sort'))->asString();
     }

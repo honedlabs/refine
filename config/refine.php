@@ -50,8 +50,8 @@ return [
     | Query parameter keys
     |--------------------------------------------------------------------------
     |
-    | You can customise the query parameters that are used to refine the query
-    | if not supplied at a refiner level. If your refiner is scoped, these
+    | You can modify the query parameters that are used to refine the query
+    | if not supplied at the refiner level. If your refiner is scoped, these
     | will be prefixed with the scope name.
     |
     */
