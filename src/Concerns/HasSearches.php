@@ -99,17 +99,16 @@ trait HasSearches
      */
     public function getSearches()
     {
-        return once(function () {
-            $searches = \method_exists($this, 'searches') ? $this->searches() : [];
+        $searches = \method_exists($this, 'searches') ? $this->searches() : [];
 
-            $searches = \array_merge($searches, $this->searches ?? []);
+        $searches = \array_merge($searches, $this->searches ?? []);
 
-            return collect($searches)
-                ->filter(static fn (Search $search) => $search->isAllowed())
-                // ->unique(static fn (Search $search) => $search->getUniqueKey())
-                ->values()
-                ->all();
-        });
+        return \array_values(
+            \array_filter(
+                $searches,
+                static fn (Search $search) => $search->isAllowed()
+            )
+        );
     }
 
     /**

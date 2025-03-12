@@ -78,17 +78,16 @@ trait HasSorts
      */
     public function getSorts()
     {
-        return once(function () {
-            $sorts = \method_exists($this, 'sorts') ? $this->sorts() : [];
+        $sorts = \method_exists($this, 'sorts') ? $this->sorts() : [];
 
-            $sorts = \array_merge($sorts, $this->sorts ?? []);
+        $sorts = \array_merge($sorts, $this->sorts ?? []);
 
-            return collect($sorts)
-                ->filter(static fn (Sort $sort) => $sort->isAllowed())
-                // ->unique(static fn (Sort $sort) => $sort->())
-                ->values()
-                ->all();
-        });
+        return \array_values(
+            \array_filter(
+                $sorts,
+                static fn (Sort $sort) => $sort->isAllowed()
+            )
+        );
     }
 
     /**
