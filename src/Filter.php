@@ -228,7 +228,6 @@ class Filter extends Refiner
             // to be overridden by the developer.
             default => $builder->where($column, $operator, $value),
         };
-
     }
 
     /**

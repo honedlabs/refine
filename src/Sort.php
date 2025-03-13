@@ -288,7 +288,7 @@ class Sort extends Refiner
      *
      * @param  \Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model>  $builder
      * @param  string  $column
-     * @param  string|null  $direction
+     * @param  'asc'|'desc'|null  $direction
      * @return void
      */
     public function apply($builder, $column, $direction)

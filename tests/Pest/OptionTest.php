@@ -11,6 +11,19 @@ it('can create an option', function () {
         ->getLabel()->toBe('Test');
 });
 
+it('activates an option', function () {
+    $option = Option::make(10);
+
+    expect($option)
+        ->activate(10)->toBeTrue()
+        ->isActive()->toBeTrue();
+
+    expect($option)
+        ->activate(5)
+        ->toBeFalse()
+        ->isActive()->toBeFalse();
+});
+
 it('has array representation', function () {
     expect(Option::make('test', 'Test')->toArray())
         ->toBe([

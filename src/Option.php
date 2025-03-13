@@ -43,4 +43,24 @@ class Option extends Primitive
             'active' => $this->isActive(),
         ];
     }
+
+    /**
+     * Activate the option.
+     *
+     * @param  mixed  $value
+     * @return bool
+     */
+    public function activate($value)
+    {
+        $optionValue = $this->getValue();
+
+        $active = match (true) {
+            \is_array($value) => \in_array($optionValue, $value, true),
+            default => $optionValue === $value,
+        };
+
+        $this->active = $active;
+
+        return $active;
+    }
 }

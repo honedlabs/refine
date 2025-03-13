@@ -28,6 +28,13 @@ it('has a searches key', function () {
         ->getSearchesKey()->toBe('test');
 });
 
+it('has a matches key', function () {
+    expect($this->test)
+        ->getMatchesKey()->toBe(config('refine.matches_key'))
+        ->matchesKey('test')->toBe($this->test)
+        ->getMatchesKey()->toBe('test');
+});
+
 it('can match', function () {
     expect($this->test)
         ->isMatching()->toBe(config('refine.match'));

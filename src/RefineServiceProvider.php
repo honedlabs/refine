@@ -6,7 +6,7 @@ namespace Honed\Refine;
 
 use Illuminate\Support\ServiceProvider;
 
-final class RefineServiceProvider extends ServiceProvider
+class RefineServiceProvider extends ServiceProvider
 {
     public function register(): void
     {

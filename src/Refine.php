@@ -69,6 +69,9 @@ class Refine extends Primitive
      */
     protected $after;
 
+    /**
+     * Create a new refine instance.
+     */
     public function __construct(Request $request)
     {
         $this->request($request);
@@ -181,7 +184,6 @@ class Refine extends Primitive
      */
     public function using($refiners)
     {
-
         foreach ($refiners as $refiner) {
             match (true) {
                 $refiner instanceof Filter => $this->addFilter($refiner),

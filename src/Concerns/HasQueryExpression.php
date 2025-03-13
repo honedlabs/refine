@@ -45,9 +45,7 @@ trait HasQueryExpression
         }
 
         if ($reference === null) {
-            throw new BadMethodCallException(
-                'A column or relation reference is required for all expressions.'
-            );
+            static::throwMissingReferenceException();
         }
 
         $this->using = func_get_args();
@@ -228,7 +226,7 @@ trait HasQueryExpression
 
         // Check that the method starts with any of the given expressions.
         foreach ($expressions as $expression) {
-            if (str_starts_with($method, $expression)) {
+            if (\str_starts_with($method, $expression)) {
                 return false;
             }
         }
@@ -248,15 +246,42 @@ trait HasQueryExpression
     public function __call($method, $parameters)
     {
         if ($this->invalidExpression($method)) {
-            throw new \BadMethodCallException(
-                sprintf(
-                    'Call to method %s::%s() is not a supported query expression',
-                    static::class, $method
-                )
-            );
+            static::throwInvalidExpression($method);
         }
 
         // @phpstan-ignore-next-line
         return $this->using($method, ...$parameters);
+    }
+
+    /**
+     * Throw a missing reference exception.
+     *
+     * @return never
+     *
+     * @throws \BadMethodCallException
+     */
+    protected static function throwMissingReferenceException()
+    {
+        throw new BadMethodCallException(
+            'A column or relation reference is required for all expressions.'
+        );
+    }
+
+    /**
+     * Throw an invalid expression exception.
+     *
+     * @param  string  $method
+     * @return never
+     *
+     * @throws \BadMethodCallException
+     */
+    protected static function throwInvalidExpression($method)
+    {
+        throw new BadMethodCallException(
+            sprintf(
+                'Call to method %s::%s() is not a supported query expression',
+                static::class, $method
+            )
+        );
     }
 }
