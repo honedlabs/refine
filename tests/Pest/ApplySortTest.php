@@ -71,7 +71,7 @@ it('can be singular', function () {
     $sort = Sort::make($name)
         ->desc();
 
-    $request = Request::create('/', 'GET', [$this->key => $name]);
+    $request = Request::create('/', 'GET', [$this->key => $name.'_desc']);
 
     expect($sort->refine($this->builder, $request, $this->key))
         ->toBeTrue();
@@ -83,7 +83,7 @@ it('can be singular', function () {
         ->isSingularDirection()->toBeTrue()
         ->isActive()->toBeTrue()
         ->getDirection()->toBe('desc')
-        ->getNextDirection()->toBe($name);
+        ->getNextDirection()->toBe($name.'_desc');
 });
 
 it('can invert direction', function () {

@@ -7,6 +7,7 @@ namespace Honed\Refine;
 use Honed\Core\Concerns\InterpretsRequest;
 use Honed\Core\Concerns\IsDefault;
 use Honed\Refine\Concerns\HasQueryExpression;
+use Illuminate\Support\Str;
 
 class Sort extends Refiner
 {
@@ -50,7 +51,13 @@ class Sort extends Refiner
      */
     public function isActive()
     {
-        return $this->getValue() === $this->getParameter();
+        $isMatching = $this->getValue() === $this->getParameter();
+
+        if ($this->isSingularDirection()) {
+            return $isMatching && $this->getDirection() === $this->only;
+        }
+
+        return $isMatching;
     }
 
     /**
@@ -198,6 +205,21 @@ class Sort extends Refiner
             $this->direction === 'asc' => $this->getDescendingValue(),
             default => $this->getAscendingValue(),
         };
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getParameter()
+    {
+        return $this->getAlias()
+            ?? Str::of($this->getName())
+                ->afterLast('.')
+                ->when($this->isSingularDirection(),
+                    fn ($string) => $string->append('_',
+                        type($this->only)->asString())
+                )
+                ->value();
     }
 
     /**

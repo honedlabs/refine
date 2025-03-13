@@ -70,16 +70,18 @@ trait HasFilters
      */
     public function getFilters()
     {
-        $filters = \method_exists($this, 'filters') ? $this->filters() : [];
+        return once(function () {
+            $filters = \method_exists($this, 'filters') ? $this->filters() : [];
 
-        $filters = \array_merge($filters, $this->filters ?? []);
+            $filters = \array_merge($filters, $this->filters ?? []);
 
-        return \array_values(
-            \array_filter(
-                $filters,
-                static fn (Filter $filter) => $filter->isAllowed()
-            )
-        );
+            return \array_values(
+                \array_filter(
+                    $filters,
+                    static fn (Filter $filter) => $filter->isAllowed()
+                )
+            );
+        });
     }
 
     /**
