@@ -4,19 +4,20 @@ declare(strict_types=1);
 
 namespace Honed\Refine\Concerns;
 
-use Honed\Core\Concerns\InterpretsRequest;
+use Honed\Core\Interpreter;
 use Honed\Refine\Search;
 use Illuminate\Support\Collection;
 
 /**
  * @template TModel of \Illuminate\Database\Eloquent\Model
+ * @template TBuilder of \Illuminate\Database\Eloquent\Builder<TModel>
  */
 trait HasSearches
 {
     /**
      * List of the searches.
      *
-     * @var array<int,\Honed\Refine\Search>|null
+     * @var array<int,\Honed\Refine\Search<TModel, TBuilder>>|null
      */
     protected $searches;
 
@@ -63,9 +64,17 @@ trait HasSearches
     protected $withoutSearches = false;
 
     /**
+     * Format a value using the scope.
+     *
+     * @param  string  $value
+     * @return string
+     */
+    abstract public function formatScope($value);
+
+    /**
      * Merge a set of searches with the existing searches.
      *
-     * @param  array<int, \Honed\Refine\Search>|\Illuminate\Support\Collection<int, \Honed\Refine\Search>  $searches
+     * @param  array<int, \Honed\Refine\Search<TModel, TBuilder>>|\Illuminate\Support\Collection<int, \Honed\Refine\Search<TModel, TBuilder>>  $searches
      * @return $this
      */
     public function addSearches($searches)
@@ -82,7 +91,7 @@ trait HasSearches
     /**
      * Add a single search to the list of searches.
      *
-     * @param  \Honed\Refine\Search  $search
+     * @param  \Honed\Refine\Search<TModel, TBuilder>  $search
      * @return $this
      */
     public function addSearch($search)
@@ -95,7 +104,7 @@ trait HasSearches
     /**
      * Retrieve the columns to be used for searching.
      *
-     * @return array<int,\Honed\Refine\Search>
+     * @return array<int,\Honed\Refine\Search<TModel, TBuilder>>
      */
     public function getSearches()
     {
@@ -138,16 +147,6 @@ trait HasSearches
     }
 
     /**
-     * Determine if the searches key is set.
-     *
-     * @return bool
-     */
-    public function hasSearchesKey()
-    {
-        return isset($this->searchesKey);
-    }
-
-    /**
      * Get the query parameter to identify the search.
      *
      * @return string
@@ -181,16 +180,6 @@ trait HasSearches
     }
 
     /**
-     * Determine if the matches key is set.
-     *
-     * @return bool
-     */
-    public function hasMatchesKey()
-    {
-        return isset($this->matchesKey);
-    }
-
-    /**
      * Get the query parameter to identify the columns to search.
      *
      * @return string
@@ -221,16 +210,6 @@ trait HasSearches
         $this->match = $match;
 
         return $this;
-    }
-
-    /**
-     * Determine if the matching value is set.
-     *
-     * @return bool
-     */
-    public function hasMatch()
-    {
-        return isset($this->match);
     }
 
     /**
@@ -310,63 +289,37 @@ trait HasSearches
     }
 
     /**
-     * Apply a search to the query.
+     * Get the search term from a request.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder<TModel>  $builder
      * @param  \Illuminate\Http\Request  $request
-     * @param  array<int, \Honed\Refine\Search>  $searches
-     * @return $this
+     * @return string|null
      */
-    public function search($builder, $request, $searches = [])
+    public function getSearchTerm($request)
     {
-        if ($this->isWithoutSearching()) {
-            return $this;
+        $key = $this->formatScope($this->getSearchesKey());
+
+        $term = Interpreter::interpretStringable($request, $key);
+
+        if (\is_null($term) || $term->isEmpty()) {
+            return null;
         }
 
-        // We need to use a new instance of the interpreter class to avoid
-        // the use of the `InterpretsRequest` trait on the `HasSearches` trait.
-        // This trait allows us to receive stringable and arrayable objects.
-        $interpreter = new class
-        {
-            use InterpretsRequest;
-        };
+        return $term->replace('+', ' ')->value();
+    }
 
-        // There are two values to look for in the request: the search term,
-        // and a string delimited list of columns to search. We use the class
-        // scope to format the keys if necessary.
-        /** @var string */
-        $searchKey = $this->formatScope($this->getSearchesKey());
-
-        /** @var string */
-        $matchesKey = $this->formatScope($this->getMatchesKey());
-
-        /** @var string */
+    /**
+     * Get the search columns from a request.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return array<int,string>|null
+     */
+    public function getSearchColumns($request)
+    {
+        $key = $this->formatScope($this->getMatchesKey());
         $delimiter = $this->getDelimiter();
 
-        // The client will send a search term as a string with spaces replaced
-        // with a `+` character. We need to replace the `+` with a space before
-        // we use the term, and this will ensure it syncs back with the form
-        // input.
-        $term = $interpreter->interpretStringable($request, $searchKey)
-            ?->replace('+', ' ')->value();
-
-        $this->term = $term;
-
-        // We interpret the matches key as an array, and we pass in the
-        // delimiter to split the strong on.
-        $columns = $interpreter->interpretArray($request, $matchesKey, $delimiter);
-
-        /** @var array<int, \Honed\Refine\Search> */
-        $searches = \array_merge($this->getSearches(), $searches);
-        $applied = false;
-
-        foreach ($searches as $search) {
-            $boolean = $applied ? 'or' : 'and';
-
-            $applied |= $search->refine($builder, $term, $columns, $boolean);
-        }
-
-        return $this;
+        /** @var array<int,string>|null */
+        return Interpreter::interpretArray($request, $key, $delimiter);
     }
 
     /**
@@ -376,7 +329,7 @@ trait HasSearches
      */
     public function searchesToArray()
     {
-        if ($this->isWithoutSearches()) {
+        if ($this->isWithoutSearches() || ! $this->isMatching()) {
             return [];
         }
 
@@ -384,5 +337,44 @@ trait HasSearches
             static fn (Search $search) => $search->toArray(),
             $this->getSearches()
         );
+    }
+
+    /**
+     * Apply a search to the query.
+     *
+     * @param  TBuilder  $builder
+     * @param  \Illuminate\Http\Request  $request
+     * @param  array<int, \Honed\Refine\Search<TModel, TBuilder>>  $searches
+     * @return $this
+     */
+    public function search($builder, $request, $searches = [])
+    {
+        if ($this->isWithoutSearching()) {
+            return $this;
+        }
+
+        $term = $this->getSearchTerm($request);
+        $columns = $this->getSearchColumns($request);
+
+        $this->term = $term;
+
+        /** @var array<int, \Honed\Refine\Search<TModel, TBuilder>> */
+        $searches = \array_merge($this->getSearches(), $searches);
+
+        $applied = false;
+
+        foreach ($searches as $search) {
+            $boolean = $applied ? 'or' : 'and';
+
+            $matched = empty($columns) ||
+                \in_array($search->getParameter(), $columns);
+
+            if ($matched) {
+                $applied |= $search->boolean($boolean)->refine($builder, $term);
+            }
+
+        }
+
+        return $this;
     }
 }

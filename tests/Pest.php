@@ -5,9 +5,16 @@ declare(strict_types=1);
 use Honed\Refine\Tests\Stubs\Product;
 use Honed\Refine\Tests\Stubs\Status;
 use Honed\Refine\Tests\TestCase;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Request as FacadesRequest;
 use Illuminate\Support\Str;
 
 uses(TestCase::class)->in(__DIR__);
+
+function generate(string $param, mixed $value): Request
+{
+    return FacadesRequest::create('/', 'GET', [$param => $value]);
+}
 
 function product(?string $name = null): Product
 {

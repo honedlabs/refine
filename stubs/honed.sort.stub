@@ -1,0 +1,31 @@
+<?php
+
+declare(strict_types=1);
+
+namespace {{ namespace }};
+
+use Honed\Refine\Sort;
+use Illuminate\Database\Query\Builder;
+
+final class {{ class }} extends Sort
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function setUp()
+    {
+        //
+    }
+
+    /**
+     * Register the query expression to resolve the filter.
+     *
+     * @param  \Illuminate\Database\Query\Builder<\Illuminate\Database\Eloquent\Model>  $builder
+     * @param  'asc'|'desc'|null $direction
+     * @return void
+     */
+    public function expression(Builder $builder, $direction)
+    {
+        //
+    }
+}

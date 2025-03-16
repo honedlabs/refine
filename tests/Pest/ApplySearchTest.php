@@ -11,55 +11,54 @@ beforeEach(function () {
     $this->key = config('refine.searches_key');
 });
 
-it('applies', function () {
+it('does not apply', function () {
     $name = 'name';
 
     $search = Search::make($name);
 
     expect($search)
-        ->refine($this->builder, 'search term', null, 'and')->toBeTrue();
+        ->refine($this->builder, null)->toBeFalse();
+
+    expect($this->builder->getQuery()->wheres)
+        ->toBeEmpty();
+
+    expect($search)
+        ->isActive()->toBeFalse()
+        ->getValue()->toBeNull();
+});
+
+it('applies', function () {
+    $name = 'name';
+    $term = 'search term';
+
+    $search = Search::make($name);
+
+    expect($search)
+        ->refine($this->builder, $term)->toBeTrue();
 
     expect($this->builder->getQuery()->wheres)
         ->toBeOnlySearch($this->builder->qualifyColumn($name));
 
     expect($search)
         ->isActive()->toBeTrue()
-        ->getValue()->toBe('search term');
+        ->getValue()->toBe($term);
 });
 
-it('changes query boolean', function () {
+it('applies boolean', function () {
     $name = 'name';
+    $term = 'search term';
 
-    $search = Search::make($name);
+    $search = Search::make($name)->boolean('or');
 
     expect($search)
-        ->refine($this->builder, 'test', null, 'or')->toBeTrue()
+        ->refine($this->builder, $term)->toBeTrue()
         ->isActive()->toBeTrue();
 
     expect($this->builder->getQuery()->wheres)->toBeArray()
         ->toBeOnlySearch($this->builder->qualifyColumn($name), 'or');
-});
-
-it('prevents searching if no value is provided', function () {
-    $name = 'name';
-
-    $search = Search::make($name);
-
-    expect($search->refine($this->builder, null, null, 'and'))->toBeFalse();
-
-    expect($this->builder->getQuery()->wheres)->toBeEmpty();
-});
-
-it('only executes if it is in array', function () {
-    $name = 'name';
-    $columns = [$name, 'description'];
-
-    $search = Search::make($name);
 
     expect($search)
-        ->refine($this->builder, 'test', $columns, 'and')->toBeTrue()
-        ->isActive()->toBeTrue();
-
-    expect($this->builder->getQuery()->wheres)->toBeArray()
-        ->toBeOnlySearch($this->builder->qualifyColumn($name), 'and');
+        ->isActive()->toBeTrue()
+        ->getValue()->toBe($term)
+        ->getBoolean()->toBe('or');
 });

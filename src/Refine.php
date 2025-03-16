@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Honed\Refine;
 
+use Honed\Core\Concerns\HasParameterNames;
 use Honed\Core\Concerns\HasRequest;
 use Honed\Core\Concerns\HasScope;
 use Honed\Core\Primitive;
@@ -11,9 +12,11 @@ use Honed\Refine\Concerns\HasDelimiter;
 use Honed\Refine\Concerns\HasFilters;
 use Honed\Refine\Concerns\HasSearches;
 use Honed\Refine\Concerns\HasSorts;
-use Illuminate\Contracts\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Route;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Traits\ForwardsCalls;
 
 /**
@@ -29,16 +32,19 @@ class Refine extends Primitive
     use ForwardsCalls;
     use HasDelimiter;
 
-    /** @use HasFilters<TModel> */
+    /** @use HasFilters<TModel, TBuilder> */
     use HasFilters;
+
+    /** @use HasParameterNames<TModel, TBuilder> */
+    use HasParameterNames;
 
     use HasRequest;
     use HasScope;
 
-    /** @use HasSearches<TModel> */
+    /** @use HasSearches<TModel, TBuilder> */
     use HasSearches;
 
-    /** @use HasSorts<TModel> */
+    /** @use HasSorts<TModel, TBuilder> */
     use HasSorts;
 
     /**
@@ -85,8 +91,7 @@ class Refine extends Primitive
      */
     public static function make($query = null)
     {
-        return resolve(static::class)
-            ->for(static::createBuilder($query));
+        return resolve(static::class)->for(static::createBuilder($query));
     }
 
     /**
@@ -101,18 +106,14 @@ class Refine extends Primitive
     {
         /** @var TBuilder|null */
         return match (true) {
-            $query instanceof Builder,
-            \is_null($query) => $query,
+            $query instanceof Builder, \is_null($query) => $query,
 
-            $query instanceof Model,
-            \class_exists($query) => $query::query(),
+            $query instanceof Model, \class_exists($query) => $query::query(),
 
-            default => throw new \InvalidArgumentException(
-                \sprintf(
-                    'The provided query [%s] cannot be resolved to a builder instance.',
-                    $query
-                )
-            ),
+            default => throw new \InvalidArgumentException(\sprintf(
+                'The provided query [%s] cannot be resolved to a builder instance.',
+                $query
+            )),
         };
     }
 
@@ -179,7 +180,7 @@ class Refine extends Primitive
     /**
      * Add the given filters or sorts to the refine pipeline.
      *
-     * @param  array<int, \Honed\Refine\Refiner>|\Illuminate\Support\Collection<int, \Honed\Refine\Refiner>  $refiners
+     * @param  array<int, \Honed\Refine\Refiner<TModel, TBuilder>>|\Illuminate\Support\Collection<int, \Honed\Refine\Refiner<TModel, TBuilder>>  $refiners
      * @return $this
      */
     public function using($refiners)
@@ -211,19 +212,6 @@ class Refine extends Primitive
     }
 
     /**
-     * {@inheritdoc}
-     */
-    public function toArray()
-    {
-        return [
-            'sorts' => $this->sortsToArray(),
-            'filters' => $this->filtersToArray(),
-            'config' => $this->configToArray(),
-            ...($this->isMatching() ? ['searches' => $this->searchesToArray()] : []),
-        ];
-    }
-
-    /**
      * Get the config for the refiner as an array.
      *
      * @return array<string,mixed>
@@ -235,7 +223,20 @@ class Refine extends Primitive
             'search' => $this->getTerm(),
             'searches' => $this->getSearchesKey(),
             'sorts' => $this->getSortsKey(),
-            ...($this->isMatching() ? ['matches' => $this->getMatchesKey()] : []),
+            'matches' => $this->getMatchesKey(),
+        ];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function toArray()
+    {
+        return [
+            'sorts' => $this->sortsToArray(),
+            'filters' => $this->filtersToArray(),
+            'config' => $this->configToArray(),
+            'searches' => $this->searchesToArray(),
         ];
     }
 
@@ -265,18 +266,60 @@ class Refine extends Primitive
      *
      * @param  TBuilder  $builder
      * @param  \Illuminate\Http\Request  $request
-     * @param  array<int, \Honed\Refine\Sort>  $sorts
-     * @param  array<int, \Honed\Refine\Filter>  $filters
-     * @param  array<int, \Honed\Refine\Search>  $searches
+     * @param  array<int, \Honed\Refine\Sort<TModel, TBuilder>>  $sorts
+     * @param  array<int, \Honed\Refine\Filter<TModel, TBuilder>>  $filters
+     * @param  array<int, \Honed\Refine\Search<TModel, TBuilder>>  $searches
      * @return void
      */
-    protected function pipeline($builder, $request, $sorts = [], $filters = [], $searches = [])
-    {
+    protected function pipeline(
+        $builder,
+        $request,
+        $sorts = [],
+        $filters = [],
+        $searches = []
+    ) {
         $this->beforeRefining($builder, $request);
         $this->search($builder, $request, $searches);
         $this->filter($builder, $request, $filters);
         $this->sort($builder, $request, $sorts);
         $this->afterRefining($builder, $request);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function resolveDefaultClosureDependencyForEvaluationByName($parameterName)
+    {
+        $for = $this->getFor();
+        $request = $this->getRequest();
+
+        [$_, $singular, $plural] = static::getParameterNames($for);
+
+        return match ($parameterName) {
+            'request' => [$request],
+            'route' => [$request->route()],
+            'builder' => [$for],
+            'query' => [$for],
+            $singular => [$for],
+            $plural => [$for],
+            default => parent::resolveDefaultClosureDependencyForEvaluationByName($parameterName),
+        };
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function resolveDefaultClosureDependencyForEvaluationByType($parameterType)
+    {
+        $for = $this->getFor();
+        $request = $this->getRequest();
+
+        return match ($parameterType) {
+            Request::class => [$request],
+            Route::class => [$request->route()],
+            Builder::class => [$for],
+            default => [App::make($parameterType)],
+        };
     }
 
     /**
@@ -330,19 +373,19 @@ class Refine extends Primitive
                 return $this;
 
             case 'sorts':
-                /** @var array<int, \Honed\Refine\Sort> $args */
+                /** @var array<int, \Honed\Refine\Sort<TModel, TBuilder>> $args */
                 $args = $parameters[0];
 
                 return $this->addSorts($args);
 
             case 'filters':
-                /** @var array<int, \Honed\Refine\Filter> $args */
+                /** @var array<int, \Honed\Refine\Filter<TModel, TBuilder>> $args */
                 $args = $parameters[0];
 
                 return $this->addFilters($args);
 
             case 'searches':
-                /** @var array<int, \Honed\Refine\Search> $args */
+                /** @var array<int, \Honed\Refine\Search<TModel, TBuilder>> $args */
                 $args = $parameters[0];
 
                 return $this->addSearches($args);

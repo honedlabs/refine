@@ -4,25 +4,26 @@ declare(strict_types=1);
 
 namespace Honed\Refine;
 
-use BadMethodCallException;
+use Carbon\Carbon;
+use Honed\Core\Concerns\HasMeta;
 use Honed\Core\Concerns\HasScope;
 use Honed\Core\Concerns\InterpretsRequest;
 use Honed\Core\Concerns\Validatable;
 use Honed\Refine\Concerns\HasDelimiter;
 use Honed\Refine\Concerns\HasOptions;
-use Honed\Refine\Concerns\HasQueryExpression;
 
 /**
- * @mixin \Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model>
+ * @template TModel of \Illuminate\Database\Eloquent\Model
+ * @template TBuilder of \Illuminate\Database\Eloquent\Builder<TModel>
+ *
+ * @extends Refiner<TModel, TBuilder>
  */
 class Filter extends Refiner
 {
     use HasDelimiter;
+    use HasMeta;
     use HasOptions {
         multiple as protected setMultiple;
-    }
-    use HasQueryExpression {
-        __call as queryCall;
     }
     use HasScope;
     use InterpretsRequest;
@@ -36,72 +37,121 @@ class Filter extends Refiner
     protected $operator = '=';
 
     /**
-     * {@inheritdoc}
-     */
-    public function setUp()
-    {
-        $this->type('filter');
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function isActive()
-    {
-        return $this->hasValue();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function toArray()
-    {
-        return \array_merge(parent::toArray(), [
-            'value' => $this->getValue(),
-            'options' => $this->optionsToArray(),
-            'multiple' => $this->isMultiple(),
-        ]);
-    }
-
-    /**
-     * Get the expression partials supported by the filter.
-     *
-     * @return array<int,string>
-     */
-    public function expressions()
-    {
-        return [
-            'where',
-            'has',
-            'withWhere',
-        ];
-    }
-
-    /**
-     * Allow multiple values to be used.
+     * Set the filter to be for boolean values.
      *
      * @return $this
      */
-    public function multiple()
+    public function boolean()
     {
-        $this->setMultiple();
-        $this->asArray();
-        $this->type('select');
+        $this->type('boolean');
+        $this->asBoolean();
 
         return $this;
     }
 
     /**
-     * Determine if the value is invalid.
+     * Set the filter to be for date values.
      *
-     * @param  mixed  $value
-     * @return bool
+     * @return $this
      */
-    public function invalidValue($value)
+    public function date()
     {
-        return ! $this->isActive() ||
-            ! $this->validate($value) ||
-            ($this->hasOptions() && empty($value));
+        $this->type('date');
+        $this->asDate();
+
+        return $this;
+    }
+
+    /**
+     * Set the filter to be for date time values.
+     *
+     * @return $this
+     */
+    public function dateTime()
+    {
+        $this->type('datetime');
+        $this->asDatetime();
+
+        return $this;
+    }
+
+    /**
+     * Set the filter to be for float values.
+     *
+     * @return $this
+     */
+    public function float()
+    {
+        $this->type('float');
+        $this->asFloat();
+
+        return $this;
+    }
+
+    /**
+     * Set the filter to be for integer values.
+     *
+     * @return $this
+     */
+    public function integer()
+    {
+        $this->type('integer');
+        $this->asInteger();
+
+        return $this;
+    }
+
+    /**
+     * Set the filter to be for multiple values.
+     *
+     * @return $this
+     */
+    public function multiple()
+    {
+        $this->type('multiple');
+        $this->asArray();
+        $this->setMultiple();
+
+        return $this;
+    }
+
+    /**
+     * Set the filter to be for string values.
+     *
+     * @return $this
+     */
+    public function string()
+    {
+        $this->type('string');
+        $this->asString();
+
+        return $this;
+    }
+
+    /**
+     * Set the filter to be for time values.
+     *
+     * @return $this
+     */
+    public function time()
+    {
+        $this->type('time');
+        $this->asTime();
+
+        return $this;
+    }
+
+    /**
+     * Set the operator to use for the filter.
+     *
+     * @param  string  $operator
+     * @return $this
+     */
+    public function operator($operator)
+    {
+        $this->operator = \mb_strtoupper($operator, 'UTF8');
+
+        return $this;
     }
 
     /**
@@ -115,137 +165,120 @@ class Filter extends Refiner
     }
 
     /**
-     * Set the operator to use for the filter.
-     *
-     * @param  string  $operator
-     * @return $this
+     * {@inheritdoc}
      */
-    public function operator($operator)
+    public function setUp()
     {
-        $this->operator = $operator;
-
-        return $this;
+        $this->type('filter');
     }
 
     /**
-     * Filter the builder using the request.
+     * {@inheritdoc}
      *
-     * @param  \Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model>  $builder
-     * @param  \Illuminate\Http\Request  $request
-     * @return bool
+     * @param  \Illuminate\Http\Request  $value
      */
-    public function refine($builder, $request)
+    public function getRequestValue($value)
     {
-        // We retrieve the parameter according to how the user specified it. As
-        // the key is dynamic, we need to be given the scope from the caller to
-        // properly interpret the parameter.
         $parameter = $this->getParameter();
-        $key = $this->formatScope($parameter);
-        $value = $this->interpret($request, $key);
 
-        $this->value($value);
-
-        // If the filter has options, we need to loop over them to set as active
-        // if the value is present. This can also override the value, as a
-        // `strict` filter will only be active if the value is present in the
-        // options array.
-        if ($this->hasOptions()) {
-            $value = $this->activateOptions($value);
-        }
-
-        // The filter may be active, but the value may be invalid. This is done
-        // to hide the validation logic from the end-user. It is invalid if it is
-        // not active, fails a validation closure, or if the filter has options
-        // and the value is empty.
-        if ($this->invalidValue($value)) {
-            return false;
-        }
-
-        // If the filter has a custom query expression, we use it over the default
-        // query method. The bindings are passed, but can be overriden with fixed
-        // values if needed. In this instance, it is assumed that the developer
-        // has called `asBoolean` on the filter and then can write a simple
-        // validation closure.
-        if ($this->hasQueryExpression()) {
-            $bindings = [
-                'value' => $value,
-                'column' => $this->getName(),
-                'table' => $builder->getModel()->getTable(),
-            ];
-
-            $this->expressQuery($builder, $bindings);
-
-            return true;
-        }
-
-        // If there is no custom query expression, we use the default query
-        // method. This depends on how the request interprets the value.
-        $column = $this->getName();
-        $operator = $this->getOperator();
-
-        $this->apply($builder, $column, $operator, $value);
-
-        return true;
+        return $this->interpret($value, $this->formatScope($parameter));
     }
 
     /**
-     * Apply the filter to the builder.
+     * {@inheritdoc}
+     */
+    public function transformParameter($value)
+    {
+        if (! $this->hasOptions()) {
+            return parent::transformParameter($value);
+        }
+
+        return $this->activateOptions($value);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function invalidValue($value)
+    {
+        return ! $this->validate($value);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getBindings($value)
+    {
+        return \array_merge(parent::getBindings($value), [
+            'operator' => $this->getOperator(),
+        ]);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function toArray()
+    {
+        $value = $this->getValue();
+
+        if ($value instanceof Carbon) {
+            $value = $value->toIso8601String();
+        }
+
+        return \array_merge(parent::toArray(), [
+            'value' => $value,
+            'options' => $this->optionsToArray(),
+            'multiple' => $this->isMultiple(),
+            'meta' => $this->getMeta(),
+        ]);
+    }
+
+    /**
+     * Apply the default filter query to the builder.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model>  $builder
+     * @param  TBuilder  $builder
      * @param  string  $column
      * @param  string|null  $operator
      * @param  mixed  $value
      * @return void
      */
-    public function apply($builder, $column, $operator, $value)
+    public function defaultQuery($builder, $column, $operator, $value)
     {
         $column = $builder->qualifyColumn($column);
 
         match (true) {
-            // If the operator is fuzzy, we do a whereRaw to make it simpler and
-            // handle case sensitivity.
-            \in_array($operator,
-                ['like', 'not like', 'ilike', 'not ilike']
-            ) => $builder->whereRaw(
-                \sprintf('LOWER(%s) %s ?', $column, \mb_strtoupper(type($operator)->asString(), 'UTF8')),
-                ['%'.\mb_strtolower(type($value)->asString(), 'UTF8').'%']
-            ),
+            \in_array($operator, ['LIKE', 'NOT LIKE', 'ILIKE', 'NOT ILIKE']) => static::queryRaw($builder, $column, type($operator)->asString(), $value),
 
-            // The `whereIn` clause should be used if the filter is set to multiple,
-            // or if the filter interprets an array. Generally, both should be true
-            // as this case is likely when providing options and allowing multiple.
-            $this->isMultiple(),
-            $this->interpretsArray() => $builder->whereIn($column, $value),
+            $this->isMultiple() || $this->interpretsArray() => $builder->whereIn($column, $value),
 
-            // If the filter interprets a date, we use whereDate clause as this
-            // allows us to compare using the date strings.
-            $this->interpretsDate() => $builder->whereDate($column, $operator, $value), // @phpstan-ignore-line
+            $this->interpretsDate() =>
+                // @phpstan-ignore-next-line
+                $builder->whereDate($column, $operator, $value),
 
-            // This compares a date time string to the column.
-            $this->interpretsTime() => $builder->whereTime($column, $operator, $value), // @phpstan-ignore-line
+            $this->interpretsTime() =>
+                // @phpstan-ignore-next-line
+                $builder->whereTime($column, $operator, $value),
 
-            // Otherwise, we use a standard where clause - but, allow the operator
-            // to be overridden by the developer.
             default => $builder->where($column, $operator, $value),
         };
     }
 
     /**
-     * Dynamically handle calls to the class.
+     * Query the builder using a raw SQL statement.
      *
-     * @param  string  $method
-     * @param  array<int,mixed>  $parameters
-     * @return mixed
+     * @param  TBuilder  $builder
+     * @param  string  $column
+     * @param  string  $operator
+     * @param  mixed  $value
+     * @return void
      */
-    public function __call($method, $parameters)
+    protected static function queryRaw($builder, $column, $operator, $value)
     {
-        // Enable macros on the builder, if the call is not to a macro then
-        // we assume it is to a method on the builder. We validate this by
-        // matching against the expressions.
-        try {
-            return parent::__call($method, $parameters);
-        } catch (BadMethodCallException $e) {
-            return $this->queryCall($method, $parameters);
-        }
+        $operator = \mb_strtoupper($operator, 'UTF8');
+        $sql = \sprintf('LOWER(%s) %s ?', $column, $operator);
+        // @phpstan-ignore-next-line
+        $binding = ['%'.\mb_strtolower(\strval($value), 'UTF8').'%'];
+
+        $builder->whereRaw($sql, $binding);
     }
 }

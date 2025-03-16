@@ -4,19 +4,21 @@ declare(strict_types=1);
 
 namespace Honed\Refine\Concerns;
 
+use Honed\Core\Interpreter;
 use Honed\Refine\Sort;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 
 /**
  * @template TModel of \Illuminate\Database\Eloquent\Model
+ * @template TBuilder of \Illuminate\Database\Eloquent\Builder<TModel>
  */
 trait HasSorts
 {
     /**
      * List of the sorts.
      *
-     * @var array<int,\Honed\Refine\Sort>|null
+     * @var array<int,\Honed\Refine\Sort<TModel, TBuilder>>|null
      */
     protected $sorts;
 
@@ -42,9 +44,17 @@ trait HasSorts
     protected $withoutSorts = false;
 
     /**
+     * Format a value using the scope.
+     *
+     * @param  string  $value
+     * @return string
+     */
+    abstract public function formatScope($value);
+
+    /**
      * Merge a set of sorts with the existing sorts.
      *
-     * @param  array<int, \Honed\Refine\Sort>|\Illuminate\Support\Collection<int, \Honed\Refine\Sort>  $sorts
+     * @param  array<int, \Honed\Refine\Sort<TModel, TBuilder>>|\Illuminate\Support\Collection<int, \Honed\Refine\Sort<TModel, TBuilder>>  $sorts
      * @return $this
      */
     public function addSorts($sorts)
@@ -61,7 +71,7 @@ trait HasSorts
     /**
      * Add a single sort to the list of sorts.
      *
-     * @param  \Honed\Refine\Sort  $sort
+     * @param  \Honed\Refine\Sort<TModel, TBuilder>  $sort
      * @return $this
      */
     public function addSort($sort)
@@ -74,11 +84,12 @@ trait HasSorts
     /**
      * Retrieve the sorts.
      *
-     * @return array<int,\Honed\Refine\Sort>
+     * @return array<int,\Honed\Refine\Sort<TModel, TBuilder>>
      */
     public function getSorts()
     {
         return once(function () {
+
             $sorts = \method_exists($this, 'sorts') ? $this->sorts() : [];
 
             $sorts = \array_merge($sorts, $this->sorts ?? []);
@@ -113,16 +124,6 @@ trait HasSorts
         $this->sortsKey = $sortsKey;
 
         return $this;
-    }
-
-    /**
-     * Determine if the sorts key is set.
-     *
-     * @return bool
-     */
-    public function hasSortsKey()
-    {
-        return isset($this->sortsKey);
     }
 
     /**
@@ -192,57 +193,50 @@ trait HasSorts
     }
 
     /**
-     * Apply the sort to the query.
+     * Retrieve the sort value and direction from a request.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder<TModel>  $builder
      * @param  \Illuminate\Http\Request  $request
-     * @param  array<int, \Honed\Refine\Sort>  $sorts
-     * @return $this
+     * @return array{string|null, 'asc'|'desc'|null}
      */
-    public function sort($builder, $request, $sorts = [])
+    public function getSortAndDirection($request)
     {
-        if ($this->isWithoutSorting()) {
-            return $this;
-        }
-
-        /** @var string */
         $key = $this->formatScope($this->getSortsKey());
 
-        /** @var array<int, \Honed\Refine\Sort> */
-        $sorts = \array_merge($this->getSorts(), $sorts);
+        $sort = Interpreter::interpretStringable($request, $key);
 
-        $applied = false;
-
-        foreach ($sorts as $sort) {
-            $applied |= $sort->refine($builder, $request, $key);
+        if (\is_null($sort) || $sort->isEmpty()) {
+            return [null, null];
         }
 
-        if (! $applied) {
-            $this->sortDefault($builder, $sorts);
+        if ($sort->startsWith('-')) {
+            return [$sort->after('-')->value(), 'desc'];
         }
 
-        return $this;
+        return [$sort->value(), 'asc'];
     }
 
     /**
      * Apply a default sort to the query.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder<TModel>  $builder
-     * @param  array<int, \Honed\Refine\Sort>  $sorts
+     * @param  TBuilder  $builder
+     * @param  array<int, \Honed\Refine\Sort<TModel, TBuilder>>  $sorts
      * @return void
      */
-    protected function sortDefault($builder, $sorts)
+    public function sortDefault($builder, $sorts)
     {
         $sort = Arr::first(
             $sorts,
             static fn (Sort $sort) => $sort->isDefault()
         );
 
-        $sort?->apply(
-            $builder,
-            $sort->getName(),
-            $sort->getDirection() ?? 'asc',
-        );
+        if (! $sort) {
+            return;
+        }
+
+        $column = $sort->getName();
+        $direction = $sort->getDirection() ?? 'asc';
+
+        $sort->defaultQuery($builder, $column, $direction);
     }
 
     /**
@@ -260,5 +254,37 @@ trait HasSorts
             static fn (Sort $sort) => $sort->toArray(),
             $this->getSorts()
         );
+    }
+
+    /**
+     * Apply the sort to the query.
+     *
+     * @param  TBuilder  $builder
+     * @param  \Illuminate\Http\Request  $request
+     * @param  array<int, \Honed\Refine\Sort<TModel, TBuilder>>  $sorts
+     * @return $this
+     */
+    public function sort($builder, $request, $sorts = [])
+    {
+        if ($this->isWithoutSorting()) {
+            return $this;
+        }
+
+        $value = $this->getSortAndDirection($request);
+
+        /** @var array<int, \Honed\Refine\Sort<TModel, TBuilder>> */
+        $sorts = \array_merge($this->getSorts(), $sorts);
+
+        $applied = false;
+
+        foreach ($sorts as $sort) {
+            $applied |= $sort->refine($builder, $value);
+        }
+
+        if (! $applied) {
+            $this->sortDefault($builder, $sorts);
+        }
+
+        return $this;
     }
 }

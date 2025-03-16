@@ -11,6 +11,9 @@ class ProductDetail extends Model
 {
     protected $guarded = [];
 
+    /**
+     * Get the product for the detail.
+     */
     public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Honed\Refine;
 
+use Honed\Refine\Console\Commands\FilterMakeCommand;
+use Honed\Refine\Console\Commands\SortMakeCommand;
 use Illuminate\Support\ServiceProvider;
 
 class RefineServiceProvider extends ServiceProvider
@@ -15,8 +17,19 @@ class RefineServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        $this->publishes([
-            __DIR__.'/../config/refine.php' => config_path('refine.php'),
-        ], 'config');
+        if ($this->app->runningInConsole()) {
+            $this->publishes([
+                __DIR__.'/../config/refine.php' => config_path('refine.php'),
+            ], 'config');
+
+            $this->publishes([
+                __DIR__.'/../stubs' => base_path('stubs'),
+            ], 'stubs');
+
+            $this->commands([
+                FilterMakeCommand::class,
+                SortMakeCommand::class,
+            ]);
+        }
     }
 }

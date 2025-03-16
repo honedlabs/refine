@@ -15,6 +15,9 @@ class Product extends Model
         'status' => Status::class,
     ];
 
+    /**
+     * Get the details for the product.
+     */
     public function details(): HasMany
     {
         return $this->hasMany(ProductDetail::class);

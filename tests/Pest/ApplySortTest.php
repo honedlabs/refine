@@ -4,42 +4,34 @@ declare(strict_types=1);
 
 use Honed\Refine\Sort;
 use Honed\Refine\Tests\Stubs\Product;
-use Illuminate\Support\Facades\Request;
 
 beforeEach(function () {
     $this->builder = Product::query();
-    $this->key = config('refine.sorts_key');
+    $this->name = 'name';
+    $this->sort = Sort::make($this->name);
 });
 
-it('is not active when the params do not match', function () {
-    $name = 'name';
-
-    $sort = Sort::make($name);
-
-    $request = Request::create('/', 'GET', [$this->key => 'other']);
-
-    expect($sort->refine($this->builder, $request, $this->key))
+it('does not apply', function () {
+    expect($this->sort->refine($this->builder, ['other', 'asc']))
         ->toBeFalse();
 
     expect($this->builder->getQuery()->orders)
         ->toBeEmpty();
 
-    expect($sort)
+    expect($this->sort)
         ->isActive()->toBeFalse()
         ->getDirection()->toBeNull()
-        ->getNextDirection()->toBe($name);
+        ->getNextDirection()->toBe($this->name);
 });
 
-it('uses alias over name', function () {
-    $name = 'name';
+it('applies alias', function () {
     $alias = 'alphabetical';
+    
+    $sort = $this->sort->alias($alias);
+    
+    // Should not apply
 
-    $sort = Sort::make($name)->alias($alias);
-
-    // It should not be active with name as there is an alias
-    $request = Request::create('/', 'GET', [$this->key => $name]);
-
-    expect($sort->refine($this->builder, $request, $this->key))
+    expect($sort->refine($this->builder, [$this->name, 'asc']))
         ->toBeFalse();
 
     expect($this->builder->getQuery()->orders)
@@ -50,14 +42,13 @@ it('uses alias over name', function () {
         ->getDirection()->toBeNull()
         ->getNextDirection()->toBe($alias);
 
-    // Now it should be active
-    $request = Request::create('/', 'GET', [$this->key => $alias]);
+    // Should apply
 
-    expect($sort->refine($this->builder, $request, $this->key))
+    expect($sort->refine($this->builder, [$alias, 'asc']))
         ->toBeTrue();
 
     expect($this->builder->getQuery()->orders)
-        ->toBeOnlyOrder($this->builder->qualifyColumn($name), 'asc');
+        ->toBeOnlyOrder($this->builder->qualifyColumn($this->name), 'asc');
 
     expect($sort)
         ->isActive()->toBeTrue()
@@ -65,97 +56,51 @@ it('uses alias over name', function () {
         ->getNextDirection()->toBe('-'.$alias);
 });
 
-it('can be singular', function () {
-    $name = 'name';
-    
-    $sort = Sort::make($name)
-        ->desc();
+it('applies fixed direction', function () {
+    $sort = $this->sort->desc();
 
-    $request = Request::create('/', 'GET', [$this->key => $name.'_desc']);
+    $descending = $this->name.'_desc';
 
-    expect($sort->refine($this->builder, $request, $this->key))
+    expect($sort->refine($this->builder, [$descending, 'desc']))
         ->toBeTrue();
 
     expect($this->builder->getQuery()->orders)
-        ->toBeOnlyOrder($this->builder->qualifyColumn($name), 'desc');
+        ->toBeOnlyOrder($this->builder->qualifyColumn($this->name), 'desc');
 
     expect($sort)
-        ->isSingularDirection()->toBeTrue()
+        ->isFixed()->toBeTrue()
         ->isActive()->toBeTrue()
         ->getDirection()->toBe('desc')
-        ->getNextDirection()->toBe($name.'_desc');
+        ->getNextDirection()->toBe($descending);
 });
 
-it('can invert direction', function () {
-    $name = 'name';
-    
-    $sort = Sort::make($name)
-        ->invert();
+it('applies inverted direction', function () {
+    $sort = $this->sort->invert();
 
-    $request = Request::create('/', 'GET', [$this->key => '-'.$name]);
-
-    expect($sort->refine($this->builder, $request, $this->key))
+    expect($sort->refine($this->builder, [$this->name, 'desc']))
         ->toBeTrue();
 
     expect($this->builder->getQuery()->orders)
-        ->toBeOnlyOrder($this->builder->qualifyColumn($name), 'desc');
+        ->toBeOnlyOrder($this->builder->qualifyColumn($this->name), 'desc');
 
     expect($sort)
         ->isInverted()->toBeTrue()
         ->isActive()->toBeTrue()
         ->getDirection()->toBe('desc')
-        ->getNextDirection()->toBe($name);
+        ->getNextDirection()->toBe($this->name);
 });
 
-it('supports `oldest`, `latest` clauses', function () {
-    $name = 'created_at';
+it('applies query', function () {
+    $column = 'created_at';
     
-    $sort = Sort::make($name)
-        ->latest(':column');
+    $sort = $this->sort
+        ->query(fn ($builder, $direction) => $builder->orderBy($column, $direction));
 
-    $request = Request::create('/', 'GET', [$this->key => $name]);
-
-    expect($sort->refine($this->builder, $request, $this->key))
+    expect($sort->refine($this->builder, [$this->name, 'desc']))
         ->toBeTrue();
 
     expect($this->builder->getQuery()->orders)
-        ->toBeOnlyOrder($name, 'desc');
-
-    // expect($sort)
-    //     ->isSingularDirection()->toBeTrue()
-    //     ->isActive()->toBeTrue()
-    //     ->getDirection()->toBe('desc')
-    //     ->getNextDirection()->toBe($name);
-});
-
-it('supports `orderBy` clauses', function () {
-    $name = 'created_at';
-    
-    $sort = Sort::make($name)
-        ->orderBy('created_at', ':direction');
-
-    $request = Request::create('/', 'GET', [$this->key => '-'.$name]);
-
-    expect($sort->refine($this->builder, $request, $this->key))
-        ->toBeTrue();
-
-    expect($this->builder->getQuery()->orders)
-        ->toBeOnlyOrder($name, 'desc');
-});
-
-it('supports closures', function () {
-    $name = 'name';
-
-    $sort = Sort::make($name)
-        ->using(fn ($builder, $direction) => $builder->orderBy('created_at', $direction));
-
-    $request = Request::create('/', 'GET', [$this->key => '-'.$name]);
-
-    expect($sort->refine($this->builder, $request, $this->key))
-        ->toBeTrue();
-
-    expect($this->builder->getQuery()->orders)
-        ->toBeOnlyOrder('created_at', 'desc');
+        ->toBeOnlyOrder($column, 'desc');
     
     expect($sort)
         ->isActive()->toBeTrue();
