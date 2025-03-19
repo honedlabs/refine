@@ -4,19 +4,19 @@ declare(strict_types=1);
 
 namespace {{ namespace }};
 
-use Honed\Refine\Sort;
+use Honed\Refine\Search;
 use Illuminate\Database\Query\Builder;
 
 /**
  * @template TModel of \Illuminate\Database\Eloquent\Model
  * @template TBuilder of \Illuminate\Database\Eloquent\Builder<TModel>
  *
- * @extends \Honed\Refine\Sort<TModel, TBuilder>
+ * @extends \Honed\Refine\Search<TModel, TBuilder>
  */
-final class {{ class }} extends Sort
+final class {{ class }} extends Search
 {
     /**
-     *  Create a new sort instance.
+     *  Create a new search instance.
      *
      * @return static
      */
@@ -34,13 +34,13 @@ final class {{ class }} extends Sort
     }
 
     /**
-     * Register the query expression to resolve the filter.
+     * Register the query expression to resolve the search.
      *
      * @param  \Illuminate\Database\Query\Builder<\Illuminate\Database\Eloquent\Model>  $builder
-     * @param  'asc'|'desc'|null $direction
+     * @param  string $value
      * @return void
      */
-    public function query(Builder $builder, $direction)
+    public function query(Builder $builder, $value)
     {
         //
     }

@@ -19,35 +19,6 @@ beforeEach(function () {
     $this->test = Refine::make(Product::class);
 });
 
-it('has sorts key', function () {
-    expect($this->test)
-        ->getSortsKey()->toBe(config('refine.sorts_key'))
-        ->sortsKey('test')->toBe($this->test)
-        ->getSortsKey()->toBe('test');
-});
-
-it('has searches key', function () {
-    expect($this->test)
-        ->getSearchesKey()->toBe(config('refine.searches_key'))
-        ->searchesKey('test')->toBe($this->test)
-        ->getSearchesKey()->toBe('test');
-});
-
-it('has matches key', function () {
-    expect($this->test)
-        ->getMatchesKey()->toBe(config('refine.matches_key'))
-        ->matchesKey('test')->toBe($this->test)
-        ->getMatchesKey()->toBe('test');
-});
-
-it('can match', function () {
-    expect($this->test)
-        ->isMatching()->toBe(config('refine.match'));
-
-    expect($this->test->match())->toBe($this->test)
-        ->isMatching()->toBeTrue();
-});
-
 it('has delimiter', function () {
     expect($this->test)
         ->hasDelimiter()->toBeFalse()
@@ -59,13 +30,13 @@ it('has delimiter', function () {
 
 it('can set as not refining', function () {
     expect($this->test)
-        ->withoutRefining()->toBe($this->test)
-        ->isWithoutFiltering()->toBeTrue()
-        ->isWithoutSorting()->toBeTrue()
-        ->isWithoutSearching()->toBeTrue();
+        ->refining(false)->toBe($this->test)
+        ->isFiltering()->toBeFalse()
+        ->isSorting()->toBeFalse()
+        ->isSearching()->toBeFalse();
 });
 
-it('has for method', function () {
+it('has for', function () {
     expect($this->test)
         ->for(Product::class)->toBe($this->test)
         ->getFor()->toBeInstanceOf(Builder::class);
@@ -83,82 +54,6 @@ it('has after method', function () {
         ->after(function () {
             return $this->test;
         })->toBe($this->test);
-});
-
-it('is without filtering', function () {
-    $name = 'name';
-    $refine = $this->test->filters([Filter::make($name)]);
-
-    expect($refine)
-        ->isWithoutFiltering()->toBeFalse()
-        ->withoutFiltering()->toBe($refine)
-        ->isWithoutFiltering()->toBeTrue()
-        ->isWithoutFilters()->toBeFalse()
-        ->withoutFilters()->toBe($refine)
-        ->isWithoutFilters()->toBeTrue();
-
-    $value = 'test';
-    $request = generate($name, $value);
-
-    expect($refine->request($request)->refine())
-        ->toBe($refine);
-
-    expect($refine->getFor()->getQuery()->wheres)
-        ->toBeEmpty();
-
-    expect($refine)
-        ->getFilters()->toHaveCount(1)
-        ->filtersToArray()->toBeEmpty();
-});
-
-it('is without sorting', function () {
-    $name = 'name';
-    $refine = $this->test->sorts([Sort::make($name)]);
-
-    expect($refine)
-        ->isWithoutSorting()->toBeFalse()
-        ->withoutSorting()->toBe($refine)
-        ->isWithoutSorting()->toBeTrue()
-        ->isWithoutSorts()->toBeFalse()
-        ->withoutSorts()->toBe($refine)
-        ->isWithoutSorts()->toBeTrue();
-
-    $request = generate(config('refine.sorts_key'), $name);
-
-    expect($refine->request($request)->refine())
-        ->toBe($refine);
-
-    expect($refine->getFor()->getQuery()->orders)
-        ->toBeEmpty();
-
-    expect($refine)
-        ->getSorts()->toHaveCount(1)
-        ->sortsToArray()->toBeEmpty();
-});
-
-it('is without searching', function () {
-    $name = 'name';
-    $refine = $this->test->searches([Search::make($name)]);
-
-    expect($refine)
-        ->isWithoutSearching()->toBeFalse()
-        ->withoutSearching()->toBe($refine)
-        ->isWithoutSearching()->toBeTrue()
-        ->isWithoutSearches()->toBeFalse()
-        ->withoutSearches()->toBe($refine)
-        ->isWithoutSearches()->toBeTrue();
-
-    $request = generate(config('refine.searches_key'), $name);
-
-    expect($refine->request($request)->refine())
-        ->toBe($refine);
-
-    expect($refine->getFor()->getQuery()->wheres)
-        ->toBeEmpty();
-
-    expect($refine)
-        ->getSearches()->toHaveCount(1)
-        ->searchesToArray()->toBeEmpty();
 });
 
 it('evaluates named closure dependencies', function () {
@@ -210,7 +105,7 @@ it('forwards calls to the builder', function () {
 });
 
 it('has array representation', function () {
-    $this->test->using([
+    $this->test->with([
         Filter::make('name'),
         Sort::make('name'),
         Search::make('name'),
@@ -229,7 +124,7 @@ it('has array representation', function () {
 });
 
 it('has array representation with matches', function () {
-    $this->test->using([
+    $this->test->with([
         Filter::make('name'),
         Sort::make('name'),
         Search::make('name'),
@@ -246,3 +141,13 @@ it('has array representation with matches', function () {
             ->{'matches'}->toBe(config('refine.matches_key'))
         );
 });
+
+it('refines once', function () {
+    expect($this->test)
+        ->refine()->toBe($this->test)
+        ->isRefined()->toBeTrue()
+        ->refine()->toBe($this->test)
+        ->isRefined()->toBeTrue();
+});
+
+

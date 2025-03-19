@@ -7,8 +7,24 @@ namespace {{ namespace }};
 use Honed\Refine\Filter;
 use Illuminate\Database\Query\Builder;
 
+/**
+ * @template TModel of \Illuminate\Database\Eloquent\Model
+ * @template TBuilder of \Illuminate\Database\Eloquent\Builder<TModel>
+ *
+ * @extends \Honed\Refine\Filter<TModel, TBuilder>
+ */
 final class {{ class }} extends Filter
 {
+    /**
+     *  Create a new sort instance.
+     *
+     * @return static
+     */
+    public static function new()
+    {
+        return resolve(static::class);
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -24,7 +40,7 @@ final class {{ class }} extends Filter
      * @param  mixed $value
      * @return void
      */
-    public function expression(Builder $builder, $value)
+    public function query(Builder $builder, $value)
     {
         //
     }

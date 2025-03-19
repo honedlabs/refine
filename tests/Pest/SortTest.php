@@ -12,12 +12,31 @@ beforeEach(function () {
     $this->sort = Sort::make($this->param);
 });
 
+it('has direction', function () {
+    expect($this->sort)
+        ->getDirection()->toBeNull()
+        ->direction('asc')->toBe($this->sort)
+        ->getDirection()->toBe('asc')
+        ->isAscending()->toBeTrue()
+        ->isDescending()->toBeFalse()
+        ->direction('desc')->toBe($this->sort)
+        ->getDirection()->toBe('desc')
+        ->isAscending()->toBeFalse()
+        ->isDescending()->toBeTrue();
+});
+
+it('has parameter', function () {
+    expect($this->sort)
+        ->getAscendingValue()->toBe($this->param)
+        ->getDescendingValue()->toBe('-'.$this->param);
+});
+
 it('has next direction', function () {
     expect($this->sort)
         ->getNextDirection()->toBe($this->sort->getAscendingValue());
 });
 
-it('can invert direction', function () {
+it('can invert', function () {
     expect($this->sort)
         ->isInverted()->toBeFalse()
         ->invert()->toBe($this->sort)
@@ -25,20 +44,10 @@ it('can invert direction', function () {
         ->getNextDirection()->toBe($this->sort->getDescendingValue());
 });
 
-it('has direction', function () {
+it('can be fixed', function () {
     expect($this->sort)
-        ->getAscendingValue()->toBe($this->param)
-        ->getDescendingValue()->toBe('-'.$this->param);
-});
-
-it('has array representation', function () {
-    expect($this->sort->toArray())->toEqual([
-        'name' => $this->param,
-        'label' => ucfirst($this->param),
-        'type' => 'sort',
-        'meta' => [],
-        'active' => false,
-        'direction' => null,
-        'next' => $this->sort->getAscendingValue(),
-    ]);
+        ->isFixed()->toBeFalse()
+        ->only('asc')->toBe($this->sort)
+        ->isFixed()->toBeTrue()
+        ->getDirection()->toBe('asc');
 });

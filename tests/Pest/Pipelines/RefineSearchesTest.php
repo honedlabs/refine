@@ -1,0 +1,139 @@
+<?php
+
+declare(strict_types=1);
+
+use Honed\Refine\Tests\Stubs\Product;
+use Honed\Refine\Pipelines\RefineSearches;
+use Honed\Refine\Refine;
+use Honed\Refine\Search;
+use Illuminate\Support\Facades\Request;
+
+beforeEach(function () {
+    $this->builder = Product::query();
+    $this->pipe = new RefineSearches();
+    $this->closure = fn ($refine) => $refine;
+
+    $searches = [
+        Search::make('name'),
+        Search::make('description'),
+    ];
+
+    $this->refine = Refine::make($this->builder)
+        ->searches($searches);
+
+});
+
+it('does not refine', function () {
+    $request = Request::create('/', 'GET', [
+        'invalid' => 'test'
+    ]);
+
+    $this->refine->request($request);
+
+    ($this->pipe)($this->refine, $this->closure);
+
+    expect($this->refine->getFor()->getQuery()->wheres)
+        ->toBeEmpty();
+
+    expect($this->refine->getTerm())
+        ->toBeNull();
+});
+
+it('refines', function () {
+    $request = Request::create('/', 'GET', [
+        config('refine.searches_key') => 'search+value'
+    ]);
+
+    $this->refine->request($request);
+
+    ($this->pipe)($this->refine, $this->closure);
+
+    $builder = $this->refine->getFor();
+
+    expect($builder->getQuery()->wheres)
+        ->{0}->toBeSearch($builder->qualifyColumn('name'), 'and')
+        ->{1}->toBeSearch($builder->qualifyColumn('description'), 'or');
+
+    expect($this->refine->getTerm())
+        ->toBe('search value');
+});
+
+it('disables', function () {
+    $request = Request::create('/', 'GET', [
+        config('refine.searches_key') => 'search+value'
+    ]);
+
+    $this->refine->request($request)->searching(false);
+
+    ($this->pipe)($this->refine, $this->closure);
+
+    $builder = $this->refine->getFor();
+
+    expect($builder->getQuery()->wheres)
+        ->toBeEmpty();
+
+    expect($this->refine->getTerm())
+        ->toBeNull();
+});
+
+it('refines with match', function () {
+    $request = Request::create('/', 'GET', [
+        config('refine.searches_key') => 'search+value',
+        config('refine.matches_key') => 'name'
+    ]);
+
+    $this->refine->request($request);
+
+    ($this->pipe)($this->refine, $this->closure);
+
+    $builder = $this->refine->getFor();
+
+    expect($builder->getQuery()->wheres)
+        ->toBeOnlySearch($builder->qualifyColumn('name'));
+
+    expect($this->refine->getTerm())
+        ->toBe('search value');
+});
+
+describe('scope', function () {
+    beforeEach(function () {
+        $this->refine = $this->refine->scope('scope');
+    });
+
+    it('does not refine', function () {
+        $request = Request::create('/', 'GET', [
+            'invalid' => 'search+value'
+        ]);
+
+        $this->refine->request($request);
+
+        ($this->pipe)($this->refine, $this->closure);
+
+        $builder = $this->refine->getFor();
+
+        expect($builder->getQuery()->wheres)
+            ->toBeEmpty();
+
+        expect($this->refine->getTerm())
+            ->toBeNull();
+    });
+
+    it('refines', function () {
+        $request = Request::create('/', 'GET', [
+            $this->refine->formatScope(config('refine.searches_key')) => 'search+value',
+            $this->refine->formatScope(config('refine.matches_key')) => 'description'
+        ]);
+
+        $this->refine->request($request);
+
+        ($this->pipe)($this->refine, $this->closure);
+
+        $builder = $this->refine->getFor();
+
+        expect($builder->getQuery()->wheres)
+            ->toBeOnlySearch($builder->qualifyColumn('description'));
+
+        expect($this->refine->getTerm())
+            ->toBe('search value');
+    }); 
+});

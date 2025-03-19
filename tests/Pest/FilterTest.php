@@ -2,11 +2,8 @@
 
 declare(strict_types=1);
 
-use Carbon\Carbon;
 use Honed\Refine\Filter;
 use Honed\Refine\Tests\Stubs\Status;
-use Honed\Refine\Tests\Stubs\Product;
-use Illuminate\Support\Facades\Request;
 
 beforeEach(function () {
     $this->filter = Filter::make('name');
@@ -19,40 +16,56 @@ it('has operator', function () {
         ->getOperator()->toBe('!=');
 });
 
-it('can set filter types', function () {
+it('can be default', function () {
     expect($this->filter)
         ->getType()->toBe('filter')
         ->getAs()->toBeNull();
+});
 
+it('can be boolean', function () {
     expect($this->filter->boolean())
         ->getType()->toBe('boolean')
         ->getAs()->toBe('boolean');
+});
 
+it('can be date', function () {
     expect($this->filter->date())
         ->getType()->toBe('date')
         ->getAs()->toBe('date');
+});
 
+it('can be date time', function () {
     expect($this->filter->dateTime())
         ->getType()->toBe('datetime')
         ->getAs()->toBe('datetime');
+});
 
+it('can be float', function () {
     expect($this->filter->float())
         ->getType()->toBe('float')
         ->getAs()->toBe('float');
+});
 
+it('can be integer', function () {
     expect($this->filter->integer())
         ->getType()->toBe('integer')
         ->getAs()->toBe('integer');
+});
 
+it('can be array multiple', function () {
     expect($this->filter->multiple())
         ->getType()->toBe('multiple')
         ->getAs()->toBe('array')
         ->isMultiple()->toBeTrue();
+});
 
+it('can be string', function () {
     expect($this->filter->string())
         ->getType()->toBe('string')
         ->getAs()->toBe('string');
+});
 
+it('can be time', function () {
     expect($this->filter->time())
         ->getType()->toBe('time')
         ->getAs()->toBe('time');

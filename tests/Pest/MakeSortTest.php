@@ -8,22 +8,6 @@ beforeEach(function () {
     File::cleanDirectory(app_path('Refiners'));
 });
 
-it('makes filters', function () {
-    $this->artisan('make:filter', [
-        'name' => 'DateFilter',
-    ])->assertSuccessful();
-
-    $this->assertFileExists(app_path('Refiners/DateFilter.php'));
-});
-
-it('prompts for a filter name', function () {
-    $this->artisan('make:filter')
-        ->expectsQuestion('What should the filter be named?', 'DateFilter')
-        ->assertSuccessful();
-
-    $this->assertFileExists(app_path('Refiners/DateFilter.php'));
-});
-
 it('makes sorts', function () {
     $this->artisan('make:sort', [
         'name' => 'DateSort',
@@ -37,4 +21,3 @@ it('prompts for a sort name', function () {
         ->expectsQuestion('What should the sort be named?', 'DateSort')
         ->assertSuccessful();
 });
-
