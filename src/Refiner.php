@@ -31,10 +31,11 @@ abstract class Refiner extends Primitive
     use HasLabel;
     use HasMeta;
     use HasName;
+
     /** @use HasQueryClosure<TModel, TBuilder> */
     use HasQueryClosure;
-    use HasType;
 
+    use HasType;
     use HasValue;
 
     /**
