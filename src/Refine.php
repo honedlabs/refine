@@ -229,9 +229,9 @@ class Refine extends Primitive
         return [
             'delimiter' => $this->getDelimiter(),
             'search' => $this->getTerm(),
-            'searches' => $this->getSearchesKey(),
-            'sorts' => $this->getSortsKey(),
-            'matches' => $this->getMatchesKey(),
+            'searches' => $this->formatScope($this->getSearchesKey()),
+            'sorts' => $this->formatScope($this->getSortsKey()),
+            'matches' => $this->formatScope($this->getMatchesKey()),
         ];
     }
 
@@ -241,9 +241,9 @@ class Refine extends Primitive
     public function toArray()
     {
         return [
+            'config' => $this->configToArray(),
             'sorts' => $this->sortsToArray(),
             'filters' => $this->filtersToArray(),
-            'config' => $this->configToArray(),
             'searches' => $this->searchesToArray(),
         ];
     }
