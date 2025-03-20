@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Honed\Refine\Pipelines;
 
-use Closure;
 use Honed\Core\Interpret;
 use Honed\Refine\Refine;
 use Illuminate\Http\Request;
@@ -19,9 +18,10 @@ class RefineSearches
      * Apply the searches to the query.
      *
      * @param  \Honed\Refine\Refine<TModel, TBuilder>  $refine
+     * @param  \Closure(Refine<TModel, TBuilder>): Refine<TModel, TBuilder>  $next
      * @return \Honed\Refine\Refine<TModel, TBuilder>
      */
-    public function __invoke(Refine $refine, Closure $next): Refine
+    public function __invoke($refine, $next)
     {
         if (! $refine->isSearching()) {
             return $next($refine);
@@ -58,8 +58,12 @@ class RefineSearches
 
     /**
      * Get the search term from a request.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  string  $key
+     * @return string|null
      */
-    public function term(Request $request, string $key): ?string
+    public function term($request, $key)
     {
         $term = Interpret::string($request, $key);
 
@@ -73,9 +77,12 @@ class RefineSearches
     /**
      * Get the search columns from a request.
      *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  string  $key
+     * @param  string  $delimiter
      * @return array<int,string>|null
      */
-    public function columns(Request $request, string $key, string $delimiter): ?array
+    public function columns($request, $key, $delimiter)
     {
         return Interpret::array($request, $key, $delimiter, 'string');
 

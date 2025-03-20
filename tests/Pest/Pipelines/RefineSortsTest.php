@@ -27,7 +27,7 @@ beforeEach(function () {
 });
 
 it('does not refine', function () {
-    ($this->pipe)($this->refine, $this->closure);
+    $this->pipe->__invoke($this->refine, $this->closure);
 
     expect($this->refine->getFor()->getQuery()->wheres)
         ->toBeEmpty();
@@ -40,7 +40,7 @@ it('refines default', function () {
 
     $this->refine->request($request);
 
-    ($this->pipe)($this->refine, $this->closure);
+    $this->pipe->__invoke($this->refine, $this->closure);
 
     $builder = $this->refine->getFor();
 
@@ -55,7 +55,7 @@ it('refines', function () {
 
     $this->refine->request($request);
 
-    ($this->pipe)($this->refine, $this->closure);
+    $this->pipe->__invoke($this->refine, $this->closure);
 
     $builder = $this->refine->getFor();
 
@@ -70,7 +70,7 @@ it('refines directionally', function () {
 
     $this->refine->request($request);
 
-    ($this->pipe)($this->refine, $this->closure);
+    $this->pipe->__invoke($this->refine, $this->closure);
 
     $builder = $this->refine->getFor();
 
@@ -85,7 +85,7 @@ it('disables', function () {
 
     $this->refine->request($request)->sorting(false);
 
-    ($this->pipe)($this->refine, $this->closure);
+    $this->pipe->__invoke($this->refine, $this->closure);
 
     $builder = $this->refine->getFor();
 
@@ -105,7 +105,7 @@ describe('scope', function () {
 
         $this->refine->request($request);
 
-        ($this->pipe)($this->refine, $this->closure);
+        $this->pipe->__invoke($this->refine, $this->closure);
 
         $builder = $this->refine->getFor();
 
@@ -120,7 +120,7 @@ describe('scope', function () {
 
         $this->refine->request($request);
 
-        ($this->pipe)($this->refine, $this->closure);
+        $this->pipe->__invoke($this->refine, $this->closure);
 
         $builder = $this->refine->getFor();
 

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Honed\Refine\Pipelines;
 
-use Closure;
 use Honed\Refine\Refine;
 
 /**
@@ -17,9 +16,10 @@ class RefineFilters
      * Apply the filters to the query.
      *
      * @param  \Honed\Refine\Refine<TModel, TBuilder>  $refine
+     * @param  \Closure(Refine<TModel, TBuilder>): Refine<TModel, TBuilder>  $next
      * @return \Honed\Refine\Refine<TModel, TBuilder>
      */
-    public function __invoke(Refine $refine, Closure $next): Refine
+    public function __invoke($refine, $next)
     {
         if (! $refine->isFiltering()) {
             return $next($refine);

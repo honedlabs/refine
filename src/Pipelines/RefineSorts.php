@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Honed\Refine\Pipelines;
 
-use Closure;
 use Honed\Core\Interpret;
 use Honed\Refine\Refine;
 use Illuminate\Http\Request;
@@ -19,9 +18,10 @@ class RefineSorts
      * Apply the sorts refining logic.
      *
      * @param  \Honed\Refine\Refine<TModel, TBuilder>  $refine
+     * @param  \Closure(Refine<TModel, TBuilder>): Refine<TModel, TBuilder>  $next
      * @return \Honed\Refine\Refine<TModel, TBuilder>
      */
-    public function __invoke(Refine $refine, Closure $next): Refine
+    public function __invoke($refine, $next)
     {
         if (! $refine->isSorting()) {
             return $next($refine);
@@ -54,9 +54,11 @@ class RefineSorts
     /**
      * Get the sort name and direction from a request.
      *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  string  $key
      * @return array{string|null, 'asc'|'desc'|null}
      */
-    public function nameAndDirection(Request $request, string $key): array
+    public function nameAndDirection($request, $key)
     {
         $sort = Interpret::string($request, $key);
 
