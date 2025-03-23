@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Honed\Refine\Concerns;
 
-use Illuminate\Support\Arr;
-
 /**
  * @template TModel of \Illuminate\Database\Eloquent\Model
  * @template TBuilder of \Illuminate\Database\Eloquent\Builder<TModel>
@@ -77,7 +75,7 @@ trait HasSearch
     public function searchRecall($builder, $value, $column, $boolean = 'and')
     {
         $column = $builder->qualifyColumn($column);
-        
+
         // @phpstan-ignore-next-line
         $builder->whereFullText($column, $value, boolean: $boolean);
     }

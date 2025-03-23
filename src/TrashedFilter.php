@@ -6,7 +6,6 @@ namespace Honed\Refine;
 
 use Honed\Core\Contracts\DefinesQuery;
 use Honed\Refine\Contracts\DefinesOptions;
-use Illuminate\Database\Eloquent\Builder;
 
 /**
  * @template TModel of \Illuminate\Database\Eloquent\Model
