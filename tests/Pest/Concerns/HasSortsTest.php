@@ -38,19 +38,12 @@ it('adds sorts collection', function () {
         ->getSorts()->toHaveCount(2);
 });
 
-it('has sorts key', function () {
+it('has sort key', function () {
     expect($this->test)
-        ->getSortsKey()->toBe(config('refine.sorts_key'))
-        ->sortsKey('test')->toBe($this->test)
-        ->getSortsKey()->toBe('test')
-        ->fallbackSortsKey()->toBe(config('refine.sorts_key'));
-});
-
-it('is sorting', function () {
-    expect($this->test)
-        ->isSorting()->toBeTrue()
-        ->sorting(false)->toBe($this->test)
-        ->isSorting()->toBeFalse();
+        ->getSortKey()->toBe(config('refine.sort_key'))
+        ->sortKey('test')->toBe($this->test)
+        ->getSortKey()->toBe('test')
+        ->getDefaultSortKey()->toBe(config('refine.sort_key'));
 });
 
 it('without sorts', function () {

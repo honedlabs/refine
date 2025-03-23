@@ -13,11 +13,13 @@ it('makes sorts', function () {
         'name' => 'DateSort',
     ])->assertSuccessful();
 
-    $this->assertFileExists(app_path('Refiners/DateSort.php'));
+    $this->assertFileExists(app_path('Refiners/Sorts/DateSort.php'));
 });
 
 it('prompts for a sort name', function () {
     $this->artisan('make:sort')
         ->expectsQuestion('What should the sort be named?', 'DateSort')
         ->assertSuccessful();
+
+    $this->assertFileExists(app_path('Refiners/Sorts/DateSort.php'));
 });

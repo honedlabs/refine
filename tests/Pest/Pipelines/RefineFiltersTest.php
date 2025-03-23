@@ -14,11 +14,11 @@ beforeEach(function () {
     $this->closure = fn ($refine) => $refine;
 
     $filters = [
-        Filter::make('price')->integer(),
+        Filter::make('price')->int(),
     ];
 
     $this->refine = Refine::make($this->builder)
-        ->filters($filters);
+        ->withFilters($filters);
 
 });
 
@@ -31,7 +31,7 @@ it('does not refine', function () {
 
     $this->pipe->__invoke($this->refine, $this->closure);
 
-    expect($this->refine->getFor()->getQuery()->wheres)
+    expect($this->refine->getBuilder()->getQuery()->wheres)
         ->toBeEmpty();
 });
 
@@ -44,7 +44,7 @@ it('refines', function () {
 
     $this->pipe->__invoke($this->refine, $this->closure);
 
-    $builder = $this->refine->getFor();
+    $builder = $this->refine->getBuilder();
 
     expect($builder->getQuery()->wheres)
         ->toBeOnlyWhere($builder->qualifyColumn('price'), 100);
@@ -55,11 +55,11 @@ it('disables', function () {
         'price' => 100
     ]);
 
-    $this->refine->request($request)->filtering(false);
+    $this->refine->request($request)->withoutFilters();
 
     $this->pipe->__invoke($this->refine, $this->closure);
 
-    $builder = $this->refine->getFor();
+    $builder = $this->refine->getBuilder();
 
     expect($builder->getQuery()->wheres)
         ->toBeEmpty();
@@ -79,7 +79,7 @@ describe('scope', function () {
 
         $this->pipe->__invoke($this->refine, $this->closure);
 
-        $builder = $this->refine->getFor();
+        $builder = $this->refine->getBuilder();
 
         expect($builder->getQuery()->wheres)
             ->toBeEmpty();
@@ -94,7 +94,7 @@ describe('scope', function () {
 
         $this->pipe->__invoke($this->refine, $this->closure);
 
-        $builder = $this->refine->getFor();
+        $builder = $this->refine->getBuilder();
 
         expect($builder->getQuery()->wheres)
             ->toBeOnlyWhere($builder->qualifyColumn('price'), 100);

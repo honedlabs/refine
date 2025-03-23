@@ -9,15 +9,16 @@ use Honed\Refine\Refine;
 
 beforeEach(function () {
     $this->builder = Product::query();
-    $this->refine = Refine::make($this->builder);
     $this->pipe = new AfterRefining();
     $this->closure = fn ($refine) => $refine;
+
+    $this->refine = Refine::make($this->builder);
 });
 
 it('does not refine after', function () {
     $this->pipe->__invoke($this->refine, $this->closure);
 
-    expect($this->refine->getFor()->getQuery()->wheres)
+    expect($this->refine->getBuilder()->getQuery()->wheres)
         ->toBeEmpty();
 });
 
@@ -26,16 +27,16 @@ it('refines after using property', function () {
 
     $this->pipe->__invoke($refine, $this->closure);
 
-    expect($refine->getFor()->getQuery()->wheres)
+    expect($refine->getBuilder()->getQuery()->wheres)
         ->toBeOnlyWhere('price', 100, '>', 'and');
 });
 
 it('refines after using method', function () {
     $refine = AfterRefiningFixture::make()
-        ->for($this->builder);
-
+        ->builder($this->builder);
+    
     $this->pipe->__invoke($refine, $this->closure);
 
-    expect($refine->getFor()->getQuery()->wheres)
+    expect($refine->getBuilder()->getQuery()->wheres)
         ->toBeOnlyWhere('price', 100, '>', 'and');
 });

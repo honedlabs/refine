@@ -57,12 +57,12 @@ return [
     */
 
     /** The parameter name for the sort field and direction. */
-    'sorts_key' => 'sort',
+    'sort_key' => 'sort',
 
     /** The parameter name when using a text search. */
-    'searches_key' => 'search',
+    'search_key' => 'search',
 
     /** The parameter name when selecting which columns to match on. */
-    'matches_key' => 'match',
+    'match_key' => 'match',
 
 ];

@@ -1,0 +1,68 @@
+<?php
+
+declare(strict_types=1);
+
+namespace {{ namespace }};
+
+use Honed\Core\Contracts\Builds;
+use Honed\Refine\Filter;
+use Illuminate\Database\Eloquent\Builder;
+
+/**
+ * @template TModel of \Illuminate\Database\Eloquent\Model
+ * @template TBuilder of \Illuminate\Database\Eloquent\Builder<TModel>
+ *
+ * @extends \Honed\Refine\Refine<TModel, TBuilder>
+ */
+final class {{ class }} extends Refine implements Builds
+{
+    /**
+     * Provide the instance with any necessary setup
+     *
+     * @return void
+     */
+    public function setUp()
+    {
+        //
+    }
+
+    /**
+     * Define the database resource to use.
+     * 
+     * @return TBuilder|TModel|class-string<TModel>
+     */
+    public function for()
+    {
+        //
+    }
+    
+    /**
+     * Define the filters for the refine.
+     *
+     * @return array<int,\Honed\Refine\Filter<TModel, TBuilder>>
+     */
+    public function filters()
+    {
+        return [];
+    }
+
+    /**
+     * Define the sorts for the refine.
+     *
+     * @return array<int,\Honed\Refine\Sort<TModel, TBuilder>>
+     */
+    public function sorts()
+    {
+        return [];
+    }
+
+    /**
+     * Define the searches for the refine.
+     *
+     * @return array<int, \Honed\Refine\Search<TModel, TBuilder>>
+     */
+    public function searches()
+    {
+        return [];
+    }
+}

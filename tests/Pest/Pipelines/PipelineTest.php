@@ -20,8 +20,8 @@ beforeEach(function () {
         'favourite' => '1',
         'oldest' => '2000-01-01',
         'newest' => '2001-01-01',
-        config('refine.sorts_key') => '-price',
-        config('refine.searches_key') => $this->term,
+        config('refine.sort_key') => '-price',
+        config('refine.search_key') => $this->term,
     ]);
 });
 
@@ -30,7 +30,7 @@ it('executes pipeline', function () {
         ->request($this->request)
         ->refine();
 
-    expect($refine->getFor()->getQuery())
+    expect($refine->getBuilder()->getQuery())
         ->wheres->scoped(fn ($wheres) => $wheres
             ->toBeArray()
             ->toHaveCount(9)
@@ -64,10 +64,9 @@ it('executes pipeline', function () {
                     'boolean' => 'and',
                 ],
                 [
-                    'type' => 'Basic',
+                    'type' => 'In',
                     'column' => $this->builder->qualifyColumn('status'),
-                    'operator' => '=',
-                    'value' => Status::ComingSoon->value,
+                    'values' => [Status::ComingSoon->value],
                     'boolean' => 'and',
                 ],
                 [
@@ -78,18 +77,18 @@ it('executes pipeline', function () {
                     'boolean' => 'and',
                 ],
                 [
-                    'type' => 'Date',
                     'column' => $this->builder->qualifyColumn('created_at'),
+                    'type' => 'Date',
+                    'boolean' => 'and',
                     'operator' => '>=',
                     'value' => '2000-01-01',
-                    'boolean' => 'and',
                 ],
                 [
-                    'type' => 'Date',
                     'column' => $this->builder->qualifyColumn('created_at'),
+                    'type' => 'Date',
+                    'boolean' => 'and',
                     'operator' => '<=',
                     'value' => '2001-01-01',
-                    'boolean' => 'and',
                 ],
             ])
         )->orders->toBeOnlyOrder($this->builder->qualifyColumn('price'), 'desc');

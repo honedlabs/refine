@@ -11,6 +11,7 @@ use Honed\Core\Concerns\InterpretsRequest;
 use Honed\Core\Concerns\Validatable;
 use Honed\Refine\Concerns\HasDelimiter;
 use Honed\Refine\Concerns\HasOptions;
+use Honed\Refine\Concerns\HasSearch;
 
 /**
  * @template TModel of \Illuminate\Database\Eloquent\Model
@@ -23,9 +24,15 @@ class Filter extends Refiner
     use HasDelimiter;
     use HasMeta;
     use HasOptions {
-        multiple as protected setMultiple;
+        multiple as protected baseMultiple;
     }
     use HasScope;
+
+    /**
+     * @use HasSearch<TModel, TBuilder>
+     */
+    use HasSearch;
+
     use InterpretsRequest;
     use Validatable;
 
@@ -67,10 +74,32 @@ class Filter extends Refiner
      *
      * @return $this
      */
-    public function dateTime()
+    public function datetime()
     {
         $this->type('datetime');
         $this->asDatetime();
+
+        return $this;
+    }
+
+    /**
+     * Set the filter to use options from an enum.
+     *
+     * @param  class-string<\BackedEnum>  $enum
+     * @param  bool  $multiple
+     * @return $this
+     */
+    public function enum($enum, $multiple = false)
+    {
+        $this->options($enum);
+
+        /** @var 'int'|'string'|null $backing */
+        $backing = (new \ReflectionEnum($enum))
+            ->getBackingType()
+            ?->getName();
+
+        $this->subtype($backing);
+        $this->multiple($multiple);
 
         return $this;
     }
@@ -82,7 +111,7 @@ class Filter extends Refiner
      */
     public function float()
     {
-        $this->type('float');
+        $this->type('number');
         $this->asFloat();
 
         return $this;
@@ -93,10 +122,10 @@ class Filter extends Refiner
      *
      * @return $this
      */
-    public function integer()
+    public function int()
     {
-        $this->type('integer');
-        $this->asInteger();
+        $this->type('number');
+        $this->asInt();
 
         return $this;
     }
@@ -104,25 +133,26 @@ class Filter extends Refiner
     /**
      * Set the filter to be for multiple values.
      *
+     * @param  bool  $multiple
      * @return $this
      */
-    public function multiple()
+    public function multiple($multiple = true)
     {
         $this->type('multiple');
         $this->asArray();
-        $this->setMultiple();
+        $this->baseMultiple($multiple);
 
         return $this;
     }
 
     /**
-     * Set the filter to be for string values.
+     * Set the filter to be for text values.
      *
      * @return $this
      */
-    public function string()
+    public function text()
     {
-        $this->type('string');
+        $this->type('text');
         $this->asString();
 
         return $this;
@@ -152,6 +182,66 @@ class Filter extends Refiner
         $this->operator = \mb_strtoupper($operator, 'UTF8');
 
         return $this;
+    }
+
+    /**
+     * Set the operator to be '>'
+     *
+     * @return $this
+     */
+    public function gt()
+    {
+        return $this->operator('>');
+    }
+
+    /**
+     * Set the operator to be '>='
+     *
+     * @return $this
+     */
+    public function gte()
+    {
+        return $this->operator('>=');
+    }
+
+    /**
+     * Set the operator to be '<'
+     *
+     * @return $this
+     */
+    public function lt()
+    {
+        return $this->operator('<');
+    }
+
+    /**
+     * Set the operator to be '<='
+     *
+     * @return $this
+     */
+    public function lte()
+    {
+        return $this->operator('<=');
+    }
+
+    /**
+     * Set the operator to be '!='
+     *
+     * @return $this
+     */
+    public function neq()
+    {
+        return $this->operator('!=');
+    }
+
+    /**
+     * Set the operator to be '='
+     *
+     * @return $this
+     */
+    public function eq()
+    {
+        return $this->operator('=');
     }
 
     /**
@@ -247,7 +337,16 @@ class Filter extends Refiner
         $column = $builder->qualifyColumn($column);
 
         match (true) {
-            \in_array($operator, ['LIKE', 'NOT LIKE', 'ILIKE', 'NOT ILIKE']) => static::queryRaw($builder, $column, type($operator)->asString(), $value),
+            $this->isFullText() && \is_string($value) => $this->searchRecall($builder, $value, $column),
+
+            \in_array($operator, ['LIKE', 'NOT LIKE', 'ILIKE', 'NOT ILIKE']) &&
+                \is_string($value) => $this->searchPrecision(
+                    $builder,
+                    $value,
+                    $column,
+                    // @phpstan-ignore-next-line
+                    operator: $operator
+                ),
 
             $this->isMultiple() || $this->interpretsArray() => $builder->whereIn($column, $value),
 
@@ -261,24 +360,5 @@ class Filter extends Refiner
 
             default => $builder->where($column, $operator, $value),
         };
-    }
-
-    /**
-     * Query the builder using a raw SQL statement.
-     *
-     * @param  TBuilder  $builder
-     * @param  string  $column
-     * @param  string  $operator
-     * @param  mixed  $value
-     * @return void
-     */
-    protected static function queryRaw($builder, $column, $operator, $value)
-    {
-        $operator = \mb_strtoupper($operator, 'UTF8');
-        $sql = \sprintf('LOWER(%s) %s ?', $column, $operator);
-        // @phpstan-ignore-next-line
-        $binding = ['%'.\mb_strtolower(\strval($value), 'UTF8').'%'];
-
-        $builder->whereRaw($sql, $binding);
     }
 }

@@ -38,36 +38,29 @@ it('adds searches collection', function () {
         ->getSearches()->toHaveCount(2);
 });
 
-it('has searches key', function () {
+it('has search key', function () {
     expect($this->test)
-        ->getSearchesKey()->toBe(config('refine.searches_key'))
-        ->searchesKey('test')->toBe($this->test)
-        ->getSearchesKey()->toBe('test')
-        ->fallbackSearchesKey()->toBe(config('refine.searches_key'));
+        ->getSearchKey()->toBe(config('refine.search_key'))
+        ->searchKey('test')->toBe($this->test)
+        ->getSearchKey()->toBe('test')
+        ->getDefaultSearchKey()->toBe(config('refine.search_key'));
 });
 
-it('has matches key', function () {
+it('has match key', function () {
     expect($this->test)
-        ->getMatchesKey()->toBe(config('refine.matches_key'))
-        ->matchesKey('test')->toBe($this->test)
-        ->getMatchesKey()->toBe('test')
-        ->fallbackMatchesKey()->toBe(config('refine.matches_key'));
+        ->getMatchKey()->toBe(config('refine.match_key'))
+        ->matchKey('test')->toBe($this->test)
+        ->getMatchKey()->toBe('test')
+        ->getDefaultMatchKey()->toBe(config('refine.match_key'));
 });
 
 it('matches', function () {
     expect($this->test)
-        ->matches()->toBe(config('refine.match'));
+        ->isMatching()->toBe(config('refine.match'));
 
     expect($this->test->match())->toBe($this->test)
-        ->matches()->toBeTrue()
-        ->fallbackMatches()->toBe(config('refine.match'));
-});
-
-it('is searching', function () {
-    expect($this->test)
-        ->isSearching()->toBeTrue()
-        ->searching(false)->toBe($this->test)
-        ->isSearching()->toBeFalse();
+        ->isMatching()->toBeTrue()
+        ->isMatchingByDefault()->toBe(config('refine.match'));
 });
 
 it('has term', function () {

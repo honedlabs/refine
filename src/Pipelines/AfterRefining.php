@@ -21,7 +21,7 @@ class AfterRefining
      */
     public function __invoke($refine, $next)
     {
-        $after = $refine->afterRefiner();
+        $after = $refine->getAfterCallback();
 
         $refine->evaluate($after);
 

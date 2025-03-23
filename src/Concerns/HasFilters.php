@@ -21,13 +21,6 @@ trait HasFilters
     protected $filters;
 
     /**
-     * Whether to apply the filters.
-     *
-     * @var bool
-     */
-    protected $filtering = true;
-
-    /**
      * Whether to provide the filters.
      *
      * @var bool
@@ -51,25 +44,32 @@ trait HasFilters
     }
 
     /**
+     * Define the filters for the instance.
+     *
+     * @return array<int,\Honed\Refine\Filter<TModel, TBuilder>>
+     */
+    public function filters()
+    {
+        return [];
+    }
+
+    /**
      * Retrieve the filters.
      *
      * @return array<int,\Honed\Refine\Filter<TModel, TBuilder>>
      */
     public function getFilters()
     {
-        return once(function () {
+        if ($this->isWithoutFilters()) {
+            return [];
+        }
 
-            $filters = \method_exists($this, 'filters') ? $this->filters() : [];
-
-            $filters = \array_merge($filters, $this->filters ?? []);
-
-            return \array_values(
-                \array_filter(
-                    $filters,
-                    static fn (Filter $filter) => $filter->isAllowed()
-                )
-            );
-        });
+        return once(fn () => \array_values(
+            \array_filter(
+                \array_merge($this->filters(), $this->filters ?? []),
+                static fn (Filter $filter) => $filter->isAllowed()
+            )
+        ));
     }
 
     /**
@@ -80,29 +80,6 @@ trait HasFilters
     public function hasFilters()
     {
         return filled($this->getFilters());
-    }
-
-    /**
-     * Set the instance to apply the filters.
-     *
-     * @param  bool  $filtering
-     * @return $this
-     */
-    public function filtering($filtering = true)
-    {
-        $this->filtering = $filtering;
-
-        return $this;
-    }
-
-    /**
-     * Determine if the instance should apply the filters.
-     *
-     * @return bool
-     */
-    public function isFiltering()
-    {
-        return $this->filtering;
     }
 
     /**
@@ -135,10 +112,6 @@ trait HasFilters
      */
     public function filtersToArray()
     {
-        if ($this->isWithoutFilters()) {
-            return [];
-        }
-
         return \array_map(
             static fn (Filter $filter) => $filter->toArray(),
             $this->getFilters()

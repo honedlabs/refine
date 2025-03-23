@@ -42,6 +42,7 @@ class TestCase extends Orchestra
             $table->string('status')->default(Status::Available->value);
             $table->unsignedInteger('price')->default(0);
             $table->boolean('best_seller')->default(false);
+            $table->softDeletes();
             $table->timestamps();
         });
 

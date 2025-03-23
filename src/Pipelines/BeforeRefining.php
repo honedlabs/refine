@@ -21,7 +21,7 @@ class BeforeRefining
      */
     public function __invoke($refine, $next)
     {
-        $before = $refine->beforeRefiner();
+        $before = $refine->getBeforeCallback();
 
         $refine->evaluate($before);
 

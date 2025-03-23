@@ -8,57 +8,61 @@ use Honed\Refine\Tests\Stubs\Product;
 beforeEach(function () {
     $this->builder = Product::query();
     $this->search = 'search term';
-    $this->key = config('refine.searches_key');
+
+    $this->test = Search::make('name');
 });
 
 it('does not apply', function () {
-    $name = 'name';
-
-    $search = Search::make($name);
-
-    expect($search)
+    expect($this->test)
         ->refine($this->builder, null)->toBeFalse();
 
     expect($this->builder->getQuery()->wheres)
         ->toBeEmpty();
 
-    expect($search)
+    expect($this->test)
         ->isActive()->toBeFalse()
         ->getValue()->toBeNull();
 });
 
 it('applies', function () {
-    $name = 'name';
-    $term = 'search term';
-
-    $search = Search::make($name);
-
-    expect($search)
-        ->refine($this->builder, $term)->toBeTrue();
+    expect($this->test)
+        ->refine($this->builder, $this->search)->toBeTrue();
 
     expect($this->builder->getQuery()->wheres)
-        ->toBeOnlySearch($this->builder->qualifyColumn($name));
+        ->toBeOnlySearch($this->builder->qualifyColumn('name'));
 
-    expect($search)
+    expect($this->test)
         ->isActive()->toBeTrue()
-        ->getValue()->toBe($term);
+        ->getValue()->toBe($this->search);
 });
 
 it('applies boolean', function () {
-    $name = 'name';
-    $term = 'search term';
+    $this->test->boolean('or');
 
-    $search = Search::make($name)->boolean('or');
-
-    expect($search)
-        ->refine($this->builder, $term)->toBeTrue()
+    expect($this->test)
+        ->refine($this->builder, $this->search)->toBeTrue()
         ->isActive()->toBeTrue();
 
     expect($this->builder->getQuery()->wheres)->toBeArray()
-        ->toBeOnlySearch($this->builder->qualifyColumn($name), 'or');
+        ->toBeOnlySearch($this->builder->qualifyColumn('name'), 'or');
 
-    expect($search)
+    expect($this->test)
         ->isActive()->toBeTrue()
-        ->getValue()->toBe($term)
+        ->getValue()->toBe($this->search)
         ->getBoolean()->toBe('or');
+});
+
+it('applies full text search', function () {
+    $this->test->fullText();
+
+    expect($this->test)
+        ->refine($this->builder, $this->search)->toBeTrue()
+        ->isActive()->toBeTrue();
+
+    expect($this->builder->getQuery()->wheres)
+        ->{0}->{'type'}->toBe('Fulltext');
+
+    expect($this->test)
+        ->isActive()->toBeTrue()
+        ->getValue()->toBe($this->search);
 });

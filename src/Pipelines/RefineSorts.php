@@ -23,21 +23,17 @@ class RefineSorts
      */
     public function __invoke($refine, $next)
     {
-        if (! $refine->isSorting()) {
-            return $next($refine);
-        }
+        $builder = $refine->getBuilder();
 
-        $request = $refine->getRequest();
-        $for = $refine->getFor();
-
-        $sortsKey = $refine->formatScope($refine->getSortsKey());
-
-        $value = $this->nameAndDirection($request, $sortsKey);
+        $value = $this->nameAndDirection(
+            $refine->getRequest(),
+            $refine->getSortKey()
+        );
 
         $applied = false;
 
-        foreach ($refine->getSorts() as $sort) {
-            $applied |= $sort->refine($for, $value);
+        foreach ($this->sorts($refine) as $sort) {
+            $applied |= $sort->refine($builder, $value);
         }
 
         if (! $applied && $sort = $refine->getDefaultSort()) {
@@ -45,10 +41,21 @@ class RefineSorts
 
             $value = [$sort->getParameter(), $direction];
 
-            $sort->refine($for, $value);
+            $sort->refine($builder, $value);
         }
 
         return $next($refine);
+    }
+
+    /**
+     * The sorts to use.
+     *
+     * @param  \Honed\Refine\Refine<TModel, TBuilder>  $refine
+     * @return array<int, \Honed\Refine\Sort<TModel, TBuilder>>
+     */
+    public function sorts($refine)
+    {
+        return $refine->getSorts();
     }
 
     /**

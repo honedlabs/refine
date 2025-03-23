@@ -28,39 +28,32 @@ it('has delimiter', function () {
         ->getDelimiter()->toBe('|');
 });
 
-it('can set as not refining', function () {
+it('goes without refining', function () {
     expect($this->test)
-        ->refining(false)->toBe($this->test)
-        ->isFiltering()->toBeFalse()
-        ->isSorting()->toBeFalse()
-        ->isSearching()->toBeFalse();
+        ->isWithoutSearches()->toBeFalse()
+        ->isWithoutFilters()->toBeFalse()
+        ->isWithoutSorts()->toBeFalse()
+        ->withoutRefining()->toBe($this->test)
+        ->isWithoutSearches()->toBeTrue()
+        ->isWithoutFilters()->toBeTrue()
+        ->isWithoutSorts()->toBeTrue();
 });
 
-it('has for', function () {
+it('refines before', function () {
     expect($this->test)
-        ->for(Product::class)->toBe($this->test)
-        ->getFor()->toBeInstanceOf(Builder::class);
+        ->before(fn () => $this->test)->toBe($this->test);
 });
 
-it('has before method', function () {
+it('refines after', function () {
     expect($this->test)
-        ->before(function () {
-            return $this->test;
-        })->toBe($this->test);
-});
-
-it('has after method', function () {
-    expect($this->test)
-        ->after(function () {
-            return $this->test;
-        })->toBe($this->test);
+        ->after(fn () => $this->test)->toBe($this->test);
 });
 
 it('evaluates named closure dependencies', function () {
     $product = product();
     $request = FacadesRequest::create(route('products.show', $product), 'GET', ['key' => 'value']);
 
-    expect($this->test->request($request)->for(Product::query()))
+    expect($this->test->request($request)->builder(Product::query()))
         ->evaluate(fn ($request) => $request->get('key'))->toBe('value')
         // ->evaluate(fn ($route) => $route)->toBeInstanceOf(Route::class)
         ->evaluate(fn ($builder) => $builder->getModel())->toBeInstanceOf(Product::class)
@@ -73,29 +66,11 @@ it('evaluates typed closure dependencies', function () {
     $product = product();
     $request = FacadesRequest::create(route('products.show', $product), 'GET', ['key' => 'value']);
 
-    expect($this->test->request($request)->for(Product::query()))
+    expect($this->test->request($request)->builder(Product::query()))
         ->evaluate(fn (Request $r) => $r->get('key'))->toBe('value')
         ->evaluate(fn (Builder $b) => $b->getModel())->toBeInstanceOf(Product::class)
         // ->evaluate(fn (Route $r) => $r)->toBeInstanceOf(Route::class)
         ->evaluate(fn (Gate $g) => $g)->toBeInstanceOf(AccessGate::class);
-});
-
-it('calls sorts', function () {
-    expect($this->test)
-        ->sorts([Sort::make('name', 'A-Z')])->toBe($this->test)
-        ->getSorts()->toHaveCount(1);
-});
-
-it('calls filters', function () {
-    expect($this->test)
-        ->filters([Filter::make('name')])->toBe($this->test)
-        ->getFilters()->toHaveCount(1);
-});
-
-it('calls searches', function () {
-    expect($this->test)
-        ->searches([Search::make('name')])->toBe($this->test)
-        ->getSearches()->toHaveCount(1);
 });
 
 it('forwards calls to the builder', function () {
@@ -116,10 +91,10 @@ it('has array representation', function () {
         ->toHaveKeys(['filters', 'sorts', 'searches', 'config'])
         ->{'config'}->scoped(fn ($config) => $config
             ->{'delimiter'}->toBe(config('refine.delimiter'))
-            ->{'search'}->toBeNull()
-            ->{'searches'}->toBe(config('refine.searches_key'))
-            ->{'sorts'}->toBe(config('refine.sorts_key'))
-            ->{'matches'}->toBe(config('refine.matches_key'))
+            ->{'term'}->toBeNull()
+            ->{'search'}->toBe(config('refine.search_key'))
+            ->{'sort'}->toBe(config('refine.sort_key'))
+            // ->{'match'}->toBe(config('refine.match_key'))
         );
 });
 
@@ -133,13 +108,26 @@ it('has array representation with matches', function () {
     expect($this->test->toArray())->toBeArray()
         ->toHaveCount(4)
         ->toHaveKeys(['filters', 'sorts', 'searches', 'config'])
-        ->{'config'}->scoped(fn ($config) => $config
-            ->{'delimiter'}->toBe(config('refine.delimiter'))
-            ->{'search'}->toBeNull()
-            ->{'searches'}->toBe(config('refine.searches_key'))
-            ->{'sorts'}->toBe(config('refine.sorts_key'))
-            ->{'matches'}->toBe(config('refine.matches_key'))
-        );
+        ->{'config'}->toEqual([
+            'delimiter' => config('refine.delimiter'),
+            'term' => null,
+            'search' => config('refine.search_key'),
+            'sort' => config('refine.sort_key'),
+            'match' => config('refine.match_key'),
+        ]);
+});
+
+it('has array representation with scopes', function () {
+    $this->test->scope('name', 'John')->match();
+
+    expect($this->test->toArray())->toBeArray()
+        ->{'config'}->toEqual([
+            'delimiter' => config('refine.delimiter'),
+            'term' => null,
+            'search' => $this->test->formatScope(config('refine.search_key')),
+            'sort' => $this->test->formatScope(config('refine.sort_key')),
+            'match' => $this->test->formatScope(config('refine.match_key')),
+        ]);
 });
 
 it('refines once', function () {

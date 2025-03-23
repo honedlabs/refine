@@ -9,9 +9,6 @@ use Honed\Core\Concerns\HasValue;
 use Honed\Core\Concerns\IsActive;
 use Honed\Core\Primitive;
 
-/**
- * @extends Primitive<string, mixed>
- */
 class Option extends Primitive
 {
     use HasLabel;

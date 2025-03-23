@@ -38,13 +38,6 @@ it('adds filters collection', function () {
         ->getFilters()->toHaveCount(2);
 });
 
-it('is filtering', function () {
-    expect($this->test)
-        ->isFiltering()->toBeTrue()
-        ->filtering(false)->toBe($this->test)
-        ->isFiltering()->toBeFalse();
-});
-
 it('without filters', function () {
     expect($this->test)
         ->isWithoutFilters()->toBeFalse()

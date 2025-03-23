@@ -23,37 +23,43 @@ class RefineSearches
      */
     public function __invoke($refine, $next)
     {
-        if (! $refine->isSearching()) {
-            return $next($refine);
-        }
-
         $request = $refine->getRequest();
 
-        $searchesKey = $refine->formatScope($refine->getSearchesKey());
-        $matchesKey = $refine->formatScope($refine->getMatchesKey());
-        $delimiter = $refine->getDelimiter();
-
-        $term = $this->term($request, $searchesKey);
+        $term = $this->term($request, $refine->getSearchKey());
         $refine->term($term);
 
-        $columns = $this->columns($request, $matchesKey, $delimiter);
+        $columns = $this->columns(
+            $request,
+            $refine->getMatchKey(),
+            $refine->getDelimiter()
+        );
 
-        $for = $refine->getFor();
-        $searches = $refine->getSearches();
+        $builder = $refine->getBuilder();
         $applied = false;
 
-        foreach ($searches as $search) {
+        foreach ($this->searches($refine) as $search) {
             $boolean = $applied ? 'or' : 'and';
 
             $matched = empty($columns) ||
                 \in_array($search->getParameter(), $columns);
 
             if ($matched) {
-                $applied |= $search->boolean($boolean)->refine($for, $term);
+                $applied |= $search->boolean($boolean)->refine($builder, $term);
             }
         }
 
         return $next($refine);
+    }
+
+    /**
+     * The searches to use.
+     *
+     * @param  \Honed\Refine\Refine<TModel, TBuilder>  $refine
+     * @return array<int, \Honed\Refine\Search<TModel, TBuilder>>
+     */
+    public function searches($refine)
+    {
+        return $refine->getSearches();
     }
 
     /**

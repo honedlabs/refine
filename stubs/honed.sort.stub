@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace {{ namespace }};
 
+use Honed\Core\Contracts\DefinesQuery;
 use Honed\Refine\Sort;
-use Illuminate\Database\Query\Builder;
+use Illuminate\Database\Eloquent\Builder;
 
 /**
  * @template TModel of \Illuminate\Database\Eloquent\Model
@@ -13,7 +14,7 @@ use Illuminate\Database\Query\Builder;
  *
  * @extends \Honed\Refine\Sort<TModel, TBuilder>
  */
-final class {{ class }} extends Sort
+final class {{ class }} extends Sort implements DefinesQuery
 {
     /**
      *  Create a new sort instance.
@@ -36,7 +37,7 @@ final class {{ class }} extends Sort
     /**
      * Register the query expression to resolve the filter.
      *
-     * @param  \Illuminate\Database\Query\Builder<\Illuminate\Database\Eloquent\Model>  $builder
+     * @param  \Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model>  $builder
      * @param  'asc'|'desc'|null $direction
      * @return void
      */

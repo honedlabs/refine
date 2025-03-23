@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace {{ namespace }};
 
+use Honed\Core\Contracts\DefinesQuery;
 use Honed\Refine\Search;
-use Illuminate\Database\Query\Builder;
+use Illuminate\Database\Eloquent\Builder;
 
 /**
  * @template TModel of \Illuminate\Database\Eloquent\Model
@@ -13,7 +14,7 @@ use Illuminate\Database\Query\Builder;
  *
  * @extends \Honed\Refine\Search<TModel, TBuilder>
  */
-final class {{ class }} extends Search
+final class {{ class }} extends Search implements DefinesQuery
 {
     /**
      *  Create a new search instance.
@@ -36,11 +37,11 @@ final class {{ class }} extends Search
     /**
      * Register the query expression to resolve the search.
      *
-     * @param  \Illuminate\Database\Query\Builder<\Illuminate\Database\Eloquent\Model>  $builder
+     * @param  TBuilder  $builder
      * @param  string $value
      * @return void
      */
-    public function query(Builder $builder, $value)
+    public function query($builder, $value)
     {
         //
     }

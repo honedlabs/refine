@@ -13,13 +13,15 @@ it('makes searches', function () {
         'name' => 'NameSearch',
     ])->assertSuccessful();
 
-    $this->assertFileExists(app_path('Refiners/NameSearch.php'));
+    $this->assertFileExists(app_path('Refiners/Searches/NameSearch.php'));
 });
 
 it('prompts for a search name', function () {
     $this->artisan('make:search')
         ->expectsQuestion('What should the search be named?', 'NameSearch')
         ->assertSuccessful();
+
+    $this->assertFileExists(app_path('Refiners/Searches/NameSearch.php'));
 });
 
 

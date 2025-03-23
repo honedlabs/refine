@@ -63,7 +63,7 @@ class FilterMakeCommand extends GeneratorCommand
      */
     protected function getDefaultNamespace($rootNamespace)
     {
-        return $rootNamespace.'\Refiners';
+        return $rootNamespace.'\Refiners\Filters';
     }
 
     /**

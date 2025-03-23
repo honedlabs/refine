@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Honed\Refine;
 
+use Honed\Refine\Concerns\HasSearch;
+
 /**
  * @template TModel of \Illuminate\Database\Eloquent\Model
  * @template TBuilder of \Illuminate\Database\Eloquent\Builder<TModel>
@@ -12,6 +14,11 @@ namespace Honed\Refine;
  */
 class Search extends Refiner
 {
+    /**
+     * @use HasSearch<TModel, TBuilder>
+     */
+    use HasSearch;
+
     /**
      * The query boolean to use for the search.
      *
@@ -71,10 +78,11 @@ class Search extends Refiner
      */
     public function defaultQuery($builder, $value, $column, $boolean = 'and')
     {
-        $column = $builder->qualifyColumn($column);
-        $sql = \sprintf('LOWER(%s) LIKE ?', $column);
-        $binding = ['%'.\mb_strtolower($value, 'UTF8').'%'];
+        if ($this->isFullText()) {
+            $this->searchRecall($builder, $value, $column, $boolean);
+            return;
+        }
 
-        $builder->whereRaw($sql, $binding, $boolean);
+        $this->searchPrecision($builder, $value, $column, $boolean);
     }
 }

@@ -13,7 +13,7 @@ it('makes filters', function () {
         'name' => 'DateFilter',
     ])->assertSuccessful();
 
-    $this->assertFileExists(app_path('Refiners/DateFilter.php'));
+    $this->assertFileExists(app_path('Refiners/Filters/DateFilter.php'));
 });
 
 it('prompts for a filter name', function () {
@@ -21,5 +21,5 @@ it('prompts for a filter name', function () {
         ->expectsQuestion('What should the filter be named?', 'DateFilter')
         ->assertSuccessful();
 
-    $this->assertFileExists(app_path('Refiners/DateFilter.php'));
+    $this->assertFileExists(app_path('Refiners/Filters/DateFilter.php'));
 });

@@ -21,24 +21,29 @@ class RefineFilters
      */
     public function __invoke($refine, $next)
     {
-        if (! $refine->isFiltering()) {
-            return $next($refine);
-        }
-
         $request = $refine->getRequest();
-        $for = $refine->getFor();
+        $builder = $refine->getBuilder();
 
         $scope = $refine->getScope();
         $delimiter = $refine->getDelimiter();
 
-        $filters = $refine->getFilters();
-
-        foreach ($filters as $filter) {
+        foreach ($this->filters($refine) as $filter) {
             $filter->scope($scope)
                 ->delimiter($delimiter)
-                ->refine($for, $request);
+                ->refine($builder, $request);
         }
 
         return $next($refine);
+    }
+
+    /**
+     * The filters to use.
+     *
+     * @param  \Honed\Refine\Refine<TModel, TBuilder>  $refine
+     * @return array<int, \Honed\Refine\Filter<TModel, TBuilder>>
+     */
+    public function filters($refine)
+    {
+        return $refine->getFilters();
     }
 }
