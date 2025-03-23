@@ -43,15 +43,15 @@ trait HasDelimiter
      */
     public function getDelimiter()
     {
-        return $this->delimiter ?? static::fallbackDelimiter();
+        return $this->delimiter ?? static::getDefaultDelimiter();
     }
 
     /**
-     * Get the delimiter from the config.
+     * Get the default delimiter.
      *
      * @return string
      */
-    public static function fallbackDelimiter()
+    public static function getDefaultDelimiter()
     {
         return type(config('refine.delimiter', ','))->asString();
     }

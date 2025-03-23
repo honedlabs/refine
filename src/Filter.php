@@ -44,6 +44,13 @@ class Filter extends Refiner
     protected $operator = '=';
 
     /**
+     * Whether the filter only responds to presence values.
+     *
+     * @var bool
+     */
+    protected $presence = false;
+
+    /**
      * Set the filter to be for boolean values.
      *
      * @return $this
@@ -172,6 +179,29 @@ class Filter extends Refiner
     }
 
     /**
+     * Set the filter to respond only to presence values.
+     *
+     * @return $this
+     */
+    public function presence()
+    {
+        $this->boolean();
+        $this->presence = true;
+
+        return $this;
+    }
+
+    /**
+     * Determine if the filter only responds to presence values.
+     *
+     * @return bool
+     */
+    public function isPresence()
+    {
+        return $this->presence;
+    }
+
+    /**
      * Set the operator to use for the filter.
      *
      * @param  string  $operator
@@ -279,11 +309,15 @@ class Filter extends Refiner
      */
     public function transformParameter($value)
     {
-        if (! $this->hasOptions()) {
-            return parent::transformParameter($value);
+        if ($this->hasOptions()) {
+            return $this->activateOptions($value);
         }
 
-        return $this->activateOptions($value);
+        if ($this->isPresence()) {
+            return $value ?: null;
+        }
+
+        return $value;
     }
 
     /**

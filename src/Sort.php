@@ -23,7 +23,7 @@ class Sort extends Refiner
      *
      * @return string
      */
-    public function interpretsAscendingValue()
+    public function getAscendingValue()
     {
         return $this->getParameter();
     }
@@ -51,7 +51,7 @@ class Sort extends Refiner
      */
     public function getNextDirection()
     {
-        $ascending = $this->interpretsAscendingValue();
+        $ascending = $this->getAscendingValue();
         $descending = $this->getDescendingValue();
 
         if ($this->isFixed()) {

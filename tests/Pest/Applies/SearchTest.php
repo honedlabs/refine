@@ -14,33 +14,32 @@ beforeEach(function () {
 
 it('does not apply', function () {
     expect($this->test)
-        ->refine($this->builder, null)->toBeFalse();
+        ->refine($this->builder, [true, null])->toBeFalse();
 
     expect($this->builder->getQuery()->wheres)
         ->toBeEmpty();
 
     expect($this->test)
-        ->isActive()->toBeFalse()
-        ->getValue()->toBeNull();
+        // Activity is independent of the search term
+        ->isActive()->toBeTrue(); 
 });
 
 it('applies', function () {
     expect($this->test)
-        ->refine($this->builder, $this->search)->toBeTrue();
+        ->refine($this->builder, [true, $this->search])->toBeTrue();
 
     expect($this->builder->getQuery()->wheres)
         ->toBeOnlySearch($this->builder->qualifyColumn('name'));
 
     expect($this->test)
-        ->isActive()->toBeTrue()
-        ->getValue()->toBe($this->search);
+        ->isActive()->toBeTrue();
 });
 
 it('applies boolean', function () {
     $this->test->boolean('or');
 
     expect($this->test)
-        ->refine($this->builder, $this->search)->toBeTrue()
+        ->refine($this->builder, [true, $this->search])->toBeTrue()
         ->isActive()->toBeTrue();
 
     expect($this->builder->getQuery()->wheres)->toBeArray()
@@ -48,7 +47,6 @@ it('applies boolean', function () {
 
     expect($this->test)
         ->isActive()->toBeTrue()
-        ->getValue()->toBe($this->search)
         ->getBoolean()->toBe('or');
 });
 
@@ -56,13 +54,24 @@ it('applies full text search', function () {
     $this->test->fullText();
 
     expect($this->test)
-        ->refine($this->builder, $this->search)->toBeTrue()
+        ->refine($this->builder, [true, $this->search])->toBeTrue()
         ->isActive()->toBeTrue();
 
     expect($this->builder->getQuery()->wheres)
         ->{0}->{'type'}->toBe('Fulltext');
 
     expect($this->test)
-        ->isActive()->toBeTrue()
-        ->getValue()->toBe($this->search);
+        ->isActive()->toBeTrue();
 });
+
+it('does not apply if inactive', function () {
+    expect($this->test)
+        ->refine($this->builder, [false, $this->search])->toBeFalse();
+
+    expect($this->builder->getQuery()->wheres)
+        ->toBeEmpty();
+
+    expect($this->test)
+        ->isActive()->toBeFalse();
+});
+

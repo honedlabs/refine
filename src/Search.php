@@ -60,9 +60,56 @@ class Search extends Refiner
     /**
      * {@inheritdoc}
      */
+    public function isActive()
+    {
+        [$active, $_] = $this->getValue();
+
+        return $active;
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * @param  array{bool, string|null}  $value
+     */
+    public function getRequestValue($value)
+    {
+        return parent::getRequestValue($value);
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * @return array{bool, string|null}
+     */
+    public function getValue()
+    {
+        /** @var array{bool, string|null} */
+        return parent::getValue();
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * @param  array{bool, string|null}  $value
+     */
+    public function invalidValue($value)
+    {
+        [$_, $term] = $value;
+
+        return \is_null($term);
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * @param  array{bool, string|null}  $value
+     */
     public function getBindings($value)
     {
-        return \array_merge(parent::getBindings($value), [
+        [$_, $term] = $value;
+
+        return \array_merge(parent::getBindings($term), [
             'boolean' => $this->getBoolean(),
         ]);
     }

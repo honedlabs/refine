@@ -57,7 +57,12 @@ trait HasSearch
         $boolean = 'and',
         $operator = 'LIKE'
     ) {
-        $sql = \sprintf('LOWER(%s) %s ?', $builder->qualifyColumn($column), $operator);
+        $sql = \sprintf(
+            'LOWER(%s) %s ?',
+            $builder->qualifyColumn($column),
+            $operator
+        );
+
         $binding = ['%'.\mb_strtolower($value, 'UTF8').'%'];
 
         $builder->whereRaw($sql, $binding, $boolean);

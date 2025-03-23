@@ -27,13 +27,13 @@ it('has direction', function () {
 
 it('has parameter', function () {
     expect($this->sort)
-        ->interpretsAscendingValue()->toBe($this->param)
+        ->getAscendingValue()->toBe($this->param)
         ->getDescendingValue()->toBe('-'.$this->param);
 });
 
 it('has next direction', function () {
     expect($this->sort)
-        ->getNextDirection()->toBe($this->sort->interpretsAscendingValue());
+        ->getNextDirection()->toBe($this->sort->getAscendingValue());
 });
 
 it('can invert', function () {

@@ -38,14 +38,12 @@ class RefineSearches
         $applied = false;
 
         foreach ($this->searches($refine) as $search) {
-            $boolean = $applied ? 'or' : 'and';
-
-            $matched = empty($columns) ||
+            $active = empty($columns) ||
                 \in_array($search->getParameter(), $columns);
 
-            if ($matched) {
-                $applied |= $search->boolean($boolean)->refine($builder, $term);
-            }
+            $applied |= $search
+                ->boolean($applied ? 'or' : 'and')
+                ->refine($builder, [$active, $term]);
         }
 
         return $next($refine);
