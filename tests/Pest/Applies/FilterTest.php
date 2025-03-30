@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Carbon\Carbon;
 use Honed\Refine\Filter;
 use Honed\Refine\Tests\Stubs\Product;
+use Honed\Refine\Tests\Stubs\Status;
 use Illuminate\Support\Facades\Request;
 
 beforeEach(function () {
@@ -15,26 +16,22 @@ beforeEach(function () {
     $this->filter = Filter::make($this->name);
 });
 
-// it('does not apply', function () {
-
-// })
-
-it('applies', function () {
-    // It should not apply if the name does not match.
-    $request = generate('random', $this->value);
-
+it('does not apply', function () {
+    $request = Request::create('/', 'GET', ['none' => $this->value]);
+    
     expect($this->filter->refine($this->builder, $request))
         ->toBeFalse();
-
+    
     expect($this->builder->getQuery()->wheres)
         ->toBeEmpty();
-
+    
     expect($this->filter)
         ->isActive()->toBeFalse()
         ->getValue()->toBeNull();
-        
-    // It should apply if the name matches the query parameter.
-    $request = generate($this->name, $this->value);
+});
+
+it('applies', function () {
+    $request = Request::create('/', 'GET', [$this->name => $this->value]);
 
     expect($this->filter->refine($this->builder, $request))
         ->toBeTrue();
@@ -47,14 +44,41 @@ it('applies', function () {
         ->getValue()->toBe($this->value);
 });
 
-it('applies with alias', function () {
-    $filter = $this->filter->alias($this->alias);
-
-    // It should not apply if the alias does not match.
+it('does not apply with alias', function () {
     $request = Request::create('/', 'GET', [$this->name => $this->value]);
 
-    expect($this->filter->refine($this->builder, $request))
-        ->toBeFalse();
+    expect($this->filter->alias($this->alias))
+        ->refine($this->builder, $request)->toBeFalse();
+        
+    expect($this->builder->getQuery()->wheres)
+        ->toBeEmpty();
+    
+    expect($this->filter)
+        ->isActive()->toBeFalse()
+        ->getValue()->toBeNull();
+});
+
+it('applies with alias', function () {
+    $request = Request::create('/', 'GET', [$this->alias => $this->value]);
+
+    expect($this->filter->alias($this->alias))
+        ->refine($this->builder, $request)->toBeTrue();
+
+    expect($this->builder->getQuery()->wheres)
+        ->toBeOnlyWhere($this->builder->qualifyColumn($this->name), $this->value);
+
+    expect($this->filter)
+        ->isActive()->toBeTrue()
+        ->getValue()->toBe($this->value);
+});
+
+it('does not apply with scope', function () {
+    $scope = 'scope';
+
+    $request = Request::create('/', 'GET', [$this->name => $this->value]);
+
+    expect($this->filter->scope($scope))
+        ->refine($this->builder, $request)->toBeFalse();
 
     expect($this->builder->getQuery()->wheres)
         ->toBeEmpty();
@@ -62,44 +86,17 @@ it('applies with alias', function () {
     expect($this->filter)
         ->isActive()->toBeFalse()
         ->getValue()->toBeNull();
-
-    // It should apply if the alias matches.
-    $request = Request::create('/', 'GET', [$this->alias => $this->value]);
-
-    expect($filter->refine($this->builder, $request))
-        ->toBeTrue();
-
-    expect($this->builder->getQuery()->wheres)
-        ->toBeOnlyWhere($this->builder->qualifyColumn($this->name), $this->value);
-
-    expect($filter)
-        ->isActive()->toBeTrue()
-        ->getValue()->toBe($this->value);
 });
 
 it('applies with scope', function () {
-    $scope = 'scope';
-    $filter = $this->filter->alias($this->alias)->scope($scope);
+    $this->filter->scope('scope');
 
-    // It should not apply if the scope does not match.
-    $request = generate($this->alias, $this->value);
+    $request = Request::create('/', 'GET', [
+        $this->filter->formatScope($this->name) => $this->value
+    ]);
 
-    expect($filter->refine($this->builder, $request))
-        ->toBeFalse();
-
-    expect($this->builder->getQuery()->wheres)
-        ->toBeEmpty();
-
-    expect($filter)
-        ->isActive()->toBeFalse()
-        ->getValue()->toBeNull();
-
-    // It should apply if the scope and alias match.
-    $key = $this->filter->formatScope($this->alias);
-    $request = generate($key, $this->value);
-
-    expect($this->filter->refine($this->builder, $request))
-        ->toBeTrue();
+    expect($this->filter)
+        ->refine($this->builder, $request)->toBeTrue();
 
     expect($this->builder->getQuery()->wheres)
         ->toBeOnlyWhere($this->builder->qualifyColumn($this->name), $this->value);
@@ -112,33 +109,29 @@ it('applies with scope', function () {
 it('applies with different operator', function () {
     $operator = '>';
 
-    $request = generate($this->name, $this->value);
+    $request = Request::create('/', 'GET', [$this->name => $this->value]);
 
-    $filter = $this->filter->operator($operator);
-
-    expect($filter->refine($this->builder, $request))
-        ->toBeTrue();
+    expect($this->filter->operator($operator))
+        ->refine($this->builder, $request)->toBeTrue();
 
     expect($this->builder->getQuery()->wheres)
         ->toBeOnlyWhere($this->builder->qualifyColumn($this->name), $this->value, $operator);
 
-    expect($filter)
+    expect($this->filter)
         ->isActive()->toBeTrue()
         ->getValue()->toBe($this->value);
 });
 
 it('applies with `like` operators', function () {
-    $request = generate($this->name, $this->value);
+    $request = Request::create('/', 'GET', [$this->name => $this->value]);
 
-    $filter = $this->filter->operator('like');
-
-    expect($filter->refine($this->builder, $request))
-        ->toBeTrue();
+    expect($this->filter->operator('like'))
+        ->refine($this->builder, $request)->toBeTrue();
 
     expect($this->builder->getQuery()->wheres)
         ->toBeOnlySearch($this->builder->qualifyColumn($this->name));
 
-    expect($filter)
+    expect($this->filter)
         ->isActive()->toBeTrue()
         ->getValue()->toBe($this->value);
 });
@@ -146,12 +139,12 @@ it('applies with `like` operators', function () {
 it('applies with date', function () {
     $value = Carbon::now();
 
-    $request = generate($this->name, $value->toIso8601String());
+    $request = Request::create('/', 'GET', [
+        $this->name => $value->toIso8601String()
+    ]);
 
-    $filter = $this->filter->date();
-
-    expect($filter->refine($this->builder, $request))
-        ->toBeTrue();
+    expect($this->filter->date())
+        ->refine($this->builder, $request)->toBeTrue();
 
     expect($this->builder->getQuery()->wheres)
         ->toHaveCount(1)
@@ -163,7 +156,7 @@ it('applies with date', function () {
             ->{'boolean'}->toBe('and')
         );
 
-    expect($filter)
+    expect($this->filter)
         ->isActive()->toBeTrue()
         ->getValue()->toBeInstanceOf(Carbon::class);
 });
@@ -171,12 +164,12 @@ it('applies with date', function () {
 it('applies with datetime', function () {
     $value = Carbon::now();
 
-    $request = generate($this->name, $value->toIso8601String());
+    $request = Request::create('/', 'GET', [
+        $this->name => $value->toIso8601String()
+    ]);
 
-    $filter = $this->filter->datetime();
-
-    expect($filter->refine($this->builder, $request))
-        ->toBeTrue();
+    expect($this->filter->datetime())
+        ->refine($this->builder, $request)->toBeTrue();
 
     expect($this->builder->getQuery()->wheres)
         ->toHaveCount(1)
@@ -188,7 +181,7 @@ it('applies with datetime', function () {
             ->{'boolean'}->toBe('and')
         );
 
-    expect($filter)
+    expect($this->filter)
         ->isActive()->toBeTrue()
         ->getValue()->toBeInstanceOf(Carbon::class);
 });
@@ -196,12 +189,12 @@ it('applies with datetime', function () {
 it('applies with time', function () {
     $value = Carbon::now();
 
-    $request = generate($this->name, $value->toIso8601String());
+    $request = Request::create('/', 'GET', [
+        $this->name => $value->toIso8601String()
+    ]);
 
-    $filter = $this->filter->time();
-
-    expect($filter->refine($this->builder, $request))
-        ->toBeTrue();
+    expect($this->filter->time())
+        ->refine($this->builder, $request)->toBeTrue();
 
     expect($this->builder->getQuery()->wheres)
         ->toHaveCount(1)
@@ -213,117 +206,94 @@ it('applies with time', function () {
             ->{'boolean'}->toBe('and')
         );
 
-    expect($filter)
+    expect($this->filter)
         ->isActive()->toBeTrue()
         ->getValue()->toBeInstanceOf(Carbon::class);
 });
 
 it('applies with query', function () {
-    $request = generate($this->name, $this->value);
+    $request = Request::create('/', 'GET', [$this->name => $this->value]);
 
-    $filter = $this->filter->query(fn ($builder, $value) => $builder->where($this->name, 'like', $value.'%'));
+    $fn = fn ($builder, $value) => $builder->where($this->name, 'like', $value.'%');
 
-    expect($filter->refine($this->builder, $request))
-        ->toBeTrue();
+    expect($this->filter->query($fn))
+        ->refine($this->builder, $request)->toBeTrue();
 
     expect($this->builder->getQuery()->wheres)
         ->toBeOnlyWhere($this->name, $this->value.'%', 'like');
 
-    expect($filter)
+    expect($this->filter)
         ->isActive()->toBeTrue()
         ->getValue()->toBe($this->value);
 });
 
 it('applies lax', function () {
-    $builder = Product::query();
+    $value = 'invalid';
 
-    $filter = Filter::make('status')
-        ->options(['active' => 'Active', 'inactive' => 'Inactive'])
-        ->lax();
+    $request = Request::create('/', 'GET', [$this->name => $value]);
 
-    $value = 'indeterminate';
+    expect($this->filter->lax()->options(Status::class))
+        ->refine($this->builder, $request)->toBeTrue();
 
-    $request = Request::create('/', 'GET', ['status' => $value]);
+    expect($this->builder->getQuery()->wheres)
+        ->toBeOnlyWhere($this->builder->qualifyColumn($this->name), $value);
 
-    expect($filter->refine($builder, $request))
-        ->toBeTrue();
-
-    expect($builder->getQuery()->wheres)
-        ->toBeOnlyWhere($builder->qualifyColumn('status'), $value);
-
-    expect($filter)
+    expect($this->filter)
         ->isActive()->toBeTrue()
         ->getValue()->toBe($value)
         ->getOptions()->each(fn ($option) => $option->isActive()->toBeFalse());
 });
 
 it('applies strict', function () {
-    $builder = Product::query();
-
-    $filter = Filter::make('status')
-        ->options(['active' => 'Active', 'inactive' => 'Inactive'])
-        ->strict();
-
     $value = 'indeterminate';
 
-    $request = Request::create('/', 'GET', ['status' => $value]);
+    $request = Request::create('/', 'GET', [$this->name => $value]);
 
-    expect($filter->refine($builder, $request))
-        ->toBeFalse();
+    expect($this->filter->strict()->options(Status::class))
+        ->refine($this->builder, $request)->toBeFalse();
 
-    expect($builder->getQuery()->wheres)
+    expect($this->builder->getQuery()->wheres)
         ->toBeEmpty();
 
-    expect($filter)
+    expect($this->filter)
         ->isActive()->toBeFalse()
         ->getValue()->toBeNull() // Transform means invalid values are discarded
-        ->getOptions()->each(fn ($option) => $option->isActive()->toBeFalse())
-        ->optionsToArray()->toEqual([
-            [
-                'value' => 'active',
-                'label' => 'Active',
-                'active' => false,
-            ],
-            [
-                'value' => 'inactive',
-                'label' => 'Inactive',
-                'active' => false,
-            ],
-        ]);
+        ->getOptions()->each(fn ($option) => $option->isActive()->toBeFalse());
 });
 
 it('applies multiple', function () {
-    $builder = Product::query();
+    $value = [Status::Available->value, Status::Unavailable->value];
+    $values = \implode(',', $value);
 
-    $filter = Filter::make('status')
-        ->options(['active' => 'Active', 'inactive' => 'Inactive'])
-        ->multiple();
+    $request = Request::create('/', 'GET', [$this->name => $values]);
 
-    $value = ['active', 'inactive'];
-    $valueString = \implode(',', $value);
+    expect($this->filter->multiple()->options(Status::class))
+        ->refine($this->builder, $request)->toBeTrue();
 
-    $request = Request::create('/', 'GET', ['status' => $valueString]);
+    expect($this->builder->getQuery()->wheres)
+        ->toBeOnlyWhereIn($this->builder->qualifyColumn($this->name), $value);
 
-    expect($filter->refine($builder, $request))
+    expect($this->filter)
+        ->isActive()->toBeTrue()
+        ->getValue()->toEqual($value)
+        ->getOptions()->scoped(fn ($options) => $options
+            ->toBeArray()
+            ->toHaveCount(3)
+            ->{0}->isActive()->toBeTrue()
+            ->{1}->isActive()->toBeTrue()
+            ->{2}->isActive()->toBeFalse()
+        );
+});
+
+it('applies with unqualified column', function () {
+    $request = Request::create('/', 'GET', [$this->name => 'value']);
+
+    expect($this->filter->unqualify()->refine($this->builder, $request))
         ->toBeTrue();
 
-    expect($builder->getQuery()->wheres)
-        ->toBeOnlyWhereIn($builder->qualifyColumn('status'), $value);
+    expect($this->builder->getQuery()->wheres)
+        ->toBeOnlyWhere($this->name, 'value');
 
-    expect($filter)
-        ->isActive()->toBeTrue()
-        ->getValue()->toBe($value)
-        ->getOptions()->each(fn ($option) => $option->isActive()->toBeTrue())
-        ->optionsToArray()->toEqual([
-            [
-                'value' => 'active',
-                'label' => 'Active',
-                'active' => true,
-            ],
-            [
-                'value' => 'inactive',
-                'label' => 'Inactive',
-                'active' => true,
-            ],
-        ]);
+    expect($this->filter)
+        ->isActive()->toBeTrue();
 });

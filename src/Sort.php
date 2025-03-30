@@ -194,7 +194,9 @@ class Sort extends Refiner
      */
     public function defaultQuery($builder, $column, $direction)
     {
-        $column = $builder->qualifyColumn($column);
+        if ($this->isQualified()) {
+            $column = $builder->qualifyColumn($column);
+        }
 
         $builder->orderBy($column, $direction ?? 'asc');
     }

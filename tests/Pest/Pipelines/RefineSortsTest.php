@@ -42,7 +42,7 @@ it('refines default', function () {
     $builder = $this->refine->getBuilder();
 
     expect($builder->getQuery()->orders)
-        ->toBeOnlyOrder($builder->qualifyColumn('name'), 'asc');
+        ->toBeOnlyOrder($this->builder->qualifyColumn('name'), 'asc');
 });
 
 it('refines', function () {
@@ -57,7 +57,7 @@ it('refines', function () {
     $builder = $this->refine->getBuilder();
 
     expect($builder->getQuery()->orders)
-        ->toBeOnlyOrder($builder->qualifyColumn('price'), 'asc');
+        ->toBeOnlyOrder($this->builder->qualifyColumn('price'), 'asc');
 });
 
 it('refines directionally', function () {
@@ -72,7 +72,7 @@ it('refines directionally', function () {
     $builder = $this->refine->getBuilder();
 
     expect($builder->getQuery()->orders)
-        ->toBeOnlyOrder($builder->qualifyColumn('price'), 'desc');
+        ->toBeOnlyOrder($this->builder->qualifyColumn('price'), 'desc');
 });
 
 it('disables', function () {
@@ -107,7 +107,7 @@ describe('scope', function () {
         $builder = $this->refine->getBuilder();
 
         expect($builder->getQuery()->orders)
-            ->toBeOnlyOrder($builder->qualifyColumn('name'), 'asc');
+            ->toBeOnlyOrder($this->builder->qualifyColumn('name'), 'asc');
     });
 
     it('refines', function () {
@@ -122,6 +122,6 @@ describe('scope', function () {
         $builder = $this->refine->getBuilder();
 
         expect($builder->getQuery()->orders)
-            ->toBeOnlyOrder($builder->qualifyColumn('price'), 'asc');
+            ->toBeOnlyOrder($this->builder->qualifyColumn('price'), 'asc');
     }); 
 });

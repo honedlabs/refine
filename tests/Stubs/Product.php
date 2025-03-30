@@ -7,10 +7,12 @@ namespace Honed\Refine\Tests\Stubs;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Laravel\Scout\Searchable;
 
 class Product extends Model
 {
     use SoftDeletes;
+    // use Searchable;
 
     protected $guarded = [];
 

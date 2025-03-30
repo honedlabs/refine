@@ -125,6 +125,10 @@ class Search extends Refiner
      */
     public function defaultQuery($builder, $value, $column, $boolean = 'and')
     {
+        if ($this->isQualified()) {
+            $column = $builder->qualifyColumn($column);
+        }
+
         if ($this->isFullText()) {
             $this->searchRecall($builder, $value, $column, $boolean);
 

@@ -59,7 +59,7 @@ trait HasSearch
     ) {
         $sql = \sprintf(
             'LOWER(%s) %s ?',
-            $builder->qualifyColumn($column),
+            $column,
             $operator
         );
 
@@ -79,8 +79,6 @@ trait HasSearch
      */
     public function searchRecall($builder, $value, $column, $boolean = 'and')
     {
-        $column = $builder->qualifyColumn($column);
-
         // @phpstan-ignore-next-line
         $builder->whereFullText($column, $value, boolean: $boolean);
     }

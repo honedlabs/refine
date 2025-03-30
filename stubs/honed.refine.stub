@@ -17,7 +17,7 @@ use Illuminate\Database\Eloquent\Builder;
 final class {{ class }} extends Refine implements Builds
 {
     /**
-     * Provide the instance with any necessary setup
+     * Provide the refine with any necessary setup
      *
      * @return void
      */

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Honed\Refine;
 
-use Honed\Core\Contracts\DefinesQuery;
+use Honed\Core\Contracts\HasQuery;
 use Honed\Refine\Contracts\DefinesOptions;
 
 /**
@@ -13,7 +13,7 @@ use Honed\Refine\Contracts\DefinesOptions;
  *
  * @extends \Honed\Refine\Filter<TModel, TBuilder>
  */
-final class TrashedFilter extends Filter implements DefinesOptions, DefinesQuery
+final class TrashedFilter extends Filter implements DefinesOptions, HasQuery
 {
     /**
      *  Create a new sort instance.
@@ -42,7 +42,7 @@ final class TrashedFilter extends Filter implements DefinesOptions, DefinesQuery
      * @param  mixed  $value
      * @return void
      */
-    public function defineQuery($builder, $value)
+    public function queryAs($builder, $value)
     {
         match ($value) {
             // @phpstan-ignore-next-line

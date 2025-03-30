@@ -8,6 +8,7 @@ use Honed\Refine\Tests\Stubs\Product;
 beforeEach(function () {
     $this->builder = Product::query();
     $this->search = 'search term';
+    $this->name = 'name';
 
     $this->test = Search::make('name');
 });
@@ -20,7 +21,6 @@ it('does not apply', function () {
         ->toBeEmpty();
 
     expect($this->test)
-        // Activity is independent of the search term
         ->isActive()->toBeTrue(); 
 });
 
@@ -42,7 +42,7 @@ it('applies boolean', function () {
         ->refine($this->builder, [true, $this->search])->toBeTrue()
         ->isActive()->toBeTrue();
 
-    expect($this->builder->getQuery()->wheres)->toBeArray()
+    expect($this->builder->getQuery()->wheres)
         ->toBeOnlySearch($this->builder->qualifyColumn('name'), 'or');
 
     expect($this->test)
@@ -75,3 +75,14 @@ it('does not apply if inactive', function () {
         ->isActive()->toBeFalse();
 });
 
+it('applies with unqualified column', function () {
+    expect($this->test->unqualify())
+        ->refine($this->builder, [true, $this->search])->toBeTrue();
+
+    expect($this->builder->getQuery()->wheres)
+        ->toBeOnlySearch($this->name);
+
+    expect($this->test)
+        ->isQualified()->toBeFalse()
+        ->isActive()->toBeTrue();
+});

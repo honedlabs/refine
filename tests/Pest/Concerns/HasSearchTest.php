@@ -31,7 +31,7 @@ it('precision search', function () {
         ->toEqual([
             [
                 'type' => 'raw',
-                'sql' => \sprintf('LOWER(%s) LIKE ?', $this->builder->qualifyColumn('name')),
+                'sql' => \sprintf('LOWER(%s) LIKE ?', 'name'),
                 'boolean' => 'and',
             ],
         ]);
@@ -47,7 +47,7 @@ it('recall search', function () {
             [
                 'type' => 'Fulltext',
                 'columns' => [
-                    $this->builder->qualifyColumn('name'),
+                    'name',
                 ],
                 'options' => [],
                 'value' => 'test',

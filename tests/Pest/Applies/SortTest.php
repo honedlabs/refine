@@ -29,8 +29,6 @@ it('applies alias', function () {
     
     $sort = $this->sort->alias($alias);
     
-    // Should not apply
-
     expect($sort->refine($this->builder, [$this->name, 'asc']))
         ->toBeFalse();
 
@@ -103,5 +101,17 @@ it('applies query', function () {
         ->toBeOnlyOrder($column, 'desc');
     
     expect($sort)
+        ->isActive()->toBeTrue();
+});
+
+it('applies with unqualified column', function () {
+    expect($this->sort->unqualify())
+        ->refine($this->builder, [$this->name, 'asc'])->toBeTrue();
+
+    expect($this->builder->getQuery()->orders)
+        ->toBeOnlyOrder($this->name, 'asc');
+
+    expect($this->sort)
+        ->isQualified()->toBeFalse()
         ->isActive()->toBeTrue();
 });

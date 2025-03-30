@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace {{ namespace }};
 
-use Honed\Core\Contracts\DefinesQuery;
+use Honed\Core\Contracts\HasQuery;
 use Honed\Refine\Search;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -14,7 +14,7 @@ use Illuminate\Database\Eloquent\Builder;
  *
  * @extends \Honed\Refine\Search<TModel, TBuilder>
  */
-final class {{ class }} extends Search implements DefinesQuery
+final class {{ class }} extends Search implements HasQuery
 {
     /**
      *  Create a new search instance.
@@ -27,7 +27,9 @@ final class {{ class }} extends Search implements DefinesQuery
     }
 
     /**
-     * {@inheritdoc}
+     * Provide the search with any necessary setup.
+     *
+     * @return void
      */
     public function setUp()
     {
@@ -41,7 +43,7 @@ final class {{ class }} extends Search implements DefinesQuery
      * @param  string $value
      * @return void
      */
-    public function query($builder, $value)
+    public function queryAs($builder, $value)
     {
         //
     }

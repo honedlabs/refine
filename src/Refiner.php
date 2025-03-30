@@ -13,6 +13,7 @@ use Honed\Core\Concerns\HasQuery;
 use Honed\Core\Concerns\HasType;
 use Honed\Core\Concerns\HasValue;
 use Honed\Core\Primitive;
+use Honed\Refine\Concerns\HasQualifier;
 use Illuminate\Support\Str;
 
 /**
@@ -29,9 +30,10 @@ abstract class Refiner extends Primitive
     use HasMeta;
     use HasName;
 
+    use HasQualifier;
+
     /** @use HasQuery<TModel, TBuilder> */
     use HasQuery;
-
     use HasType;
     use HasValue;
 

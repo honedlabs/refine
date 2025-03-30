@@ -58,7 +58,6 @@ it('filters to array', function () {
                 'meta',
                 'value',
                 'options',
-                'multiple'
             ])
         );
 });

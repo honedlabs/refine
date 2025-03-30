@@ -50,8 +50,8 @@ it('refines', function () {
     $builder = $this->refine->getBuilder();
 
     expect($builder->getQuery()->wheres)
-        ->{0}->toBeSearch($builder->qualifyColumn('name'), 'and')
-        ->{1}->toBeSearch($builder->qualifyColumn('description'), 'or');
+        ->{0}->toBeSearch($this->builder->qualifyColumn('name'), 'and')
+        ->{1}->toBeSearch($this->builder->qualifyColumn('description'), 'or');
 
     expect($this->refine->getTerm())
         ->toBe('search value');
@@ -88,7 +88,7 @@ it('refines with match', function () {
     $builder = $this->refine->getBuilder();
 
     expect($builder->getQuery()->wheres)
-        ->toBeOnlySearch($builder->qualifyColumn('name'));
+        ->toBeOnlySearch($this->builder->qualifyColumn('name'));
 
     expect($this->refine->getTerm())
         ->toBe('search value');
@@ -131,7 +131,7 @@ describe('scope', function () {
         $builder = $this->refine->getBuilder();
 
         expect($builder->getQuery()->wheres)
-            ->toBeOnlySearch($builder->qualifyColumn('description'));
+            ->toBeOnlySearch($this->builder->qualifyColumn('description'));
 
         expect($this->refine->getTerm())
             ->toBe('search value');

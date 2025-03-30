@@ -47,7 +47,7 @@ it('refines', function () {
     $builder = $this->refine->getBuilder();
 
     expect($builder->getQuery()->wheres)
-        ->toBeOnlyWhere($builder->qualifyColumn('price'), 100);
+        ->toBeOnlyWhere($this->builder->qualifyColumn('price'), 100);
 });
 
 it('disables', function () {
@@ -97,6 +97,6 @@ describe('scope', function () {
         $builder = $this->refine->getBuilder();
 
         expect($builder->getQuery()->wheres)
-            ->toBeOnlyWhere($builder->qualifyColumn('price'), 100);
+            ->toBeOnlyWhere($this->builder->qualifyColumn('price'), 100);
     }); 
 });

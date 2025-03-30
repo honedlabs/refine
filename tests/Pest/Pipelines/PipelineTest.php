@@ -77,15 +77,15 @@ it('executes pipeline', function () {
                     'boolean' => 'and',
                 ],
                 [
-                    'column' => $this->builder->qualifyColumn('created_at'),
                     'type' => 'Date',
+                    'column' => $this->builder->qualifyColumn('created_at'),
                     'boolean' => 'and',
                     'operator' => '>=',
                     'value' => '2000-01-01',
                 ],
                 [
-                    'column' => $this->builder->qualifyColumn('created_at'),
                     'type' => 'Date',
+                    'column' => $this->builder->qualifyColumn('created_at'),
                     'boolean' => 'and',
                     'operator' => '<=',
                     'value' => '2001-01-01',
