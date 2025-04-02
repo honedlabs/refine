@@ -42,6 +42,7 @@ class Refine extends Primitive
      * @use HasBuilderInstance<TModel, TBuilder>
      */
     use HasBuilderInstance;
+
     use HasDelimiter;
 
     /** @use HasFilters<TModel, TBuilder> */
