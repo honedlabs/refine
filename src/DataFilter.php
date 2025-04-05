@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Honed\Refine;
 
+use Honed\Core\Contracts\HasQuery;
+use Honed\Refine\Contracts\DefinesOptions;
 use Illuminate\Support\Arr;
 
 /**
@@ -16,7 +18,7 @@ final class DataFilter extends Filter
 {
     /**
      * The clauses this filter supports.
-     *
+     * 
      * @var array<int,\Honed\Refine\Enums\Clause>
      */
     protected $clauses = [];
@@ -31,7 +33,7 @@ final class DataFilter extends Filter
 
     /**
      * Set the clauses this filter supports.
-     *
+     * 
      * @param  \Honed\Refine\Enums\Clause|array<int,\Honed\Refine\Enums\Clause>  ...$clauses
      * @return $this
      */
@@ -46,7 +48,7 @@ final class DataFilter extends Filter
 
     /**
      * Get the clauses this filter supports.
-     *
+     * 
      * @return array<int,\Honed\Refine\Enums\Clause>
      */
     public function getClauses()
