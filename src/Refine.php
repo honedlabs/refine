@@ -155,7 +155,7 @@ class Refine extends Primitive
         }
 
         if ($this instanceof RefinesBefore) {
-            return Closure::fromCallable([$this, 'beforeRefining']);
+            return \Closure::fromCallable([$this, 'beforeRefining']);
         }
 
         return null;
@@ -186,7 +186,7 @@ class Refine extends Primitive
         }
 
         if ($this instanceof RefinesAfter) {
-            return Closure::fromCallable([$this, 'afterRefining']);
+            return \Closure::fromCallable([$this, 'afterRefining']);
         }
 
         return null;
