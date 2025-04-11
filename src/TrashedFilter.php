@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace Honed\Refine;
 
-use Honed\Core\Contracts\HasQuery;
-use Honed\Refine\Contracts\DefinesOptions;
-
 /**
  * @template TModel of \Illuminate\Database\Eloquent\Model
  * @template TBuilder of \Illuminate\Database\Eloquent\Builder<TModel>
