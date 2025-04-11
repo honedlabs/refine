@@ -233,7 +233,7 @@ trait HasSearches
     {
         return $this->has('searches');
     }
-    
+
     /**
      * Set the search term.
      *

@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Honed\Refine;
 
 use Closure;
-use Honed\Core\Concerns\HasResource;
 use Honed\Core\Concerns\HasParameterNames;
 use Honed\Core\Concerns\HasRequest;
+use Honed\Core\Concerns\HasResource;
 use Honed\Core\Concerns\HasScope;
 use Honed\Core\Primitive;
 use Honed\Refine\Concerns\HasDelimiter;
@@ -38,11 +38,6 @@ class Refine extends Primitive
 {
     use ForwardsCalls;
 
-    /**
-     * @use \Honed\Core\Concerns\HasResource<TModel, TBuilder>
-     */
-    use HasResource;
-
     use HasDelimiter;
 
     /** @use \Honed\Refine\Concerns\HasFilters<TModel, TBuilder> */
@@ -52,6 +47,11 @@ class Refine extends Primitive
     use HasParameterNames;
 
     use HasRequest;
+
+    /**
+     * @use \Honed\Core\Concerns\HasResource<TModel, TBuilder>
+     */
+    use HasResource;
     use HasScope;
 
     /** @use \Honed\Refine\Concerns\HasSearches<TModel, TBuilder> */

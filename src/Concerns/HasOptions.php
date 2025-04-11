@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Honed\Refine\Concerns;
 
-use Honed\Refine\Contracts\DefinesOptions;
 use Honed\Refine\Option;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
@@ -56,7 +55,6 @@ trait HasOptions
     {
         return [];
     }
-
 
     /**
      * Create options from a value.
