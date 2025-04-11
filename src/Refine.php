@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Honed\Refine;
 
 use Closure;
-use Honed\Core\Concerns\HasBuilderInstance;
+use Honed\Core\Concerns\HasResource;
 use Honed\Core\Concerns\HasParameterNames;
 use Honed\Core\Concerns\HasRequest;
 use Honed\Core\Concerns\HasScope;
@@ -39,28 +39,28 @@ class Refine extends Primitive
     use ForwardsCalls;
 
     /**
-     * @use HasBuilderInstance<TModel, TBuilder>
+     * @use \Honed\Core\Concerns\HasResource<TModel, TBuilder>
      */
-    use HasBuilderInstance;
+    use HasResource;
 
     use HasDelimiter;
 
-    /** @use HasFilters<TModel, TBuilder> */
+    /** @use \Honed\Refine\Concerns\HasFilters<TModel, TBuilder> */
     use HasFilters;
 
-    /** @use HasParameterNames<TModel, TBuilder> */
+    /** @use \Honed\Core\Concerns\HasParameterNames<TModel, TBuilder> */
     use HasParameterNames;
 
     use HasRequest;
     use HasScope;
 
-    /** @use HasSearches<TModel, TBuilder> */
+    /** @use \Honed\Refine\Concerns\HasSearches<TModel, TBuilder> */
     use HasSearches {
         getSearchKey as protected getBaseSearchKey;
         getMatchKey as protected getBaseMatchKey;
     }
 
-    /** @use HasSorts<TModel, TBuilder> */
+    /** @use \Honed\Refine\Concerns\HasSorts<TModel, TBuilder> */
     use HasSorts {
         getSortKey as protected getBaseSortKey;
     }
@@ -71,13 +71,6 @@ class Refine extends Primitive
      * @var bool
      */
     protected $refined = false;
-
-    /**
-     * The builder instance to refine.
-     *
-     * @var TBuilder|null
-     */
-    public $for;
 
     /**
      * A closure to be called before the refiners have been applied.
@@ -106,15 +99,15 @@ class Refine extends Primitive
     /**
      * Create a new refine instance.
      *
-     * @param  TModel|class-string<TModel>|TBuilder|null  $builder
+     * @param  TModel|class-string<TModel>|TBuilder|null  $resource
      * @return static
      */
-    public static function make($builder = null)
+    public static function make($resource = null)
     {
         $refine = resolve(static::class);
 
-        if ($builder) {
-            return $refine->builder($builder);
+        if ($resource) {
+            return $refine->resource($resource);
         }
 
         return $refine;
@@ -213,26 +206,56 @@ class Refine extends Primitive
             };
         }
 
-        $this->withSorts($sorts);
-        $this->withFilters($filters);
-        $this->withSearches($searches);
+        $this->sorts($sorts);
+        $this->filters($filters);
+        $this->searches($searches);
 
         return $this;
     }
 
     /**
-     * Set all refiners to not apply.
+     * Determine if the instance provides refinements.
      *
-     * @param  bool  $withoutRefining
+     * @return bool
+     */
+    public function isRefinable()
+    {
+        return $this->hasAny('filters', 'searches', 'sorts');
+    }
+
+    /**
+     * Determine if the instance does not provide any refinements.
+     *
+     * @return bool
+     */
+    public function isntRefinable()
+    {
+        return ! $this->isRefinable();
+    }
+
+    /**
+     * Set the instance to not provide any refinements.
+     *
      * @return $this
      */
-    public function withoutRefining($withoutRefining = true)
+    public function exceptRefinements()
     {
-        $this->withoutSearches($withoutRefining);
-        $this->withoutFilters($withoutRefining);
-        $this->withoutSorts($withoutRefining);
+        $this->except('filters', 'searches', 'sorts');
 
         return $this;
+    }
+
+    /**
+     * Set the instance to only provide refinements.
+     *
+     * @return $this
+     */
+    public function onlyRefinements()
+    {
+        $this->only('filters', 'searches', 'sorts');
+
+        return $this;
+
     }
 
     /**
@@ -295,7 +318,7 @@ class Refine extends Primitive
     }
 
     /**
-     * Refine the builder using the provided refinements.
+     * Refine the resource using the provided refinements.
      *
      * @return $this
      */
@@ -331,7 +354,7 @@ class Refine extends Primitive
     }
 
     /**
-     * Forward a call to the builder.
+     * Forward a call to the resource.
      *
      * @param  string  $method
      * @param  array<int, mixed>  $parameters
@@ -341,7 +364,7 @@ class Refine extends Primitive
     {
         return $this->refine()
             ->forwardDecoratedCallTo(
-                $this->getBuilder(),
+                $this->getResource(),
                 $method,
                 $parameters
             );
@@ -352,18 +375,19 @@ class Refine extends Primitive
      */
     protected function resolveDefaultClosureDependencyForEvaluationByName($parameterName)
     {
-        $builder = $this->getBuilder();
+        $resource = $this->getResource();
         $request = $this->getRequest();
 
-        [$_, $singular, $plural] = static::getParameterNames($builder);
+        [$_, $singular, $plural] = static::getParameterNames($resource);
 
         return match ($parameterName) {
             'request' => [$request],
             'route' => [$request->route()],
-            'builder' => [$builder],
-            'query' => [$builder],
-            $singular => [$builder],
-            $plural => [$builder],
+            'builder',
+            'resource',
+            'query',
+            $singular,
+            $plural => [$resource],
             default => parent::resolveDefaultClosureDependencyForEvaluationByName($parameterName),
         };
     }
@@ -373,13 +397,13 @@ class Refine extends Primitive
      */
     protected function resolveDefaultClosureDependencyForEvaluationByType($parameterType)
     {
-        $builder = $this->getBuilder();
+        $resource = $this->getResource();
         $request = $this->getRequest();
 
         return match ($parameterType) {
             Request::class => [$request],
             Route::class => [$request->route()],
-            Builder::class => [$builder],
+            Builder::class => [$resource],
             default => [App::make($parameterType)],
         };
     }

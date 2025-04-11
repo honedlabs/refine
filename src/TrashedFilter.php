@@ -13,7 +13,7 @@ use Honed\Refine\Contracts\DefinesOptions;
  *
  * @extends \Honed\Refine\Filter<TModel, TBuilder>
  */
-final class TrashedFilter extends Filter implements DefinesOptions, HasQuery
+final class TrashedFilter extends Filter
 {
     /**
      *  Create a new sort instance.
@@ -38,26 +38,21 @@ final class TrashedFilter extends Filter implements DefinesOptions, HasQuery
     /**
      * Register the query expression to resolve the filter.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model>  $builder
-     * @param  mixed  $value
-     * @return void
+     * @return \Closure(TBuilder $builder, mixed $value):TBuilder
      */
-    public function queryAs($builder, $value)
+    public function defineQuery()
     {
-        match ($value) {
-            // @phpstan-ignore-next-line
+        return fn ($builder, $value) => match ($value) {
             'with' => $builder->withTrashed(),
-            // @phpstan-ignore-next-line
             'only' => $builder->onlyTrashed(),
-            // @phpstan-ignore-next-line
             default => $builder->withoutTrashed(),
         };
     }
 
     /**
-     * Define the options to be supplied by the refinement.
+     * {@inheritdoc}
      *
-     * @return array<string,mixed>
+     * @return array<string,string>
      */
     public function defineOptions()
     {

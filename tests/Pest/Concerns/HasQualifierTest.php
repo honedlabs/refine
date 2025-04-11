@@ -12,9 +12,9 @@ beforeEach(function () {
 
 it('has qualifier', function () {
     expect($this->test)
-        ->isQualified()->toBeTrue()
+        ->isQualifying()->toBeTrue()
         ->unqualify()->toBe($this->test)
-        ->isQualified()->toBeFalse()
+        ->isQualifying()->toBeFalse()
         ->qualify()->toBe($this->test)
-        ->isQualified()->toBeTrue();
+        ->isQualifying()->toBeTrue();
 });

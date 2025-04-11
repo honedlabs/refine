@@ -83,6 +83,6 @@ it('applies with unqualified column', function () {
         ->toBeOnlySearch($this->name);
 
     expect($this->test)
-        ->isQualified()->toBeFalse()
+        ->isQualifying()->toBeFalse()
         ->isActive()->toBeTrue();
 });

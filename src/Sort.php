@@ -55,7 +55,7 @@ class Sort extends Refiner
         $descending = $this->getDescendingValue();
 
         if ($this->isFixed()) {
-            return $this->only === 'desc' ? $ascending : $descending;
+            return $this->fixed === 'desc' ? $ascending : $descending;
         }
 
         $inverted = $this->isInverted();
@@ -103,7 +103,7 @@ class Sort extends Refiner
         $active = $value === $this->getParameter();
 
         if ($this->isFixed()) {
-            return $active && $direction === $this->only;
+            return $active && $direction === $this->fixed;
         }
 
         return $active;
@@ -119,7 +119,7 @@ class Sort extends Refiner
         [$value, $direction] = $value;
 
         if ($this->isFixed()) {
-            $direction = $this->only;
+            $direction = $this->fixed;
         }
 
         return [$value, $direction];
@@ -133,7 +133,7 @@ class Sort extends Refiner
         $parameter = parent::guessParameter();
 
         if ($this->isFixed()) {
-            $parameter = $parameter.'_'.$this->only;
+            $parameter = $parameter.'_'.$this->fixed;
         }
 
         return $parameter;
@@ -194,7 +194,7 @@ class Sort extends Refiner
      */
     public function defaultQuery($builder, $column, $direction)
     {
-        if ($this->isQualified()) {
+        if ($this->isQualifying()) {
             $column = $builder->qualifyColumn($column);
         }
 

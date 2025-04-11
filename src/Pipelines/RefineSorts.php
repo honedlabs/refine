@@ -23,7 +23,7 @@ class RefineSorts
      */
     public function __invoke($refine, $next)
     {
-        $builder = $refine->getBuilder();
+        $resource = $refine->getResource();
 
         $value = $this->nameAndDirection(
             $refine->getRequest(),
@@ -33,7 +33,7 @@ class RefineSorts
         $applied = false;
 
         foreach ($this->sorts($refine) as $sort) {
-            $applied |= $sort->refine($builder, $value);
+            $applied |= $sort->refine($resource, $value);
         }
 
         if (! $applied && $sort = $refine->getDefaultSort()) {
@@ -41,7 +41,7 @@ class RefineSorts
 
             $value = [$sort->getParameter(), $direction];
 
-            $sort->refine($builder, $value);
+            $sort->refine($resource, $value);
         }
 
         return $next($refine);

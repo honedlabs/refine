@@ -34,7 +34,7 @@ class RefineSearches
             $refine->getDelimiter()
         );
 
-        $builder = $refine->getBuilder();
+        $resource = $refine->getResource();
         $applied = false;
 
         foreach ($this->searches($refine) as $search) {
@@ -43,7 +43,7 @@ class RefineSearches
 
             $applied |= $search
                 ->boolean($applied ? 'or' : 'and')
-                ->refine($builder, [$active, $term]);
+                ->refine($resource, [$active, $term]);
         }
 
         return $next($refine);

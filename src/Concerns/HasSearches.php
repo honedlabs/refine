@@ -10,15 +10,17 @@ use Illuminate\Support\Arr;
 /**
  * @template TModel of \Illuminate\Database\Eloquent\Model
  * @template TBuilder of \Illuminate\Database\Eloquent\Builder<TModel>
+ *
+ * @phpstan-require-extends \Honed\Core\Primitive
  */
 trait HasSearches
 {
     /**
      * List of the searches.
      *
-     * @var array<int,\Honed\Refine\Search<TModel, TBuilder>>|null
+     * @var array<int,\Honed\Refine\Search<TModel, TBuilder>>
      */
-    protected $searches;
+    protected $searches = [];
 
     /**
      * The query parameter to identify the search string.
@@ -49,31 +51,17 @@ trait HasSearches
     protected $term;
 
     /**
-     * Whether to apply the searches.
-     *
-     * @var bool
-     */
-    protected $searching = true;
-
-    /**
-     * Whether to not provide the searches.
-     *
-     * @var bool
-     */
-    protected $withoutSearches = false;
-
-    /**
      * Merge a set of searches with the existing searches.
      *
-     * @param  iterable<int, \Honed\Refine\Search<TModel, TBuilder>>  ...$searches
+     * @param  \Honed\Refine\Search<TModel, TBuilder>|iterable<int, \Honed\Refine\Search<TModel, TBuilder>>  ...$searches
      * @return $this
      */
-    public function withSearches(...$searches)
+    public function searches(...$searches)
     {
         /** @var array<int, \Honed\Refine\Search<TModel, TBuilder>> $searches */
         $searches = Arr::flatten($searches);
 
-        $this->searches = \array_merge($this->searches ?? [], $searches);
+        $this->searches = \array_merge($this->searches, $searches);
 
         return $this;
     }
@@ -83,7 +71,7 @@ trait HasSearches
      *
      * @return array<int, \Honed\Refine\Search<TModel, TBuilder>>
      */
-    public function searches()
+    public function defineSearches()
     {
         return [];
     }
@@ -95,13 +83,13 @@ trait HasSearches
      */
     public function getSearches()
     {
-        if ($this->isWithoutSearches()) {
+        if (! $this->providesSearches()) {
             return [];
         }
 
         return once(fn () => \array_values(
             \array_filter(
-                \array_merge($this->searches(), $this->searches ?? []),
+                \array_merge($this->defineSearches(), $this->searches),
                 static fn (Search $search) => $search->isAllowed()
             )
         ));
@@ -186,12 +174,12 @@ trait HasSearches
     /**
      * Set whether the search columns can be toggled.
      *
-     * @param  bool|null  $match
+     * @param  bool|null  $matches
      * @return $this
      */
-    public function match($match = true)
+    public function matches($matches = true)
     {
-        $this->match = $match;
+        $this->match = $matches;
 
         return $this;
     }
@@ -219,26 +207,33 @@ trait HasSearches
     /**
      * Set the instance to not provide the searches.
      *
-     * @param  bool  $withoutSearches
      * @return $this
      */
-    public function withoutSearches($withoutSearches = true)
+    public function exceptSearches()
     {
-        $this->withoutSearches = $withoutSearches;
-
-        return $this;
+        return $this->except('searches');
     }
 
     /**
-     * Determine if the instance should not provide the searches.
+     * Set the instance to provide only searches.
+     *
+     * @return $this
+     */
+    public function onlySearches()
+    {
+        return $this->only('searches');
+    }
+
+    /**
+     * Determine if the instance provides the searches.
      *
      * @return bool
      */
-    public function isWithoutSearches()
+    public function providesSearches()
     {
-        return $this->withoutSearches;
+        return $this->has('searches');
     }
-
+    
     /**
      * Set the search term.
      *

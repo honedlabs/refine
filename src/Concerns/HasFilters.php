@@ -10,35 +10,30 @@ use Illuminate\Support\Arr;
 /**
  * @template TModel of \Illuminate\Database\Eloquent\Model
  * @template TBuilder of \Illuminate\Database\Eloquent\Builder<TModel>
+ *
+ * @phpstan-require-extends \Honed\Core\Primitive
  */
 trait HasFilters
 {
     /**
      * List of the filters.
      *
-     * @var array<int,\Honed\Refine\Filter<TModel, TBuilder>>|null
+     * @var array<int,\Honed\Refine\Filter<TModel, TBuilder>>
      */
-    protected $filters;
-
-    /**
-     * Whether to provide the filters.
-     *
-     * @var bool
-     */
-    protected $withoutFilters = false;
+    protected $filters = [];
 
     /**
      * Merge a set of filters with the existing filters.
      *
-     * @param  iterable<int, \Honed\Refine\Filter<TModel, TBuilder>>  ...$filters
+     * @param  \Honed\Refine\Filter<TModel, TBuilder>|iterable<int, \Honed\Refine\Filter<TModel, TBuilder>>  ...$filters
      * @return $this
      */
-    public function withFilters(...$filters)
+    public function filters(...$filters)
     {
         /** @var array<int, \Honed\Refine\Filter<TModel, TBuilder>> $filters */
         $filters = Arr::flatten($filters);
 
-        $this->filters = \array_merge($this->filters ?? [], $filters);
+        $this->filters = \array_merge($this->filters, $filters);
 
         return $this;
     }
@@ -48,7 +43,7 @@ trait HasFilters
      *
      * @return array<int,\Honed\Refine\Filter<TModel, TBuilder>>
      */
-    public function filters()
+    public function defineFilters()
     {
         return [];
     }
@@ -60,13 +55,13 @@ trait HasFilters
      */
     public function getFilters()
     {
-        if ($this->isWithoutFilters()) {
+        if (! $this->providesFilters()) {
             return [];
         }
 
         return once(fn () => \array_values(
             \array_filter(
-                \array_merge($this->filters(), $this->filters ?? []),
+                \array_merge($this->defineFilters(), $this->filters),
                 static fn (Filter $filter) => $filter->isAllowed()
             )
         ));
@@ -85,24 +80,31 @@ trait HasFilters
     /**
      * Set the instance to not provide the filters.
      *
-     * @param  bool  $withoutFilters
      * @return $this
      */
-    public function withoutFilters($withoutFilters = true)
+    public function exceptFilters()
     {
-        $this->withoutFilters = $withoutFilters;
-
-        return $this;
+        return $this->except('filters');
     }
 
     /**
-     * Determine if the instance should not provide the filters when serializing.
+     * Set the instance to provide only filters.
+     *
+     * @return $this
+     */
+    public function onlyFilters()
+    {
+        return $this->only('filters');
+    }
+
+    /**
+     * Determine if the instance provides the filters.
      *
      * @return bool
      */
-    public function isWithoutFilters()
+    public function providesFilters()
     {
-        return $this->withoutFilters;
+        return $this->has('filters');
     }
 
     /**

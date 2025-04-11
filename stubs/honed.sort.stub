@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace {{ namespace }};
 
-use Honed\Core\Contracts\HasQuery;
 use Honed\Refine\Sort;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -14,7 +13,7 @@ use Illuminate\Database\Eloquent\Builder;
  *
  * @extends \Honed\Refine\Sort<TModel, TBuilder>
  */
-final class {{ class }} extends Sort implements HasQuery
+final class {{ class }} extends Sort
 {
     /**
      *  Create a new sort instance.
@@ -39,12 +38,12 @@ final class {{ class }} extends Sort implements HasQuery
     /**
      * Register the query expression to resolve the filter.
      *
-     * @param  TBuilder  $builder
-     * @param  'asc'|'desc'|null $direction
-     * @return void
+     * @template TDirection of 'asc'|'desc'|null
+     *
+     * @return \Closure(TBuilder $builder, TDirection $direction):TBuilder|void
      */
-    public function queryAs($builder, $direction)
+    public function defineQuery()
     {
-        //
+        return fn ($builder, $direction) => $builder;
     }
 }

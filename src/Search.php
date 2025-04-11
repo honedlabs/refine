@@ -125,7 +125,7 @@ class Search extends Refiner
      */
     public function defaultQuery($builder, $value, $column, $boolean = 'and')
     {
-        if ($this->isQualified()) {
+        if ($this->isQualifying()) {
             $column = $builder->qualifyColumn($column);
         }
 

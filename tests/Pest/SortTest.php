@@ -47,7 +47,7 @@ it('can invert', function () {
 it('can be fixed', function () {
     expect($this->sort)
         ->isFixed()->toBeFalse()
-        ->only('asc')->toBe($this->sort)
+        ->fixed('asc')->toBe($this->sort)
         ->isFixed()->toBeTrue()
         ->getDirection()->toBe('asc');
 });

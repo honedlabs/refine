@@ -37,14 +37,12 @@ final class {{ class }} extends Search implements HasQuery
     }
 
     /**
-     * Register the query expression to resolve the search.
+     * Register the query expression to resolve the filter.
      *
-     * @param  TBuilder  $builder
-     * @param  string $value
-     * @return void
+     * @return \Closure(TBuilder $builder, string $term):TBuilder|void
      */
-    public function queryAs($builder, $value)
+    public function defineQuery()
     {
-        //
+        return fn ($builder, $term) => $builder;
     }
 }

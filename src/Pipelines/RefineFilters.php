@@ -22,7 +22,7 @@ class RefineFilters
     public function __invoke($refine, $next)
     {
         $request = $refine->getRequest();
-        $builder = $refine->getBuilder();
+        $resource = $refine->getResource();
 
         $scope = $refine->getScope();
         $delimiter = $refine->getDelimiter();
@@ -30,7 +30,7 @@ class RefineFilters
         foreach ($this->filters($refine) as $filter) {
             $filter->scope($scope)
                 ->delimiter($delimiter)
-                ->refine($builder, $request);
+                ->refine($resource, $request);
         }
 
         return $next($refine);

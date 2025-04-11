@@ -12,7 +12,10 @@ use Honed\Refine\Tests\Stubs\Status;
 
 class RefineFixture extends Refine
 {
-    public function filters()
+    /**
+     * {@inheritdoc}
+     */
+    public function defineFilters()
     {
         return [
             Filter::make('name')
@@ -48,7 +51,10 @@ class RefineFixture extends Refine
         ];
     }
 
-    public function sorts()
+    /**
+     * {@inheritdoc}
+     */
+    public function defineSorts()
     {
         return [
             Sort::make('name', 'A-Z')
@@ -67,7 +73,10 @@ class RefineFixture extends Refine
         ];
     }
 
-    public function searches()
+    /**
+     * {@inheritdoc}
+     */
+    public function defineSearches()
     {
         return [
             Search::make('name'),

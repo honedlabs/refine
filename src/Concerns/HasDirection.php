@@ -14,11 +14,11 @@ trait HasDirection
     protected $direction;
 
     /**
-     * Indicate that only a single direction is allowed.
+     * Indicate that the direction is fixed.
      *
      * @var 'asc'|'desc'|null
      */
-    protected $only;
+    protected $fixed;
 
     /**
      * Whether the direction is inverted.
@@ -47,7 +47,7 @@ trait HasDirection
      */
     public function getDirection()
     {
-        return $this->isFixed() ? $this->only : $this->direction;
+        return $this->isFixed() ? $this->fixed : $this->direction;
     }
 
     /**
@@ -76,9 +76,9 @@ trait HasDirection
      * @param  'asc'|'desc'|null  $direction
      * @return $this
      */
-    public function only($direction)
+    public function fixed($direction)
     {
-        $this->only = $direction;
+        $this->fixed = $direction;
 
         return $this;
     }
@@ -90,7 +90,7 @@ trait HasDirection
      */
     public function asc()
     {
-        return $this->only('asc');
+        return $this->fixed('asc');
     }
 
     /**
@@ -100,7 +100,7 @@ trait HasDirection
      */
     public function desc()
     {
-        return $this->only('desc');
+        return $this->fixed('desc');
     }
 
     /**
@@ -110,7 +110,7 @@ trait HasDirection
      */
     public function isFixed()
     {
-        return isset($this->only);
+        return isset($this->fixed);
     }
 
     /**

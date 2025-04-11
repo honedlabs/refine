@@ -48,6 +48,17 @@ trait HasOptions
     }
 
     /**
+     * Define the actions for the instance.
+     *
+     * @return class-string<\BackedEnum>|array<int|string,bool|float|int|string|null|\Honed\Refine\Option>
+     */
+    public function defineOptions()
+    {
+        return [];
+    }
+
+
+    /**
      * Create options from a value.
      *
      * @template TValue of bool|float|int|string|null|\Honed\Refine\Option
@@ -98,7 +109,7 @@ trait HasOptions
             return $this->options;
         }
 
-        if ($this instanceof DefinesOptions) {
+        if (filled($this->defineOptions())) {
             return $this->options
                 ??= $this->createOptions($this->defineOptions());
         }

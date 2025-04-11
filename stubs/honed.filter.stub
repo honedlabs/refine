@@ -40,12 +40,10 @@ final class {{ class }} extends Filter implements HasQuery
     /**
      * Register the query expression to resolve the filter.
      *
-     * @param  TBuilder  $builder
-     * @param  mixed $value
-     * @return void
+     * @return \Closure(TBuilder $builder, mixed $value):TBuilder|void
      */
-    public function queryAs($builder, $value)
+    public function defineQuery()
     {
-        //
+        return fn ($builder, $value) => $builder;
     }
 }

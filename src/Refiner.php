@@ -29,11 +29,11 @@ abstract class Refiner extends Primitive
     use HasLabel;
     use HasMeta;
     use HasName;
+
     use HasQualifier;
 
     /** @use HasQuery<TModel, TBuilder> */
     use HasQuery;
-
     use HasType;
     use HasValue;
 
@@ -150,11 +150,6 @@ abstract class Refiner extends Primitive
         }
 
         $bindings = $this->getBindings($value);
-
-        if (! $this->hasQuery()) {
-            // @phpstan-ignore-next-line
-            $this->query(\Closure::fromCallable([$this, 'defaultQuery']));
-        }
 
         $this->modifyQuery($builder, $bindings);
 

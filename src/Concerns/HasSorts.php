@@ -10,15 +10,17 @@ use Illuminate\Support\Arr;
 /**
  * @template TModel of \Illuminate\Database\Eloquent\Model
  * @template TBuilder of \Illuminate\Database\Eloquent\Builder<TModel>
+ *
+ * @phpstan-require-extends \Honed\Core\Primitive
  */
 trait HasSorts
 {
     /**
      * List of the sorts.
      *
-     * @var array<int,\Honed\Refine\Sort<TModel, TBuilder>>|null
+     * @var array<int,\Honed\Refine\Sort<TModel, TBuilder>>
      */
-    protected $sorts;
+    protected $sorts = [];
 
     /**
      * The query parameter to identify the sort to apply.
@@ -28,31 +30,17 @@ trait HasSorts
     protected $sortKey;
 
     /**
-     * Whether to apply the sorts.
-     *
-     * @var bool
-     */
-    protected $sorting = true;
-
-    /**
-     * Whether to not provide the sorts.
-     *
-     * @var bool
-     */
-    protected $withoutSorts = false;
-
-    /**
      * Merge a set of sorts with the existing sorts.
      *
-     * @param  iterable<int, \Honed\Refine\Sort<TModel, TBuilder>>  ...$sorts
+     * @param  \Honed\Refine\Sort<TModel, TBuilder>|iterable<int, \Honed\Refine\Sort<TModel, TBuilder>>  ...$sorts
      * @return $this
      */
-    public function withSorts(...$sorts)
+    public function sorts(...$sorts)
     {
         /** @var array<int, \Honed\Refine\Sort<TModel, TBuilder>> $sorts */
         $sorts = Arr::flatten($sorts);
 
-        $this->sorts = \array_merge($this->sorts ?? [], $sorts);
+        $this->sorts = \array_merge($this->sorts, $sorts);
 
         return $this;
     }
@@ -62,7 +50,7 @@ trait HasSorts
      *
      * @return array<int,\Honed\Refine\Sort<TModel, TBuilder>>
      */
-    public function sorts()
+    public function defineSorts()
     {
         return [];
     }
@@ -74,13 +62,13 @@ trait HasSorts
      */
     public function getSorts()
     {
-        if ($this->isWithoutSorts()) {
+        if (! $this->providesSorts()) {
             return [];
         }
 
         return once(fn () => \array_values(
             \array_filter(
-                \array_merge($this->sorts(), $this->sorts ?? []),
+                \array_merge($this->defineSorts(), $this->sorts),
                 static fn (Sort $sort) => $sort->isAllowed()
             )
         ));
@@ -132,24 +120,31 @@ trait HasSorts
     /**
      * Set the instance to not provide the sorts.
      *
-     * @param  bool  $withoutSorts
      * @return $this
      */
-    public function withoutSorts($withoutSorts = true)
+    public function exceptSorts()
     {
-        $this->withoutSorts = $withoutSorts;
-
-        return $this;
+        return $this->except('sorts');
     }
 
     /**
-     * Determine if the instance should not provide the sorts.
+     * Set the instance to provide only sorts.
+     *
+     * @return $this
+     */
+    public function onlySorts()
+    {
+        return $this->only('sorts');
+    }
+
+    /**
+     * Determine if the instance provides the sorts.
      *
      * @return bool
      */
-    public function isWithoutSorts()
+    public function providesSorts()
     {
-        return $this->withoutSorts;
+        return $this->has('sorts');
     }
 
     /**

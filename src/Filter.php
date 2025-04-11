@@ -367,7 +367,7 @@ class Filter extends Refiner
      */
     public function defaultQuery($builder, $column, $operator, $value)
     {
-        if ($this->isQualified()) {
+        if ($this->isQualifying()) {
             $column = $builder->qualifyColumn($column);
         }
 

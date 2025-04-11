@@ -112,6 +112,6 @@ it('applies with unqualified column', function () {
         ->toBeOnlyOrder($this->name, 'asc');
 
     expect($this->sort)
-        ->isQualified()->toBeFalse()
+        ->isQualifying()->toBeFalse()
         ->isActive()->toBeTrue();
 });
