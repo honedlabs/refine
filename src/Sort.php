@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Honed\Refine;
 
-use Honed\Core\Concerns\IsDefault;
 use Honed\Refine\Concerns\HasDirection;
+use Honed\Refine\Support\Constants;
 
 /**
  * @template TModel of \Illuminate\Database\Eloquent\Model
@@ -16,7 +16,46 @@ use Honed\Refine\Concerns\HasDirection;
 class Sort extends Refiner
 {
     use HasDirection;
-    use IsDefault;
+
+    /**
+     * Whether it is the default.
+     *
+     * @var bool
+     */
+    protected $default = false;
+
+    /**
+     * {@inheritdoc}
+     *
+     * @return string
+     */
+    public function defineType()
+    {
+        return Constants::SORT;
+    }
+
+    /**
+     * Set as the default.
+     *
+     * @param  bool  $default
+     * @return $this
+     */
+    public function default($default = true)
+    {
+        $this->default = $default;
+
+        return $this;
+    }
+
+    /**
+     * Determine if it is the default.
+     *
+     * @return bool
+     */
+    public function isDefault()
+    {
+        return $this->default;
+    }
 
     /**
      * Get the value for the sort indicating an ascending direction.
@@ -55,7 +94,9 @@ class Sort extends Refiner
         $descending = $this->getDescendingValue();
 
         if ($this->isFixed()) {
-            return $this->fixed === 'desc' ? $ascending : $descending;
+            return $this->fixed === Constants::DESCENDING
+                ? $ascending
+                : $descending;
         }
 
         $inverted = $this->isInverted();
@@ -76,14 +117,6 @@ class Sort extends Refiner
     {
         /** @var array{string|null, 'asc'|'desc'|null}|null */
         return parent::getValue();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setUp()
-    {
-        $this->type('sort');
     }
 
     /**
@@ -144,11 +177,11 @@ class Sort extends Refiner
      *
      * @param  array{string|null, 'asc'|'desc'|null}  $value
      */
-    public function getBindings($value)
+    public function getBindings($value, $builder)
     {
         [$value, $direction] = $value;
 
-        return \array_merge(parent::getBindings($value), [
+        return \array_merge(parent::getBindings($value, $builder), [
             'direction' => $direction,
         ]);
     }
@@ -194,10 +227,6 @@ class Sort extends Refiner
      */
     public function defaultQuery($builder, $column, $direction)
     {
-        if ($this->isQualifying()) {
-            $column = $builder->qualifyColumn($column);
-        }
-
-        $builder->orderBy($column, $direction ?? 'asc');
+        $builder->orderBy($column, $direction ?? Constants::ASCENDING);
     }
 }

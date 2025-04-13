@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace {{ namespace }};
 
-use Honed\Core\Contracts\HasQuery;
 use Honed\Refine\Contracts\DefinesOptions;
 use Honed\Refine\Filter;
 use Illuminate\Database\Eloquent\Builder;
@@ -15,7 +14,7 @@ use Illuminate\Database\Eloquent\Builder;
  *
  * @extends \Honed\Refine\Filter<TModel, TBuilder>
  */
-final class {{ class }} extends Filter implements HasQuery
+final class {{ class }} extends Filter
 {
     /**
      *  Create a new filter instance.
@@ -40,7 +39,7 @@ final class {{ class }} extends Filter implements HasQuery
     /**
      * Register the query expression to resolve the filter.
      *
-     * @return \Closure(TBuilder $builder, mixed $value):TBuilder|void
+     * @return \Closure(TBuilder $builder, mixed $value):TBuilder
      */
     public function defineQuery()
     {

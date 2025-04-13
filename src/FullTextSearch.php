@@ -15,8 +15,5 @@ class FullTextSearch extends Search
     /**
      * {@inheritdoc}
      */
-    public function setUp()
-    {
-        $this->fullText();
-    }
+    protected $fullText = true;
 }

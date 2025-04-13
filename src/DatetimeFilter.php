@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Honed\Refine;
 
+use Honed\Refine\Support\Constants;
+
 /**
  * @template TModel of \Illuminate\Database\Eloquent\Model
  * @template TBuilder of \Illuminate\Database\Eloquent\Builder<TModel>
@@ -15,8 +17,13 @@ class DatetimeFilter extends Filter
     /**
      * {@inheritdoc}
      */
-    public function setUp()
+    protected $as = 'datetime';
+
+    /**
+     * {@inheritdoc}
+     */
+    public function defineType()
     {
-        $this->datetime();
+        return Constants::DATETIME_FILTER;
     }
 }

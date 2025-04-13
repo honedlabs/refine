@@ -120,13 +120,14 @@ abstract class Refiner extends Primitive
      * Get the bindings for the refiner closure.
      *
      * @param  mixed  $value
+     * @param  TBuilder  $builder
      * @return array<string,mixed>
      */
-    public function getBindings($value)
+    public function getBindings($value, $builder)
     {
         return [
             'value' => $value,
-            'column' => $this->getName(),
+            'column' => $this->qualifyColumn($this->getName(), $builder),
         ];
     }
 
@@ -149,12 +150,15 @@ abstract class Refiner extends Primitive
             return false;
         }
 
-        $bindings = $this->getBindings($value);
+        $bindings = $this->getBindings($value, $builder);
+
+        if (! $this->hasQuery()) {
+            $this->query(\Closure::fromCallable([$this, 'defaultQuery']));
+        }
 
         $this->modifyQuery($builder, $bindings);
 
         return true;
-
     }
 
     /**

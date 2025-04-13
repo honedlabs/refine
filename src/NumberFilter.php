@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Honed\Refine;
 
+use Honed\Refine\Support\Constants;
+
 /**
  * @template TModel of \Illuminate\Database\Eloquent\Model
  * @template TBuilder of \Illuminate\Database\Eloquent\Builder<TModel>
@@ -15,8 +17,13 @@ class NumberFilter extends Filter
     /**
      * {@inheritdoc}
      */
-    public function setUp()
+    protected $as = 'int';
+
+    /**
+     * {@inheritdoc}
+     */
+    public function defineType()
     {
-        $this->int();
+        return Constants::NUMBER_FILTER;
     }
 }

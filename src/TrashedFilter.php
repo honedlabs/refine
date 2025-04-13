@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Honed\Refine;
 
+use Honed\Refine\Support\Constants;
+
 /**
  * @template TModel of \Illuminate\Database\Eloquent\Model
  * @template TBuilder of \Illuminate\Database\Eloquent\Builder<TModel>
@@ -13,6 +15,26 @@ namespace Honed\Refine;
 final class TrashedFilter extends Filter
 {
     /**
+     * {@inheritdoc}
+     */
+    protected $name = 'trashed';
+
+    /**
+     * {@inheritdoc}
+     *
+     * @var string
+     */
+    protected $label = 'Show deleted';
+
+    /**
+     * {@inheritdoc}
+     */
+    public function defineType()
+    {
+        return Constants::TRASHED_FILTER;
+    }
+
+    /**
      *  Create a new sort instance.
      *
      * @return static
@@ -20,16 +42,6 @@ final class TrashedFilter extends Filter
     public static function new()
     {
         return resolve(self::class);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setUp()
-    {
-        $this->name('trashed');
-        $this->type('trashed');
-        $this->label('Show deleted');
     }
 
     /**

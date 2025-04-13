@@ -12,6 +12,7 @@ use Honed\Core\Concerns\Validatable;
 use Honed\Refine\Concerns\HasDelimiter;
 use Honed\Refine\Concerns\HasOptions;
 use Honed\Refine\Concerns\HasSearch;
+use Honed\Refine\Support\Constants;
 
 /**
  * @template TModel of \Illuminate\Database\Eloquent\Model
@@ -49,6 +50,23 @@ class Filter extends Refiner
      * @var bool
      */
     protected $presence = false;
+
+    /**
+     * The default value to use for the filter even if it is not active.
+     *
+     * @var mixed
+     */
+    protected $default;
+
+    /**
+     * {@inheritdoc}
+     *
+     * @return string
+     */
+    public function defineType()
+    {
+        return Constants::FILTER;
+    }
 
     /**
      * Set the filter to be for boolean values.
@@ -269,6 +287,7 @@ class Filter extends Refiner
     public function presence()
     {
         $this->boolean();
+
         $this->presence = true;
 
         return $this;
@@ -285,11 +304,46 @@ class Filter extends Refiner
     }
 
     /**
-     * {@inheritdoc}
+     * Set the default value to use for the filter even if it is not active.
+     *
+     * @param  mixed  $default
+     * @return $this
      */
-    public function setUp()
+    public function default($default)
     {
-        $this->type('filter');
+        $this->default = $default;
+
+        return $this;
+    }
+
+    /**
+     * Define the default value to use for the filter even if it is not active.
+     *
+     * @return mixed
+     */
+    public function defineDefault()
+    {
+        return null;
+    }
+
+    /**
+     * Get the default value to use for the filter even if it is not active.
+     *
+     * @return mixed
+     */
+    public function getDefault()
+    {
+        return $this->default ??= $this->defineDefault();
+    }
+
+    /**
+     * Determine if the filter has a default value.
+     *
+     * @return bool
+     */
+    public function hasDefault()
+    {
+        return (bool) $this->getDefault();
     }
 
     /**
@@ -301,7 +355,9 @@ class Filter extends Refiner
     {
         $parameter = $this->getParameter();
 
-        return $this->interpret($value, $this->formatScope($parameter));
+        $value = $this->interpret($value, $this->formatScope($parameter));
+
+        return $value ?? $this->getDefault();
     }
 
     /**
@@ -331,9 +387,9 @@ class Filter extends Refiner
     /**
      * {@inheritdoc}
      */
-    public function getBindings($value)
+    public function getBindings($value, $builder)
     {
-        return \array_merge(parent::getBindings($value), [
+        return \array_merge(parent::getBindings($value, $builder), [
             'operator' => $this->getOperator(),
         ]);
     }
@@ -367,10 +423,6 @@ class Filter extends Refiner
      */
     public function defaultQuery($builder, $column, $operator, $value)
     {
-        if ($this->isQualifying()) {
-            $column = $builder->qualifyColumn($column);
-        }
-
         match (true) {
             $this->isFullText() && \is_string($value) => $this->searchRecall(
                 $builder,

@@ -16,7 +16,7 @@ use Illuminate\Database\Eloquent\Builder;
 final class {{ class }} extends Sort
 {
     /**
-     *  Create a new sort instance.
+     * Create a new sort instance.
      *
      * @return static
      */
@@ -40,7 +40,7 @@ final class {{ class }} extends Sort
      *
      * @template TDirection of 'asc'|'desc'|null
      *
-     * @return \Closure(TBuilder $builder, TDirection $direction):TBuilder|void
+     * @return \Closure(TBuilder $builder, TDirection $direction):TBuilder
      */
     public function defineQuery()
     {

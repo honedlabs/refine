@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Honed\Refine;
 
+use Honed\Refine\Support\Constants;
+
 /**
  * @template TModel of \Illuminate\Database\Eloquent\Model
  * @template TBuilder of \Illuminate\Database\Eloquent\Builder<TModel>
@@ -15,8 +17,18 @@ class SelectFilter extends Filter
     /**
      * {@inheritdoc}
      */
-    public function setUp()
+    protected $as = 'array';
+
+    /**
+     * {@inheritdoc}
+     */
+    protected $multiple = true;
+
+    /**
+     * {@inheritdoc}
+     */
+    public function defineType()
     {
-        $this->multiple();
+        return Constants::SET_FILTER;
     }
 }

@@ -37,7 +37,6 @@ use Illuminate\Support\Traits\ForwardsCalls;
 class Refine extends Primitive
 {
     use ForwardsCalls;
-
     use HasDelimiter;
 
     /** @use \Honed\Refine\Concerns\HasFilters<TModel, TBuilder> */
@@ -52,6 +51,7 @@ class Refine extends Primitive
      * @use \Honed\Core\Concerns\HasResource<TModel, TBuilder>
      */
     use HasResource;
+
     use HasScope;
 
     /** @use \Honed\Refine\Concerns\HasSearches<TModel, TBuilder> */

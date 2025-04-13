@@ -8,15 +8,12 @@ namespace Honed\Refine;
  * @template TModel of \Illuminate\Database\Eloquent\Model
  * @template TBuilder of \Illuminate\Database\Eloquent\Builder<TModel>
  *
- * @extends Filter<TModel, TBuilder>
+ * @extends BooleanFilter<TModel, TBuilder>
  */
-class PresenceFilter extends Filter
+class PresenceFilter extends BooleanFilter
 {
     /**
      * {@inheritdoc}
      */
-    public function setUp()
-    {
-        $this->presence();
-    }
+    protected $presence = true;
 }

@@ -196,6 +196,17 @@ trait HasOptions
     }
 
     /**
+     * Allow only one option to be used.
+     *
+     * @param  bool  $single
+     * @return $this
+     */
+    public function single($single = true)
+    {
+        return $this->multiple(! $single);
+    }
+
+    /**
      * Determine if multiple options are allowed.
      *
      * @return bool
@@ -206,6 +217,16 @@ trait HasOptions
     }
 
     /**
+     * Determine if only one option is allowed.
+     *
+     * @return bool
+     */
+    public function isSingle()
+    {
+        return ! $this->isMultiple();
+    }
+
+    /**
      * Activate the options and return the valid options.
      *
      * @param  mixed  $value
@@ -213,17 +234,24 @@ trait HasOptions
      */
     public function activateOptions($value)
     {
-        $options = (new Collection($this->getOptions()))
-            ->filter(static fn (Option $option) => $option->activate($value))
-            ->values();
+        $options = \array_values(
+            \array_filter(
+                $this->getOptions(),
+                // Set and activate the option
+                static fn (Option $option) => $option->activate($value)
+            )
+        );
 
         return match (true) {
             $this->isStrict() &&
-                $this->isMultiple() => $options->map->getValue()->all(),
+                $this->isMultiple() => \array_map(
+                    static fn (Option $option) => $option->getValue(),
+                    $options
+                ),
 
             $this->isMultiple() => Arr::wrap($value),
 
-            $this->isStrict() => $options->first()?->getValue(),
+            $this->isStrict() => Arr::first($options)?->getValue(),
 
             default => $value
         };

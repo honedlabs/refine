@@ -32,10 +32,11 @@
         "orchestra/testbench": "^9.0.0||^10.0.0",
         "pestphp/pest": "^3.5.1",
         "pestphp/pest-plugin-arch": "^3.0.0",
+        "pestphp/pest-plugin-laravel": "^3.0",
         "phpstan/extension-installer": "^1.4.3",
         "phpstan/phpstan-deprecation-rules": "^2.0.1",
         "phpstan/phpstan-phpunit": "^2.0.3",
-        "pestphp/pest-plugin-laravel": "^3.0"
+        "sti3bas/laravel-scout-array-driver": "^4.1"
     },
     "autoload": {
         "psr-4": {

@@ -14,7 +14,7 @@ use Illuminate\Database\Eloquent\Builder;
  *
  * @extends \Honed\Refine\Refine<TModel, TBuilder>
  */
-final class {{ class }} extends Refine implements Builds
+final class {{ class }} extends Refine
 {
     /**
      * Provide the refine with any necessary setup
@@ -31,38 +31,47 @@ final class {{ class }} extends Refine implements Builds
      * 
      * @return TBuilder|TModel|class-string<TModel>
      */
-    public function for()
+    public function defineResource()
     {
-        //
+        // return Model::query();
     }
     
     /**
-     * Define the filters for the refine.
-     *
-     * @return array<int,\Honed\Refine\Filter<TModel, TBuilder>>
+     * Define the filters available to refine the query.
+     * 
+     * @return array<int, \Honed\Refine\Filter<TModel, TBuilder>>
      */
-    public function filters()
+    public function defineFilters()
     {
-        return [];
+        /** @var array<int, \Honed\Refine\Filter<TModel, TBuilder>> */
+        return [
+            //
+        ];
     }
 
     /**
-     * Define the sorts for the refine.
-     *
-     * @return array<int,\Honed\Refine\Sort<TModel, TBuilder>>
+     * Define the sorts available to order the records.
+     * 
+     * @return array<int, \Honed\Refine\Sort<TModel, TBuilder>>
      */
-    public function sorts()
+    public function defineSorts()
     {
-        return [];
+        /** @var array<int, \Honed\Refine\Sort<TModel, TBuilder>> */
+        return [
+            //
+        ];
     }
 
     /**
-     * Define the searches for the refine.
-     *
+     * Define the columns to search on.
+     * 
      * @return array<int, \Honed\Refine\Search<TModel, TBuilder>>
      */
-    public function searches()
+    public function defineSearches()
     {
-        return [];
+        /** @var array<int, \Honed\Refine\Search<TModel, TBuilder>> */
+        return [
+            //
+        ];
     }
 }
