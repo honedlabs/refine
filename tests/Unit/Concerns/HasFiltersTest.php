@@ -12,6 +12,7 @@ beforeEach(function () {
 
 it('is empty by default', function () {
     expect($this->test)
+        ->isFiltering()->toBeFalse()
         ->hasFilters()->toBeFalse()
         ->getFilters()->toBeEmpty();
 });

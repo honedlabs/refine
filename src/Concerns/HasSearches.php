@@ -106,6 +106,16 @@ trait HasSearches
     }
 
     /**
+     * Determine if there is a search being applied.
+     *
+     * @return bool
+     */
+    public function isSearching()
+    {
+        return filled($this->getTerm());
+    }
+
+    /**
      * Set the query parameter to identify the search string.
      *
      * @param  string  $searchKey

@@ -12,6 +12,7 @@ beforeEach(function () {
 
 it('is empty by default', function () {
     expect($this->test)
+        ->isSearching()->toBeFalse()
         ->hasSearches()->toBeFalse()
         ->getSearches()->toBeEmpty();
 });

@@ -30,6 +30,11 @@ it('executes pipeline', function () {
         ->request($this->request)
         ->refine();
 
+    expect($refine)
+        ->isSearching()->toBeTrue()
+        ->isFiltering()->toBeTrue()
+        ->isSorting()->toBeTrue();
+
     expect($refine->getResource()->getQuery())
         ->wheres->scoped(fn ($wheres) => $wheres
         ->toBeArray()

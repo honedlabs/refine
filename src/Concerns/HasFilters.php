@@ -78,6 +78,19 @@ trait HasFilters
     }
 
     /**
+     * Determine if there is a filter being applied.
+     *
+     * @return bool
+     */
+    public function isFiltering()
+    {
+        return (bool) Arr::first(
+            $this->getFilters(),
+            static fn (Filter $filter) => $filter->isActive()
+        );
+    }
+
+    /**
      * Set the instance to not provide the filters.
      *
      * @return $this

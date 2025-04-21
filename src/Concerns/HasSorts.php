@@ -85,6 +85,19 @@ trait HasSorts
     }
 
     /**
+     * Determine if there is a sort being applied.
+     *
+     * @return bool
+     */
+    public function isSorting()
+    {
+        return (bool) Arr::first(
+            $this->getSorts(),
+            static fn (Sort $sort) => $sort->isActive()
+        );
+    }
+
+    /**
      * Set the query parameter to identify the sort to apply.
      *
      * @param  string  $sortKey
