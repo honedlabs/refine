@@ -21,8 +21,12 @@ it('has qualifier', function () {
         ->qualifies(false)->toBe($this->test)
         ->getQualifier()->toBeFalse()
         ->isQualifying()->toBeFalse()
+        // Qualifies with boolean
+        ->qualifies()->toBe($this->test)
+        ->getQualifier()->toBeTrue()
+        ->isQualifying()->toBeTrue()
         // If it has a custom qualifier
-        ->qualifies('test')->toBe($this->test)
+        ->on('test')->toBe($this->test)
         ->getQualifier()->toBe('test')
         ->isQualifying()->toBeTrue();
 });

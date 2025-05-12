@@ -27,6 +27,17 @@ trait HasQualifier
     }
 
     /**
+     * Set the table to qualify against.
+     *
+     * @param  string  $table
+     * @return $this
+     */
+    public function on($table)
+    {
+        return $this->qualifies($table);
+    }
+
+    /**
      * Get the qualifier.
      *
      * @return bool|string
