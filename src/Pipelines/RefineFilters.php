@@ -7,17 +7,16 @@ namespace Honed\Refine\Pipelines;
 use Honed\Refine\Refine;
 
 /**
- * @template TModel of \Illuminate\Database\Eloquent\Model
- * @template TBuilder of \Illuminate\Database\Eloquent\Builder<TModel>
+ * @template T of \Honed\Refine\Refine = \Honed\Refine\Refine
  */
 class RefineFilters
 {
     /**
      * Apply the filters to the query.
      *
-     * @param  \Honed\Refine\Refine<TModel, TBuilder>  $refine
-     * @param  \Closure(Refine<TModel, TBuilder>): Refine<TModel, TBuilder>  $next
-     * @return \Honed\Refine\Refine<TModel, TBuilder>
+     * @param  T  $refine
+     * @param  \Closure(T): T  $next
+     * @return T
      */
     public function __invoke($refine, $next)
     {
@@ -39,8 +38,8 @@ class RefineFilters
     /**
      * The filters to use.
      *
-     * @param  \Honed\Refine\Refine<TModel, TBuilder>  $refine
-     * @return array<int, \Honed\Refine\Filter<TModel, TBuilder>>
+     * @param  T  $refine
+     * @return array<int, \Honed\Refine\Filter>
      */
     public function filters($refine)
     {

@@ -1,25 +1,24 @@
 <?php
 
-declare(strict_types=1);
-
 namespace {{ namespace }};
 
-use Honed\Refine\Contracts\DefinesOptions;
 use Honed\Refine\Filter;
 use Illuminate\Database\Eloquent\Builder;
+use Honed\Refine\Contracts\FromOptions;
+use Honed\Core\Contracts\FromQuery;
 
 /**
- * @template TModel of \Illuminate\Database\Eloquent\Model
- * @template TBuilder of \Illuminate\Database\Eloquent\Builder<TModel>
+ * @template TModel of \Illuminate\Database\Eloquent\Model = \Illuminate\Database\Eloquent\Model
+ * @template TBuilder of \Illuminate\Database\Eloquent\Builder<TModel> = \Illuminate\Database\Eloquent\Builder<TModel>
  *
  * @extends \Honed\Refine\Filter<TModel, TBuilder>
  */
-final class {{ class }} extends Filter
+class {{ class }} extends Filter
 {
     /**
      *  Create a new filter instance.
      *
-     * @return static
+     *  @return static
      */
     public static function new()
     {
@@ -34,15 +33,5 @@ final class {{ class }} extends Filter
     public function setUp()
     {
         //
-    }
-
-    /**
-     * Register the query expression to resolve the filter.
-     *
-     * @return \Closure(TBuilder $builder, mixed $value):TBuilder
-     */
-    public function defineQuery()
-    {
-        return fn ($builder, $value) => $builder;
     }
 }

@@ -1,29 +1,22 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Honed\Refine;
 
-use Honed\Refine\Support\Constants;
-
 /**
- * @template TModel of \Illuminate\Database\Eloquent\Model
- * @template TBuilder of \Illuminate\Database\Eloquent\Builder<TModel>
+ * @template TModel of \Illuminate\Database\Eloquent\Model = \Illuminate\Database\Eloquent\Model
+ * @template TBuilder of \Illuminate\Database\Eloquent\Builder<TModel> = \Illuminate\Database\Eloquent\Builder<TModel>
  *
- * @extends Sort<TModel, TBuilder>
+ * @extends \Honed\Refine\Sort<TModel, TBuilder>
  */
 class AscSort extends Sort
 {
     /**
      * {@inheritdoc}
      */
-    protected $fixed = Constants::ASCENDING;
+    protected $fixed = 'asc';
 
     /**
      * {@inheritdoc}
      */
-    public function defineType()
-    {
-        return Constants::ASCENDING;
-    }
+    protected $type = 'asc';
 }

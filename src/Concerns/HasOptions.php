@@ -1,9 +1,8 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Honed\Refine\Concerns;
 
+use Honed\Refine\Contracts\FromOptions;
 use Honed\Refine\Option;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
@@ -23,6 +22,13 @@ trait HasOptions
      * @var bool|null
      */
     protected $strict;
+
+    /**
+     * Whether to restrict options to only those provided by default.
+     *
+     * @var bool
+     */
+    protected static $useStrict = false;
 
     /**
      * Whether to accept multiple values.
@@ -47,19 +53,9 @@ trait HasOptions
     }
 
     /**
-     * Define the actions for the instance.
-     *
-     * @return class-string<\BackedEnum>|array<int|string,bool|float|int|string|null|\Honed\Refine\Option>
-     */
-    public function defineOptions()
-    {
-        return [];
-    }
-
-    /**
      * Create options from a value.
      *
-     * @template TValue of bool|float|int|string|null|\Honed\Refine\Option
+     * @template TValue of scalar|null|\Honed\Refine\Option
      *
      * @param  class-string<\BackedEnum>|array<int|string,TValue>|\Illuminate\Support\Collection<int|string,TValue>  $options
      * @return array<int,\Honed\Refine\Option>
@@ -107,35 +103,11 @@ trait HasOptions
             return $this->options;
         }
 
-        if (filled($this->defineOptions())) {
-            return $this->options
-                ??= $this->createOptions($this->defineOptions());
+        if ($this instanceof FromOptions) {
+            return $this->options = $this->createOptions($this->optionsFrom());
         }
 
         return [];
-    }
-
-    /**
-     * Determine if the filter has options.
-     *
-     * @return bool
-     */
-    public function hasOptions()
-    {
-        return filled($this->getOptions());
-    }
-
-    /**
-     * Get the options as an array.
-     *
-     * @return array<int,mixed>
-     */
-    public function optionsToArray()
-    {
-        return \array_map(
-            static fn (Option $option) => $option->toArray(),
-            $this->getOptions()
-        );
     }
 
     /**
@@ -169,17 +141,19 @@ trait HasOptions
      */
     public function isStrict()
     {
-        return $this->strict ?? static::isStrictByDefault();
+        return $this->strict ?? static::$useStrict;
     }
 
     /**
-     * Determine if only the options provided are allowed.
+     * Indicate that the the options should be strict, and only the options 
+     * provided are allowed.
      *
-     * @return bool
+     * @param  bool  $strict
+     * @return void
      */
-    public static function isStrictByDefault()
+    public static function shouldBeStrict($strict = true)
     {
-        return (bool) config('refine.strict', false);
+        static::$useStrict = $strict;
     }
 
     /**
@@ -255,5 +229,19 @@ trait HasOptions
 
             default => $value
         };
+    }
+
+
+    /**
+     * Get the options as an array.
+     *
+     * @return array<int,mixed>
+     */
+    public function optionsToArray()
+    {
+        return \array_map(
+            static fn (Option $option) => $option->toArray(),
+            $this->getOptions()
+        );
     }
 }

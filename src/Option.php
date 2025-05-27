@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Honed\Refine;
 
 use Honed\Core\Concerns\HasLabel;

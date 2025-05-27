@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 use Honed\Refine\Filter;
-use Honed\Refine\Support\Constants;
 use Honed\Refine\Tests\Stubs\Status;
 
 beforeEach(function () {
@@ -31,49 +30,49 @@ it('has operator', function () {
 
 it('can be raw', function () {
     expect($this->filter)
-        ->getType()->toBe(Constants::FILTER)
+        ->getType()->toBe('filter')
         ->interpretsAs()->toBeNull();
 });
 
 it('can be boolean', function () {
     expect($this->filter)
         ->boolean()->toBe($this->filter)
-        ->getType()->toBe(Constants::BOOLEAN_FILTER)
+        ->getType()->toBe('boolean')
         ->interpretsAs()->toBe('boolean');
 });
 
 it('can be date', function () {
     expect($this->filter)
         ->date()->toBe($this->filter)
-        ->getType()->toBe(Constants::DATE_FILTER)
+        ->getType()->toBe('date')
         ->interpretsAs()->toBe('date');
 });
 
 it('can be date time', function () {
     expect($this->filter)
         ->datetime()->toBe($this->filter)
-        ->getType()->toBe(Constants::DATETIME_FILTER)
+        ->getType()->toBe('datetime')
         ->interpretsAs()->toBe('datetime');
 });
 
 it('can be float', function () {
     expect($this->filter)
         ->float()->toBe($this->filter)
-        ->getType()->toBe(Constants::NUMBER_FILTER)
+        ->getType()->toBe('number')
         ->interpretsAs()->toBe('float');
 });
 
 it('can be integer', function () {
     expect($this->filter)
         ->int()->toBe($this->filter)
-        ->getType()->toBe(Constants::NUMBER_FILTER)
+        ->getType()->toBe('number')
         ->interpretsAs()->toBe('int');
 });
 
 it('can be array multiple', function () {
     expect($this->filter)
         ->multiple()->toBe($this->filter)
-        ->getType()->toBe(Constants::SET_FILTER)
+        ->getType()->toBe('multiple')
         ->interpretsAs()->toBe('array')
         ->isMultiple()->toBeTrue();
 });
@@ -81,21 +80,21 @@ it('can be array multiple', function () {
 it('can be text', function () {
     expect($this->filter)
         ->text()->toBe($this->filter)
-        ->getType()->toBe(Constants::TEXT_FILTER)
+        ->getType()->toBe('text')
         ->interpretsAs()->toBe('string');
 });
 
 it('can be time', function () {
     expect($this->filter)
         ->time()->toBe($this->filter)
-        ->getType()->toBe(Constants::TIME_FILTER)
+        ->getType()->toBe('time')
         ->interpretsAs()->toBe('time');
 });
 
 it('can be presence', function () {
     expect($this->filter)
         ->presence()->toBe($this->filter)
-        ->getType()->toBe(Constants::BOOLEAN_FILTER)
+        ->getType()->toBe('boolean')
         ->interpretsAs()->toBe('boolean')
         ->isPresence()->toBeTrue();
 });

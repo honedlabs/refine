@@ -1,17 +1,14 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Honed\Refine;
 
 use Honed\Refine\Concerns\HasSearch;
-use Honed\Refine\Support\Constants;
 
 /**
- * @template TModel of \Illuminate\Database\Eloquent\Model
- * @template TBuilder of \Illuminate\Database\Eloquent\Builder<TModel>
+ * @template TModel of \Illuminate\Database\Eloquent\Model = \Illuminate\Database\Eloquent\Model
+ * @template TBuilder of \Illuminate\Database\Eloquent\Builder<TModel> = \Illuminate\Database\Eloquent\Builder<TModel>
  *
- * @extends Refiner<TModel, TBuilder>
+ * @extends \Honed\Refine\Refiner<TModel, TBuilder>
  */
 class Search extends Refiner
 {
@@ -29,13 +26,8 @@ class Search extends Refiner
 
     /**
      * {@inheritdoc}
-     *
-     * @return string
      */
-    public function defineType()
-    {
-        return Constants::SEARCH;
-    }
+    protected $type = 'search';
 
     /**
      * Set the query boolean to use for the search.

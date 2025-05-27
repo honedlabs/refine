@@ -1,24 +1,23 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Honed\Refine\Concerns;
 
 use Honed\Refine\Search;
 use Illuminate\Support\Arr;
 
-/**
- * @template TModel of \Illuminate\Database\Eloquent\Model
- * @template TBuilder of \Illuminate\Database\Eloquent\Builder<TModel>
- *
- * @phpstan-require-extends \Honed\Core\Primitive
- */
 trait HasSearches
 {
     /**
+     * Whether the searches should be applied.
+     *
+     * @var bool
+     */
+    protected $search = true;
+
+    /**
      * List of the searches.
      *
-     * @var array<int,\Honed\Refine\Search<TModel, TBuilder>>
+     * @var array<int,\Honed\Refine\Search>
      */
     protected $searches = [];
 
@@ -30,11 +29,25 @@ trait HasSearches
     protected $searchKey;
 
     /**
+     * The default query parameter to identify the search string.
+     *
+     * @var string
+     */
+    protected static $useSearchKey = 'search';
+
+    /**
      * Whether the search columns can be toggled.
      *
      * @var bool|null
      */
     protected $match;
+
+    /**
+     * Whether the search columns can be toggled by default.
+     *
+     * @var bool|null
+     */
+    protected static $shouldMatch = false;
 
     /**
      * The query parameter to identify the columns to search on.
@@ -44,6 +57,13 @@ trait HasSearches
     protected $matchKey;
 
     /**
+     * The default query parameter to identify the columns to search on.
+     *
+     * @var string
+     */
+    protected static $useMatchKey = 'match';
+
+    /**
      * The search term as a string without replacements.
      *
      * @var string|null
@@ -51,14 +71,87 @@ trait HasSearches
     protected $term;
 
     /**
-     * Merge a set of searches with the existing searches.
+     * Set whether the searchs should be applied.
      *
-     * @param  \Honed\Refine\Search<TModel, TBuilder>|iterable<int, \Honed\Refine\Search<TModel, TBuilder>>  ...$searches
+     * @param  bool  $search
      * @return $this
      */
-    public function searches(...$searches)
+    public function search($search = true)
     {
-        /** @var array<int, \Honed\Refine\Search<TModel, TBuilder>> $searches */
+        $this->search = $search;
+
+        return $this;
+    }
+
+    /**
+     * Set the searchs to not be applied.
+     *
+     * @return $this
+     */
+    public function doNotSearch()
+    {
+        return $this->search(false);
+    }
+
+    /**
+     * Set the searchs to not be applied.
+     *
+     * @return $this
+     */
+    public function dontSearch()
+    {
+        return $this->doNotSearch();
+    }
+
+    /**
+     * Determine if the searchs should be applied.
+     *
+     * @return bool
+     */
+    public function shouldSearch()
+    {
+        return $this->search;
+    }
+
+    /**
+     * Determine if the searchs should not be applied.
+     *
+     * @return bool
+     */
+    public function shouldNotSearch()
+    {
+        return ! $this->shouldSearch();
+    }
+
+    /**
+     * Determine if the searchs should not be applied.
+     *
+     * @return bool
+     */
+    public function shouldntSearch()
+    {
+        return $this->shouldNotSearch();
+    }
+
+    /**
+     * Define the searches for the instance.
+     *
+     * @return array<int, \Honed\Refine\Search>
+     */
+    public function searches()
+    {
+        return [];
+    }
+
+    /**
+     * Merge a set of searches with the existing searches.
+     *
+     * @param  \Honed\Refine\Search|iterable<int, \Honed\Refine\Search>  ...$searches
+     * @return $this
+     */
+    public function withSearches(...$searches)
+    {
+        /** @var array<int, \Honed\Refine\Search> $searches */
         $searches = Arr::flatten($searches);
 
         $this->searches = \array_merge($this->searches, $searches);
@@ -67,52 +160,22 @@ trait HasSearches
     }
 
     /**
-     * Define the searches for the instance.
-     *
-     * @return array<int, \Honed\Refine\Search<TModel, TBuilder>>
-     */
-    public function defineSearches()
-    {
-        return [];
-    }
-
-    /**
      * Retrieve the columns to be used for searching.
      *
-     * @return array<int,\Honed\Refine\Search<TModel, TBuilder>>
+     * @return array<int,\Honed\Refine\Search>
      */
     public function getSearches()
     {
-        if (! $this->providesSearches()) {
+        if ($this->shouldNotSearch()) {
             return [];
         }
 
         return once(fn () => \array_values(
             \array_filter(
-                \array_merge($this->defineSearches(), $this->searches),
+                \array_merge($this->searches(), $this->searches),
                 static fn (Search $search) => $search->isAllowed()
             )
         ));
-    }
-
-    /**
-     * Determines if the instance has any searches.
-     *
-     * @return bool
-     */
-    public function hasSearches()
-    {
-        return filled($this->getSearches());
-    }
-
-    /**
-     * Determine if there is a search being applied.
-     *
-     * @return bool
-     */
-    public function isSearching()
-    {
-        return filled($this->getTerm());
     }
 
     /**
@@ -135,17 +198,18 @@ trait HasSearches
      */
     public function getSearchKey()
     {
-        return $this->searchKey ?? static::getDefaultSearchKey();
+        return $this->searchKey ?? static::$useSearchKey;
     }
 
     /**
-     * Get the default query parameter to identify the search.
+     * Set the default query parameter to identify the search.
      *
-     * @return string
+     * @param  string  $searchKey
+     * @return void
      */
-    public static function getDefaultSearchKey()
+    public static function useSearchKey($searchKey = 'search')
     {
-        return type(config('refine.search_key', 'search'))->asString();
+        static::$useSearchKey = $searchKey;
     }
 
     /**
@@ -168,28 +232,29 @@ trait HasSearches
      */
     public function getMatchKey()
     {
-        return $this->matchKey ?? static::getDefaultMatchKey();
+        return $this->matchKey ?? static::$useMatchKey;
     }
 
     /**
-     * Get the default query parameter to identify the columns to search.
+     * Set the default query parameter to identify the columns to search.
      *
-     * @return string
+     * @param  string  $matchKey
+     * @return void
      */
-    public static function getDefaultMatchKey()
+    public static function useMatchKey($matchKey = 'match')
     {
-        return type(config('refine.match_key', 'match'))->asString();
+        static::$useMatchKey = $matchKey;
     }
 
     /**
      * Set whether the search columns can be toggled.
      *
-     * @param  bool|null  $matches
+     * @param  bool|null  $match
      * @return $this
      */
-    public function matches($matches = true)
+    public function match($match = true)
     {
-        $this->match = $matches;
+        $this->match = $match;
 
         return $this;
     }
@@ -199,49 +264,20 @@ trait HasSearches
      *
      * @return bool
      */
-    public function isMatching()
+    public function matches()
     {
-        return (bool) ($this->match ?? static::isMatchingByDefault());
+        return (bool) ($this->match ?? static::$shouldMatch);
     }
 
     /**
      * Determine if matching is enabled from the config.
      *
-     * @return bool
+     * @param  bool  $match
+     * @return void
      */
-    public static function isMatchingByDefault()
+    public static function shouldMatch($match = true)
     {
-        return (bool) config('refine.match', false);
-    }
-
-    /**
-     * Set the instance to not provide the searches.
-     *
-     * @return $this
-     */
-    public function exceptSearches()
-    {
-        return $this->except('searches');
-    }
-
-    /**
-     * Set the instance to provide only searches.
-     *
-     * @return $this
-     */
-    public function onlySearches()
-    {
-        return $this->only('searches');
-    }
-
-    /**
-     * Determine if the instance provides the searches.
-     *
-     * @return bool
-     */
-    public function providesSearches()
-    {
-        return $this->has('searches');
+        static::$shouldMatch = $match;
     }
 
     /**
@@ -268,13 +304,23 @@ trait HasSearches
     }
 
     /**
+     * Determine if there is a search being applied.
+     *
+     * @return bool
+     */
+    public function isSearching()
+    {
+        return filled($this->getTerm());
+    }
+
+    /**
      * Get the searches as an array.
      *
      * @return array<int,array<string,mixed>>
      */
     public function searchesToArray()
     {
-        if (! $this->isMatching()) {
+        if (! $this->matches()) {
             return [];
         }
 

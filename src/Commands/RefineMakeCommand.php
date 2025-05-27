@@ -2,35 +2,35 @@
 
 declare(strict_types=1);
 
-namespace Honed\Refine\Console\Commands;
+namespace Honed\Refine\Commands;
 
 use Illuminate\Console\GeneratorCommand;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputOption;
 
-#[AsCommand(name: 'make:filter')]
-class FilterMakeCommand extends GeneratorCommand
+#[AsCommand(name: 'make:refine')]
+class RefineMakeCommand extends GeneratorCommand
 {
     /**
      * The console command name.
      *
      * @var string
      */
-    protected $name = 'make:filter';
+    protected $name = 'make:refine';
 
     /**
      * The type of class being generated.
      *
      * @var string
      */
-    protected $description = 'Create a new filter class';
+    protected $description = 'Create a new refine class';
 
     /**
      * The type of class being generated.
      *
      * @var string
      */
-    protected $type = 'Filter';
+    protected $type = 'Refine';
 
     /**
      * Get the stub file for the generator.
@@ -39,7 +39,7 @@ class FilterMakeCommand extends GeneratorCommand
      */
     protected function getStub()
     {
-        return $this->resolveStubPath('/stubs/honed.filter.stub');
+        return $this->resolveStubPath('/stubs/honed.refine.stub');
     }
 
     /**
@@ -63,7 +63,7 @@ class FilterMakeCommand extends GeneratorCommand
      */
     protected function getDefaultNamespace($rootNamespace)
     {
-        return $rootNamespace.'\Refiners\Filters';
+        return $rootNamespace.'\Refiners';
     }
 
     /**
@@ -72,7 +72,7 @@ class FilterMakeCommand extends GeneratorCommand
     protected function getOptions(): array
     {
         return [
-            ['force', 'f', InputOption::VALUE_NONE, 'Create the class even if the filter already exists'],
+            ['force', 'f', InputOption::VALUE_NONE, 'Create the class even if the refine already exists'],
         ];
     }
 
@@ -86,7 +86,7 @@ class FilterMakeCommand extends GeneratorCommand
         return [
             'name' => [
                 'What should the '.strtolower($this->type).' be named?',
-                'E.g. DateFilter',
+                'E.g. UserRefiner',
             ],
         ];
     }

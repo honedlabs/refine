@@ -1,12 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
 namespace {{ namespace }};
 
-use Honed\Core\Contracts\Builds;
+use Honed\Refine\Refine;
 use Honed\Refine\Filter;
-use Illuminate\Database\Eloquent\Builder;
+use Honed\Refine\Sort;
+use Honed\Refine\Search;
+use Honed\Refine\Contracts\RefinesAfter;
+use Honed\Refine\Contracts\RefinesBefore;
 
 /**
  * @template TModel of \Illuminate\Database\Eloquent\Model
@@ -14,7 +15,7 @@ use Illuminate\Database\Eloquent\Builder;
  *
  * @extends \Honed\Refine\Refine<TModel, TBuilder>
  */
-final class {{ class }} extends Refine
+class {{ class }} extends Refine
 {
     /**
      * Provide the refine with any necessary setup
@@ -31,7 +32,7 @@ final class {{ class }} extends Refine
      * 
      * @return TBuilder|TModel|class-string<TModel>
      */
-    public function defineResource()
+    public function resource()
     {
         // return Model::query();
     }
@@ -41,7 +42,7 @@ final class {{ class }} extends Refine
      * 
      * @return array<int, \Honed\Refine\Filter<TModel, TBuilder>>
      */
-    public function defineFilters()
+    public function filters()
     {
         /** @var array<int, \Honed\Refine\Filter<TModel, TBuilder>> */
         return [
@@ -54,7 +55,7 @@ final class {{ class }} extends Refine
      * 
      * @return array<int, \Honed\Refine\Sort<TModel, TBuilder>>
      */
-    public function defineSorts()
+    public function sorts()
     {
         /** @var array<int, \Honed\Refine\Sort<TModel, TBuilder>> */
         return [
@@ -67,7 +68,7 @@ final class {{ class }} extends Refine
      * 
      * @return array<int, \Honed\Refine\Search<TModel, TBuilder>>
      */
-    public function defineSearches()
+    public function searches()
     {
         /** @var array<int, \Honed\Refine\Search<TModel, TBuilder>> */
         return [

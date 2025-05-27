@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Honed\Refine;
 
 use Carbon\Carbon;
@@ -12,13 +10,12 @@ use Honed\Core\Concerns\Validatable;
 use Honed\Refine\Concerns\HasDelimiter;
 use Honed\Refine\Concerns\HasOptions;
 use Honed\Refine\Concerns\HasSearch;
-use Honed\Refine\Support\Constants;
 
 /**
- * @template TModel of \Illuminate\Database\Eloquent\Model
- * @template TBuilder of \Illuminate\Database\Eloquent\Builder<TModel>
+ * @template TModel of \Illuminate\Database\Eloquent\Model = \Illuminate\Database\Eloquent\Model
+ * @template TBuilder of \Illuminate\Database\Eloquent\Builder<TModel> = \Illuminate\Database\Eloquent\Builder<TModel>
  *
- * @extends Refiner<TModel, TBuilder>
+ * @extends \Honed\Refine\Refiner<TModel, TBuilder>
  */
 class Filter extends Refiner
 {
@@ -28,12 +25,7 @@ class Filter extends Refiner
         multiple as protected baseMultiple;
     }
     use HasScope;
-
-    /**
-     * @use HasSearch<TModel, TBuilder>
-     */
     use HasSearch;
-
     use InterpretsRequest;
     use Validatable;
 
@@ -60,13 +52,8 @@ class Filter extends Refiner
 
     /**
      * {@inheritdoc}
-     *
-     * @return string
      */
-    public function defineType()
-    {
-        return Constants::FILTER;
-    }
+    protected $type = 'filter';
 
     /**
      * Set the filter to be for boolean values.
@@ -365,7 +352,7 @@ class Filter extends Refiner
      */
     public function transformParameter($value)
     {
-        if ($this->hasOptions()) {
+        if (filled($this->getOptions())) {
             return $this->activateOptions($value);
         }
 

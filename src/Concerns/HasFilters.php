@@ -1,36 +1,108 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Honed\Refine\Concerns;
 
 use Honed\Refine\Filter;
 use Illuminate\Support\Arr;
 
-/**
- * @template TModel of \Illuminate\Database\Eloquent\Model
- * @template TBuilder of \Illuminate\Database\Eloquent\Builder<TModel>
- *
- * @phpstan-require-extends \Honed\Core\Primitive
- */
 trait HasFilters
 {
     /**
+     * Whether the filters should be applied.
+     *
+     * @var bool
+     */
+    protected $filter = true;
+
+    /**
      * List of the filters.
      *
-     * @var array<int,\Honed\Refine\Filter<TModel, TBuilder>>
+     * @var array<int,\Honed\Refine\Filter>
      */
     protected $filters = [];
 
     /**
-     * Merge a set of filters with the existing filters.
+     * Set whether the filters should be applied.
      *
-     * @param  \Honed\Refine\Filter<TModel, TBuilder>|iterable<int, \Honed\Refine\Filter<TModel, TBuilder>>  ...$filters
+     * @param  bool  $filter
      * @return $this
      */
-    public function filters(...$filters)
+    public function filter($filter = true)
     {
-        /** @var array<int, \Honed\Refine\Filter<TModel, TBuilder>> $filters */
+        $this->filter = $filter;
+
+        return $this;
+    }
+
+    /**
+     * Set the filters to not be applied.
+     *
+     * @return $this
+     */
+    public function doNotFilter()
+    {
+        return $this->filter(false);
+    }
+
+    /**
+     * Set the filters to not be applied.
+     *
+     * @return $this
+     */
+    public function dontFilter()
+    {
+        return $this->doNotFilter();
+    }
+
+    /**
+     * Determine if the filters should be applied.
+     *
+     * @return bool
+     */
+    public function shouldFilter()
+    {
+        return $this->filter;
+    }
+
+    /**
+     * Determine if the filters should not be applied.
+     *
+     * @return bool
+     */
+    public function shouldNotFilter()
+    {
+        return ! $this->shouldFilter();
+    }
+
+    /**
+     * Determine if the filters should not be applied.
+     *
+     * @return bool
+     */
+    public function shouldntFilter()
+    {
+        return $this->shouldNotFilter();
+    }
+
+    /**
+     * Define the filters for the instance.
+     *
+     * @return array<int,\Honed\Refine\Filter>
+     */
+    public function filters()
+    {
+        return [];
+    }
+
+    /**
+     * Merge a set of filters with the existing filters.
+     *
+     * @param  \Honed\Refine\Filter|iterable<int, \Honed\Refine\Filter>  ...$filters
+     * @return $this
+     */
+    public function withFilters(...$filters)
+    {
+        /** @var array<int, \Honed\Refine\Filter> $filters */
         $filters = Arr::flatten($filters);
 
         $this->filters = \array_merge($this->filters, $filters);
@@ -38,43 +110,25 @@ trait HasFilters
         return $this;
     }
 
-    /**
-     * Define the filters for the instance.
-     *
-     * @return array<int,\Honed\Refine\Filter<TModel, TBuilder>>
-     */
-    public function defineFilters()
-    {
-        return [];
-    }
+
 
     /**
      * Retrieve the filters.
      *
-     * @return array<int,\Honed\Refine\Filter<TModel, TBuilder>>
+     * @return array<int,\Honed\Refine\Filter>
      */
     public function getFilters()
     {
-        if (! $this->providesFilters()) {
+        if ($this->shouldNotFilter()) {
             return [];
         }
 
         return once(fn () => \array_values(
             \array_filter(
-                \array_merge($this->defineFilters(), $this->filters),
+                \array_merge($this->filters(), $this->filters),
                 static fn (Filter $filter) => $filter->isAllowed()
             )
         ));
-    }
-
-    /**
-     * Determines if the instance has any filters.
-     *
-     * @return bool
-     */
-    public function hasFilters()
-    {
-        return filled($this->getFilters());
     }
 
     /**
@@ -88,36 +142,6 @@ trait HasFilters
             $this->getFilters(),
             static fn (Filter $filter) => $filter->isActive()
         );
-    }
-
-    /**
-     * Set the instance to not provide the filters.
-     *
-     * @return $this
-     */
-    public function exceptFilters()
-    {
-        return $this->except('filters');
-    }
-
-    /**
-     * Set the instance to provide only filters.
-     *
-     * @return $this
-     */
-    public function onlyFilters()
-    {
-        return $this->only('filters');
-    }
-
-    /**
-     * Determine if the instance provides the filters.
-     *
-     * @return bool
-     */
-    public function providesFilters()
-    {
-        return $this->has('filters');
     }
 
     /**

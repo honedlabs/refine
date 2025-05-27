@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Honed\Refine\Console\Commands;
+namespace Honed\Refine\Commands;
 
 use Illuminate\Console\GeneratorCommand;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -63,7 +63,7 @@ class SortMakeCommand extends GeneratorCommand
      */
     protected function getDefaultNamespace($rootNamespace)
     {
-        return $rootNamespace.'\Refiners\Sorts';
+        return $rootNamespace.'\Sorts';
     }
 
     /**

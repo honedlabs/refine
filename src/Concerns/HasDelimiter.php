@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Honed\Refine\Concerns;
 
 trait HasDelimiter
@@ -12,6 +10,13 @@ trait HasDelimiter
      * @var string|null
      */
     protected $delimiter;
+
+    /**
+     * The default delimiter to use for parsing array values.
+     *
+     * @var string
+     */
+    protected static $useDelimiter = ',';
 
     /**
      * Set the delimiter.
@@ -27,32 +32,23 @@ trait HasDelimiter
     }
 
     /**
-     * Determine if the delimiter is set.
-     *
-     * @return bool
-     */
-    public function hasDelimiter()
-    {
-        return isset($this->delimiter);
-    }
-
-    /**
      * Get the delimiter.
      *
      * @return string
      */
     public function getDelimiter()
     {
-        return $this->delimiter ?? static::getDefaultDelimiter();
+        return $this->delimiter ?? static::$useDelimiter;
     }
 
     /**
-     * Get the default delimiter.
+     * Set the delimiter to use by default.
      *
-     * @return string
+     * @param  string  $delimiter
+     * @return void
      */
-    public static function getDefaultDelimiter()
+    public static function useDelimiter($delimiter = ',')
     {
-        return type(config('refine.delimiter', ','))->asString();
+        static::$useDelimiter = $delimiter;
     }
 }

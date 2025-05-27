@@ -2,35 +2,35 @@
 
 declare(strict_types=1);
 
-namespace Honed\Refine\Console\Commands;
+namespace Honed\Refine\Commands;
 
 use Illuminate\Console\GeneratorCommand;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputOption;
 
-#[AsCommand(name: 'make:refine')]
-class RefineMakeCommand extends GeneratorCommand
+#[AsCommand(name: 'make:search')]
+class SearchMakeCommand extends GeneratorCommand
 {
     /**
      * The console command name.
      *
      * @var string
      */
-    protected $name = 'make:refine';
+    protected $name = 'make:search';
 
     /**
      * The type of class being generated.
      *
      * @var string
      */
-    protected $description = 'Create a new refine class';
+    protected $description = 'Create a new search class';
 
     /**
      * The type of class being generated.
      *
      * @var string
      */
-    protected $type = 'Refine';
+    protected $type = 'Search';
 
     /**
      * Get the stub file for the generator.
@@ -39,7 +39,7 @@ class RefineMakeCommand extends GeneratorCommand
      */
     protected function getStub()
     {
-        return $this->resolveStubPath('/stubs/honed.refine.stub');
+        return $this->resolveStubPath('/stubs/honed.search.stub');
     }
 
     /**
@@ -63,7 +63,7 @@ class RefineMakeCommand extends GeneratorCommand
      */
     protected function getDefaultNamespace($rootNamespace)
     {
-        return $rootNamespace.'\Refiners';
+        return $rootNamespace.'\Searches';
     }
 
     /**
@@ -72,7 +72,7 @@ class RefineMakeCommand extends GeneratorCommand
     protected function getOptions(): array
     {
         return [
-            ['force', 'f', InputOption::VALUE_NONE, 'Create the class even if the refine already exists'],
+            ['force', 'f', InputOption::VALUE_NONE, 'Create the class even if the search already exists'],
         ];
     }
 
@@ -86,7 +86,7 @@ class RefineMakeCommand extends GeneratorCommand
         return [
             'name' => [
                 'What should the '.strtolower($this->type).' be named?',
-                'E.g. DateRefine',
+                'E.g. NameSearch',
             ],
         ];
     }

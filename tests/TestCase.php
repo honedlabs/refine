@@ -10,10 +10,13 @@ use Honed\Refine\Tests\Stubs\Status;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Support\Facades\Schema;
+use Orchestra\Testbench\Concerns\WithWorkbench;
 use Orchestra\Testbench\TestCase as Orchestra;
 
 class TestCase extends Orchestra
 {
+    use WithWorkbench;
+    
     /**
      * Get the package providers.
      *

@@ -5,7 +5,7 @@ declare(strict_types=1);
 use Illuminate\Support\Facades\File;
 
 beforeEach(function () {
-    File::cleanDirectory(app_path('Refiners'));
+    File::cleanDirectory(app_path('Searches'));
 });
 
 it('makes searches', function () {
@@ -13,7 +13,7 @@ it('makes searches', function () {
         'name' => 'NameSearch',
     ])->assertSuccessful();
 
-    $this->assertFileExists(app_path('Refiners/Searches/NameSearch.php'));
+    $this->assertFileExists(app_path('Searches/NameSearch.php'));
 });
 
 it('prompts for a search name', function () {
@@ -21,5 +21,5 @@ it('prompts for a search name', function () {
         ->expectsQuestion('What should the search be named?', 'NameSearch')
         ->assertSuccessful();
 
-    $this->assertFileExists(app_path('Refiners/Searches/NameSearch.php'));
+    $this->assertFileExists(app_path('Searches/NameSearch.php'));
 });

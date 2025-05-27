@@ -1,36 +1,34 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Honed\Refine\Console\Commands;
+namespace Honed\Refine\Commands;
 
 use Illuminate\Console\GeneratorCommand;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputOption;
 
-#[AsCommand(name: 'make:search')]
-class SearchMakeCommand extends GeneratorCommand
+#[AsCommand(name: 'make:filter')]
+class FilterMakeCommand extends GeneratorCommand
 {
     /**
      * The console command name.
      *
      * @var string
      */
-    protected $name = 'make:search';
+    protected $name = 'make:filter';
 
     /**
      * The type of class being generated.
      *
      * @var string
      */
-    protected $description = 'Create a new search class';
+    protected $description = 'Create a new filter class';
 
     /**
      * The type of class being generated.
      *
      * @var string
      */
-    protected $type = 'Search';
+    protected $type = 'Filter';
 
     /**
      * Get the stub file for the generator.
@@ -39,7 +37,7 @@ class SearchMakeCommand extends GeneratorCommand
      */
     protected function getStub()
     {
-        return $this->resolveStubPath('/stubs/honed.search.stub');
+        return $this->resolveStubPath('/stubs/honed.filter.stub');
     }
 
     /**
@@ -63,7 +61,7 @@ class SearchMakeCommand extends GeneratorCommand
      */
     protected function getDefaultNamespace($rootNamespace)
     {
-        return $rootNamespace.'\Refiners\Searches';
+        return $rootNamespace.'\Filters';
     }
 
     /**
@@ -72,7 +70,7 @@ class SearchMakeCommand extends GeneratorCommand
     protected function getOptions(): array
     {
         return [
-            ['force', 'f', InputOption::VALUE_NONE, 'Create the class even if the search already exists'],
+            ['force', 'f', InputOption::VALUE_NONE, 'Create the class even if the filter already exists'],
         ];
     }
 
@@ -86,7 +84,7 @@ class SearchMakeCommand extends GeneratorCommand
         return [
             'name' => [
                 'What should the '.strtolower($this->type).' be named?',
-                'E.g. NameSearch',
+                'E.g. DateFilter',
             ],
         ];
     }

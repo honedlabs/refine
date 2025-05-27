@@ -1,10 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Honed\Refine\Concerns;
-
-use Honed\Refine\Support\Constants;
 
 trait HasDirection
 {
@@ -59,7 +55,7 @@ trait HasDirection
      */
     public function isAscending()
     {
-        return $this->direction === Constants::ASCENDING;
+        return $this->direction === 'asc';
     }
 
     /**
@@ -69,7 +65,7 @@ trait HasDirection
      */
     public function isDescending()
     {
-        return $this->direction === Constants::DESCENDING;
+        return $this->direction === 'desc';
     }
 
     /**
@@ -92,7 +88,7 @@ trait HasDirection
      */
     public function asc()
     {
-        return $this->fixed(Constants::ASCENDING);
+        return $this->fixed('asc');
     }
 
     /**
@@ -102,7 +98,7 @@ trait HasDirection
      */
     public function desc()
     {
-        return $this->fixed(Constants::DESCENDING);
+        return $this->fixed('desc');
     }
 
     /**

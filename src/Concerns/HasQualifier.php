@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Honed\Refine\Concerns;
 
 trait HasQualifier
@@ -19,22 +17,11 @@ trait HasQualifier
      * @param  bool|string  $qualify
      * @return $this
      */
-    public function qualifies($qualify = true)
+    public function qualify($qualify = true)
     {
         $this->qualify = $qualify;
 
         return $this;
-    }
-
-    /**
-     * Set the table to qualify against.
-     *
-     * @param  string  $table
-     * @return $this
-     */
-    public function on($table)
-    {
-        return $this->qualifies($table);
     }
 
     /**
@@ -52,9 +39,9 @@ trait HasQualifier
      *
      * @return bool
      */
-    public function isQualifying()
+    public function qualifies()
     {
-        return (bool) $this->getQualifier();
+        return (bool) $this->qualify;
     }
 
     /**

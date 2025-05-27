@@ -1,19 +1,17 @@
 <?php
 
-declare(strict_types=1);
-
 namespace {{ namespace }};
 
 use Honed\Refine\Search;
-use Illuminate\Database\Eloquent\Builder;
+use Honed\Core\Contracts\FromQuery;
 
 /**
- * @template TModel of \Illuminate\Database\Eloquent\Model
- * @template TBuilder of \Illuminate\Database\Eloquent\Builder<TModel>
+ * @template TModel of \Illuminate\Database\Eloquent\Model = \Illuminate\Database\Eloquent\Model
+ * @template TBuilder of \Illuminate\Database\Eloquent\Builder<TModel> = \Illuminate\Database\Eloquent\Builder<TModel>
  *
  * @extends \Honed\Refine\Search<TModel, TBuilder>
  */
-final class {{ class }} extends Search
+class {{ class }} extends Search
 {
     /**
      *  Create a new search instance.
@@ -33,15 +31,5 @@ final class {{ class }} extends Search
     public function setUp()
     {
         //
-    }
-
-    /**
-     * Register the query expression to resolve the filter.
-     *
-     * @return \Closure(TBuilder $builder, string $term):TBuilder
-     */
-    public function defineQuery()
-    {
-        return fn ($builder, $term) => $builder;
     }
 }

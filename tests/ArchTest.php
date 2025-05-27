@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 use Illuminate\Console\Command;
 
 arch()->preset()->php();
@@ -14,7 +12,7 @@ arch('it will not use debugging functions')
 
 arch('strict types')
     ->expect('Honed\Refine')
-    ->toUseStrictTypes();
+    ->not->toUseStrictTypes();
 
 arch('concerns')
     ->expect('Honed\Refine\Concerns')

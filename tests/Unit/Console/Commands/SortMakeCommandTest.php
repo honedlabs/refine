@@ -5,7 +5,7 @@ declare(strict_types=1);
 use Illuminate\Support\Facades\File;
 
 beforeEach(function () {
-    File::cleanDirectory(app_path('Refiners'));
+    File::cleanDirectory(app_path('Sorts'));
 });
 
 it('makes sorts', function () {
@@ -13,7 +13,7 @@ it('makes sorts', function () {
         'name' => 'DateSort',
     ])->assertSuccessful();
 
-    $this->assertFileExists(app_path('Refiners/Sorts/DateSort.php'));
+    $this->assertFileExists(app_path('Sorts/DateSort.php'));
 });
 
 it('prompts for a sort name', function () {
@@ -21,5 +21,5 @@ it('prompts for a sort name', function () {
         ->expectsQuestion('What should the sort be named?', 'DateSort')
         ->assertSuccessful();
 
-    $this->assertFileExists(app_path('Refiners/Sorts/DateSort.php'));
+    $this->assertFileExists(app_path('Sorts/DateSort.php'));
 });

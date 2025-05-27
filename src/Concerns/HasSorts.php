@@ -1,24 +1,23 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Honed\Refine\Concerns;
 
 use Honed\Refine\Sort;
 use Illuminate\Support\Arr;
 
-/**
- * @template TModel of \Illuminate\Database\Eloquent\Model
- * @template TBuilder of \Illuminate\Database\Eloquent\Builder<TModel>
- *
- * @phpstan-require-extends \Honed\Core\Primitive
- */
 trait HasSorts
 {
     /**
+     * Whether the sorts should be applied.
+     *
+     * @var bool
+     */
+    protected $sort = true;
+
+    /**
      * List of the sorts.
      *
-     * @var array<int,\Honed\Refine\Sort<TModel, TBuilder>>
+     * @var array<int,\Honed\Refine\Sort>
      */
     protected $sorts = [];
 
@@ -30,14 +29,94 @@ trait HasSorts
     protected $sortKey;
 
     /**
-     * Merge a set of sorts with the existing sorts.
+     * The default query parameter to identify the sort to apply.
      *
-     * @param  \Honed\Refine\Sort<TModel, TBuilder>|iterable<int, \Honed\Refine\Sort<TModel, TBuilder>>  ...$sorts
+     * @var string
+     */
+    protected static $useSortKey = 'sort';
+
+    /**
+     * Set whether the sorts should be applied.
+     *
+     * @param  bool  $sort
      * @return $this
      */
-    public function sorts(...$sorts)
+    public function sort($sort = true)
     {
-        /** @var array<int, \Honed\Refine\Sort<TModel, TBuilder>> $sorts */
+        $this->sort = $sort;
+
+        return $this;
+    }
+
+    /**
+     * Set the sorts to not be applied.
+     *
+     * @return $this
+     */
+    public function doNotSort()
+    {
+        return $this->sort(false);
+    }
+
+    /**
+     * Set the sorts to not be applied.
+     *
+     * @return $this
+     */
+    public function dontSort()
+    {
+        return $this->doNotSort();
+    }
+
+    /**
+     * Determine if the sorts should be applied.
+     *
+     * @return bool
+     */
+    public function shouldSort()
+    {
+        return $this->sort;
+    }
+
+    /**
+     * Determine if the sorts should not be applied.
+     *
+     * @return bool
+     */
+    public function shouldNotSort()
+    {
+        return ! $this->shouldSort();
+    }
+
+    /**
+     * Determine if the sorts should not be applied.
+     *
+     * @return bool
+     */
+    public function shouldntSort()
+    {
+        return $this->shouldNotSort();
+    }
+
+    /**
+     * Define the sorts for the instance.
+     *
+     * @return array<int,\Honed\Refine\Sort>
+     */
+    public function sorts()
+    {
+        return [];
+    }
+
+    /**
+     * Merge a set of sorts with the existing sorts.
+     *
+     * @param  \Honed\Refine\Sort|iterable<int, \Honed\Refine\Sort>  ...$sorts
+     * @return $this
+     */
+    public function withSorts(...$sorts)
+    {
+        /** @var array<int, \Honed\Refine\Sort> $sorts */
         $sorts = Arr::flatten($sorts);
 
         $this->sorts = \array_merge($this->sorts, $sorts);
@@ -46,55 +125,22 @@ trait HasSorts
     }
 
     /**
-     * Define the sorts for the instance.
-     *
-     * @return array<int,\Honed\Refine\Sort<TModel, TBuilder>>
-     */
-    public function defineSorts()
-    {
-        return [];
-    }
-
-    /**
      * Retrieve the sorts.
      *
-     * @return array<int,\Honed\Refine\Sort<TModel, TBuilder>>
+     * @return array<int,\Honed\Refine\Sort>
      */
     public function getSorts()
     {
-        if (! $this->providesSorts()) {
+        if ($this->shouldNotSort()) {
             return [];
         }
 
         return once(fn () => \array_values(
             \array_filter(
-                \array_merge($this->defineSorts(), $this->sorts),
+                \array_merge($this->sorts(), $this->sorts),
                 static fn (Sort $sort) => $sort->isAllowed()
             )
         ));
-    }
-
-    /**
-     * Determines if the instance has any sorts.
-     *
-     * @return bool
-     */
-    public function hasSorts()
-    {
-        return filled($this->getSorts());
-    }
-
-    /**
-     * Determine if there is a sort being applied.
-     *
-     * @return bool
-     */
-    public function isSorting()
-    {
-        return (bool) Arr::first(
-            $this->getSorts(),
-            static fn (Sort $sort) => $sort->isActive()
-        );
     }
 
     /**
@@ -117,53 +163,37 @@ trait HasSorts
      */
     public function getSortKey()
     {
-        return $this->sortKey ?? static::getDefaultSortKey();
+        return $this->sortKey ?? static::$useSortKey;
     }
 
     /**
-     * Get the default query parameter to identify the sort.
+     * Set the default query parameter to identify the sort to apply.
      *
-     * @return string
+     * @param  string  $sortKey
+     * @return void
      */
-    public static function getDefaultSortKey()
+    public static function useSortKey($sortKey)
     {
-        return type(config('refine.sort_key', 'sort'))->asString();
+        static::$useSortKey = $sortKey;
     }
 
     /**
-     * Set the instance to not provide the sorts.
-     *
-     * @return $this
-     */
-    public function exceptSorts()
-    {
-        return $this->except('sorts');
-    }
-
-    /**
-     * Set the instance to provide only sorts.
-     *
-     * @return $this
-     */
-    public function onlySorts()
-    {
-        return $this->only('sorts');
-    }
-
-    /**
-     * Determine if the instance provides the sorts.
+     * Determine if there is a sort being applied.
      *
      * @return bool
      */
-    public function providesSorts()
+    public function isSorting()
     {
-        return $this->has('sorts');
+        return (bool) Arr::first(
+            $this->getSorts(),
+            static fn (Sort $sort) => $sort->isActive()
+        );
     }
 
     /**
      * Get the default sort.
      *
-     * @return \Honed\Refine\Sort<TModel, TBuilder>|null
+     * @return \Honed\Refine\Sort|null
      */
     public function getDefaultSort()
     {

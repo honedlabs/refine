@@ -1,16 +1,12 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Honed\Refine;
 
-use Honed\Refine\Support\Constants;
-
 /**
- * @template TModel of \Illuminate\Database\Eloquent\Model
- * @template TBuilder of \Illuminate\Database\Eloquent\Builder<TModel>
+ * @template TModel of \Illuminate\Database\Eloquent\Model = \Illuminate\Database\Eloquent\Model
+ * @template TBuilder of \Illuminate\Database\Eloquent\Builder<TModel> = \Illuminate\Database\Eloquent\Builder<TModel>
  *
- * @extends Filter<TModel, TBuilder>
+ * @extends \Honed\Refine\Filter<TModel, TBuilder>
  */
 class SelectFilter extends Filter
 {
@@ -27,8 +23,5 @@ class SelectFilter extends Filter
     /**
      * {@inheritdoc}
      */
-    public function defineType()
-    {
-        return Constants::SET_FILTER;
-    }
+    protected $type = 'select';
 }

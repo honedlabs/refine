@@ -1,19 +1,17 @@
 <?php
 
-declare(strict_types=1);
-
 namespace {{ namespace }};
 
 use Honed\Refine\Sort;
-use Illuminate\Database\Eloquent\Builder;
+use Honed\Core\Contracts\FromQuery;
 
 /**
- * @template TModel of \Illuminate\Database\Eloquent\Model
- * @template TBuilder of \Illuminate\Database\Eloquent\Builder<TModel>
+ * @template TModel of \Illuminate\Database\Eloquent\Model = \Illuminate\Database\Eloquent\Model
+ * @template TBuilder of \Illuminate\Database\Eloquent\Builder<TModel> = \Illuminate\Database\Eloquent\Builder<TModel>
  *
  * @extends \Honed\Refine\Sort<TModel, TBuilder>
  */
-final class {{ class }} extends Sort
+class {{ class }} extends Sort
 {
     /**
      * Create a new sort instance.
@@ -33,17 +31,5 @@ final class {{ class }} extends Sort
     public function setUp()
     {
         //
-    }
-
-    /**
-     * Register the query expression to resolve the filter.
-     *
-     * @template TDirection of 'asc'|'desc'|null
-     *
-     * @return \Closure(TBuilder $builder, TDirection $direction):TBuilder
-     */
-    public function defineQuery()
-    {
-        return fn ($builder, $direction) => $builder;
     }
 }

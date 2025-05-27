@@ -5,7 +5,7 @@ declare(strict_types=1);
 use Illuminate\Support\Facades\File;
 
 beforeEach(function () {
-    File::cleanDirectory(app_path('Refiners'));
+    File::cleanDirectory(app_path('Filters'));
 });
 
 it('makes filters', function () {
@@ -13,7 +13,7 @@ it('makes filters', function () {
         'name' => 'DateFilter',
     ])->assertSuccessful();
 
-    $this->assertFileExists(app_path('Refiners/Filters/DateFilter.php'));
+    $this->assertFileExists(app_path('Filters/DateFilter.php'));
 });
 
 it('prompts for a filter name', function () {
@@ -21,5 +21,5 @@ it('prompts for a filter name', function () {
         ->expectsQuestion('What should the filter be named?', 'DateFilter')
         ->assertSuccessful();
 
-    $this->assertFileExists(app_path('Refiners/Filters/DateFilter.php'));
+    $this->assertFileExists(app_path('Filters/DateFilter.php'));
 });
