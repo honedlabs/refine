@@ -6,6 +6,7 @@ namespace Honed\Refine\Concerns;
 
 use Honed\Refine\Attributes\Refiner;
 use Honed\Refine\Refine;
+use ReflectionClass;
 
 /**
  * @template TRefine of \Honed\Refine\Refine
@@ -46,11 +47,11 @@ trait HasRefine
     /**
      * Get the refine from the Refine class attribute.
      *
-     * @return class-string<\Honed\Refine\Refine>|null
+     * @return class-string<Refine>|null
      */
     protected static function getRefinerAttribute()
     {
-        $attributes = (new \ReflectionClass(static::class))
+        $attributes = (new ReflectionClass(static::class))
             ->getAttributes(Refiner::class);
 
         if ($attributes !== []) {

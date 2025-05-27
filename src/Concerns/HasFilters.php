@@ -5,6 +5,11 @@ namespace Honed\Refine\Concerns;
 use Honed\Refine\Filter;
 use Illuminate\Support\Arr;
 
+use function array_filter;
+use function array_map;
+use function array_merge;
+use function array_values;
+
 trait HasFilters
 {
     /**
@@ -17,7 +22,7 @@ trait HasFilters
     /**
      * List of the filters.
      *
-     * @var array<int,\Honed\Refine\Filter>
+     * @var array<int,Filter>
      */
     protected $filters = [];
 
@@ -87,7 +92,7 @@ trait HasFilters
     /**
      * Define the filters for the instance.
      *
-     * @return array<int,\Honed\Refine\Filter>
+     * @return array<int,Filter>
      */
     public function filters()
     {
@@ -97,25 +102,23 @@ trait HasFilters
     /**
      * Merge a set of filters with the existing filters.
      *
-     * @param  \Honed\Refine\Filter|iterable<int, \Honed\Refine\Filter>  ...$filters
+     * @param  Filter|iterable<int, Filter>  ...$filters
      * @return $this
      */
     public function withFilters(...$filters)
     {
-        /** @var array<int, \Honed\Refine\Filter> $filters */
+        /** @var array<int, Filter> $filters */
         $filters = Arr::flatten($filters);
 
-        $this->filters = \array_merge($this->filters, $filters);
+        $this->filters = array_merge($this->filters, $filters);
 
         return $this;
     }
 
-
-
     /**
      * Retrieve the filters.
      *
-     * @return array<int,\Honed\Refine\Filter>
+     * @return array<int,Filter>
      */
     public function getFilters()
     {
@@ -123,9 +126,9 @@ trait HasFilters
             return [];
         }
 
-        return once(fn () => \array_values(
-            \array_filter(
-                \array_merge($this->filters(), $this->filters),
+        return once(fn () => array_values(
+            array_filter(
+                array_merge($this->filters(), $this->filters),
                 static fn (Filter $filter) => $filter->isAllowed()
             )
         ));
@@ -151,7 +154,7 @@ trait HasFilters
      */
     public function filtersToArray()
     {
-        return \array_map(
+        return array_map(
             static fn (Filter $filter) => $filter->toArray(),
             $this->getFilters()
         );

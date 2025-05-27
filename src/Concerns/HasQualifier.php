@@ -2,6 +2,10 @@
 
 namespace Honed\Refine\Concerns;
 
+use function is_string;
+use function mb_rtrim;
+use function str_contains;
+
 trait HasQualifier
 {
     /**
@@ -59,8 +63,8 @@ trait HasQualifier
             return $column;
         }
 
-        if (\is_string($qualifier) && ! \str_contains($column, '.')) {
-            $column = \rtrim($qualifier, '.').'.'.$column;
+        if (is_string($qualifier) && ! str_contains($column, '.')) {
+            $column = mb_rtrim($qualifier, '.').'.'.$column;
         }
 
         return $builder

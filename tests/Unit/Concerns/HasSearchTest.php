@@ -7,10 +7,12 @@ namespace Honed\Refine\Tests\Pest\Concerns;
 use Honed\Refine\Concerns\HasSearch;
 use Honed\Refine\Tests\Stubs\Product;
 
+use function sprintf;
+
 beforeEach(function () {
     $this->builder = Product::query();
 
-    $this->test = new class
+    $this->test = new class()
     {
         use HasSearch;
     };
@@ -32,7 +34,7 @@ it('precision search', function () {
         ->toEqual([
             [
                 'type' => 'raw',
-                'sql' => \sprintf('LOWER(%s) LIKE ?', 'name'),
+                'sql' => sprintf('LOWER(%s) LIKE ?', 'name'),
                 'boolean' => 'and',
             ],
         ]);

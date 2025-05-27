@@ -4,6 +4,11 @@ namespace Honed\Refine;
 
 use Honed\Refine\Concerns\HasDirection;
 
+use function array_merge;
+use function array_pad;
+use function is_null;
+use function sprintf;
+
 /**
  * @template TModel of \Illuminate\Database\Eloquent\Model = \Illuminate\Database\Eloquent\Model
  * @template TBuilder of \Illuminate\Database\Eloquent\Builder<TModel> = \Illuminate\Database\Eloquent\Builder<TModel>
@@ -72,7 +77,7 @@ class Sort extends Refiner
             return $parameter;
         }
 
-        return \sprintf('-%s', $parameter);
+        return sprintf('-%s', $parameter);
     }
 
     /**
@@ -119,11 +124,11 @@ class Sort extends Refiner
         /** @var array{string|null, 'asc'|'desc'|null}|null */
         $value = $this->getValue();
 
-        if (\is_null($value)) {
+        if (is_null($value)) {
             return false;
         }
 
-        [$value, $direction] = \array_pad($value, 2, null);
+        [$value, $direction] = array_pad($value, 2, null);
 
         $active = $value === $this->getParameter();
 
@@ -173,7 +178,7 @@ class Sort extends Refiner
     {
         [$value, $direction] = $value;
 
-        return \array_merge(parent::getBindings($value, $builder), [
+        return array_merge(parent::getBindings($value, $builder), [
             'direction' => $direction,
         ]);
     }
@@ -203,7 +208,7 @@ class Sort extends Refiner
      */
     public function toArray()
     {
-        return \array_merge(parent::toArray(), [
+        return array_merge(parent::toArray(), [
             'direction' => $this->getDirection(),
             'next' => $this->getNextDirection(),
         ]);

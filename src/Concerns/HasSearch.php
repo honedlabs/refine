@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Honed\Refine\Concerns;
 
+use function mb_strtolower;
+use function sprintf;
+
 /**
  * @template TModel of \Illuminate\Database\Eloquent\Model = \Illuminate\Database\Eloquent\Model
  * @template TBuilder of \Illuminate\Database\Eloquent\Builder<TModel> = \Illuminate\Database\Eloquent\Builder<TModel>
@@ -57,13 +60,13 @@ trait HasSearch
         $boolean = 'and',
         $operator = 'LIKE'
     ) {
-        $sql = \sprintf(
+        $sql = sprintf(
             'LOWER(%s) %s ?',
             $column,
             $operator
         );
 
-        $binding = ['%'.\mb_strtolower($value, 'UTF8').'%'];
+        $binding = ['%'.mb_strtolower($value, 'UTF8').'%'];
 
         $builder->whereRaw($sql, $binding, $boolean);
     }

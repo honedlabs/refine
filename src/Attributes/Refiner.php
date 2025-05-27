@@ -17,11 +17,11 @@ class Refiner
      */
     public function __construct(
         public string $refiner
-    ) { }
+    ) {}
 
     /**
      * Get the refine class.
-     * 
+     *
      * @return class-string<\Honed\Refine\Refine>
      */
     public function getRefiner()

@@ -4,7 +4,11 @@ declare(strict_types=1);
 
 namespace Honed\Refine\Pipelines;
 
+use Closure;
 use Honed\Core\Interpret;
+
+use function in_array;
+use function str_replace;
 
 /**
  * @template T of \Honed\Refine\Refine = \Honed\Refine\Refine
@@ -15,7 +19,7 @@ class RefineSearches
      * Apply the searches to the query.
      *
      * @param  T  $refine
-     * @param  \Closure(T): T  $next
+     * @param  Closure(T): T  $next
      * @return T
      */
     public function __invoke($refine, $next)
@@ -36,7 +40,7 @@ class RefineSearches
 
         foreach ($this->searches($refine) as $search) {
             $active = empty($columns) ||
-                \in_array($search->getParameter(), $columns);
+                in_array($search->getParameter(), $columns);
 
             $applied |= $search
                 ->boolean($applied ? 'or' : 'and')
@@ -72,7 +76,7 @@ class RefineSearches
             return null;
         }
 
-        return \str_replace('+', ' ', $term);
+        return str_replace('+', ' ', $term);
     }
 
     /**

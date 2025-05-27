@@ -2,6 +2,7 @@
 
 namespace Honed\Refine;
 
+use Closure;
 use Honed\Core\Concerns\Allowable;
 use Honed\Core\Concerns\HasAlias;
 use Honed\Core\Concerns\HasLabel;
@@ -42,7 +43,7 @@ abstract class Refiner extends Primitive
      * @param  string|null  $label
      * @return static
      */
-    public static function make($name, $label = null)
+    final public static function make($name, $label = null)
     {
         return resolve(static::class)
             ->name($name)
@@ -54,7 +55,7 @@ abstract class Refiner extends Primitive
      *
      * @return bool
      */
-    public function isActive()
+    final public function isActive()
     {
         return filled($this->getValue());
     }
@@ -65,7 +66,7 @@ abstract class Refiner extends Primitive
      * @param  \Illuminate\Http\Request|mixed  $value
      * @return mixed
      */
-    public function getRequestValue($value)
+    final public function getRequestValue($value)
     {
         return $value;
     }
@@ -75,7 +76,7 @@ abstract class Refiner extends Primitive
      *
      * @return string
      */
-    public function getParameter()
+    final public function getParameter()
     {
         return $this->getAlias() ?? $this->guessParameter();
     }
@@ -85,7 +86,7 @@ abstract class Refiner extends Primitive
      *
      * @return string
      */
-    public function guessParameter()
+    final public function guessParameter()
     {
         return Str::of($this->getName())
             ->afterLast('.')
@@ -98,7 +99,7 @@ abstract class Refiner extends Primitive
      * @param  mixed  $value
      * @return mixed
      */
-    public function transformParameter($value)
+    final public function transformParameter($value)
     {
         return $value;
     }
@@ -109,7 +110,7 @@ abstract class Refiner extends Primitive
      * @param  mixed  $value
      * @return bool
      */
-    public function invalidValue($value)
+    final public function invalidValue($value)
     {
         return false;
     }
@@ -121,7 +122,7 @@ abstract class Refiner extends Primitive
      * @param  TBuilder  $builder
      * @return array<string,mixed>
      */
-    public function getBindings($value, $builder)
+    final public function getBindings($value, $builder)
     {
         return [
             'value' => $value,
@@ -136,7 +137,7 @@ abstract class Refiner extends Primitive
      * @param  \Illuminate\Http\Request|mixed  $requestValue
      * @return bool
      */
-    public function refine($builder, $requestValue)
+    final public function refine($builder, $requestValue)
     {
         $value = $this->getRequestValue($requestValue);
 
@@ -151,7 +152,7 @@ abstract class Refiner extends Primitive
         $bindings = $this->getBindings($value, $builder);
 
         if (! $this->hasQuery()) {
-            $this->query(\Closure::fromCallable([$this, 'defaultQuery']));
+            $this->query(Closure::fromCallable([$this, 'defaultQuery']));
         }
 
         $this->modifyQuery($builder, $bindings);
@@ -164,7 +165,7 @@ abstract class Refiner extends Primitive
      *
      * @return array<string,mixed>
      */
-    public function toArray()
+    final public function toArray()
     {
         return [
             'name' => $this->getParameter(),

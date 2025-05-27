@@ -7,7 +7,7 @@ use Honed\Refine\Option;
 use Honed\Refine\Tests\Stubs\Status;
 
 beforeEach(function () {
-    $this->test = new class
+    $this->test = new class()
     {
         use HasOptions;
     };
