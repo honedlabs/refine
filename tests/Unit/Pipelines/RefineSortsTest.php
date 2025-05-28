@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Request;
 
 beforeEach(function () {
     $this->builder = Product::query();
-    $this->pipe = new RefineSorts;
+    $this->pipe = new RefineSorts();
     $this->closure = fn ($refine) => $refine;
 
     $sorts = [

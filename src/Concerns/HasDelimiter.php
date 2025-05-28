@@ -19,6 +19,17 @@ trait HasDelimiter
     protected static $useDelimiter = ',';
 
     /**
+     * Set the delimiter to use by default.
+     *
+     * @param  string  $delimiter
+     * @return void
+     */
+    public static function useDelimiter($delimiter = ',')
+    {
+        static::$useDelimiter = $delimiter;
+    }
+
+    /**
      * Set the delimiter.
      *
      * @param  string  $delimiter
@@ -39,16 +50,5 @@ trait HasDelimiter
     public function getDelimiter()
     {
         return $this->delimiter ?? static::$useDelimiter;
-    }
-
-    /**
-     * Set the delimiter to use by default.
-     *
-     * @param  string  $delimiter
-     * @return void
-     */
-    public static function useDelimiter($delimiter = ',')
-    {
-        static::$useDelimiter = $delimiter;
     }
 }

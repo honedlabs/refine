@@ -16,7 +16,20 @@ use Orchestra\Testbench\TestCase as Orchestra;
 class TestCase extends Orchestra
 {
     use WithWorkbench;
-    
+
+    /**
+     * Define the environment setup.
+     *
+     * @param  \Illuminate\Foundation\Application  $app
+     * @return void
+     */
+    public function getEnvironmentSetUp($app)
+    {
+        config()->set('refine', require __DIR__.'/../config/refine.php');
+        config()->set('database.default', 'testing');
+        config()->set('scout.driver', 'array');
+    }
+
     /**
      * Get the package providers.
      *
@@ -71,18 +84,5 @@ class TestCase extends Orchestra
                 $router->get('/{product}', fn (Product $product) => $product)
                     ->name('products.show');
             });
-    }
-
-    /**
-     * Define the environment setup.
-     *
-     * @param  \Illuminate\Foundation\Application  $app
-     * @return void
-     */
-    public function getEnvironmentSetUp($app)
-    {
-        config()->set('refine', require __DIR__.'/../config/refine.php');
-        config()->set('database.default', 'testing');
-        config()->set('scout.driver', 'array');
     }
 }

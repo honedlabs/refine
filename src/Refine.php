@@ -3,31 +3,32 @@
 namespace Honed\Refine;
 
 use Closure;
-use Honed\Core\Primitive;
-use Honed\Core\Parameters;
-use Illuminate\Support\Str;
-use Illuminate\Http\Request;
-use Illuminate\Routing\Route;
-use Honed\Core\Concerns\HasScope;
-use Illuminate\Pipeline\Pipeline;
 use Honed\Core\Concerns\HasRequest;
-use Honed\Refine\Concerns\HasSorts;
-use Illuminate\Container\Container;
-use Illuminate\Support\Facades\App;
 use Honed\Core\Concerns\HasResource;
+use Honed\Core\Concerns\HasScope;
+use Honed\Core\Parameters;
+use Honed\Core\Primitive;
+use Honed\Refine\Concerns\HasDelimiter;
 use Honed\Refine\Concerns\HasFilters;
 use Honed\Refine\Concerns\HasSearches;
-use Honed\Refine\Concerns\HasDelimiter;
-use Honed\Refine\Pipelines\RefineSorts;
+use Honed\Refine\Concerns\HasSorts;
 use Honed\Refine\Contracts\RefinesAfter;
 use Honed\Refine\Contracts\RefinesBefore;
 use Honed\Refine\Pipelines\AfterRefining;
-use Honed\Refine\Pipelines\RefineFilters;
-use Illuminate\Database\Eloquent\Builder;
 use Honed\Refine\Pipelines\BeforeRefining;
+use Honed\Refine\Pipelines\RefineFilters;
 use Honed\Refine\Pipelines\RefineSearches;
-use Illuminate\Support\Traits\ForwardsCalls;
+use Honed\Refine\Pipelines\RefineSorts;
+use Illuminate\Container\Container;
 use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\Request;
+use Illuminate\Pipeline\Pipeline;
+use Illuminate\Routing\Route;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Str;
+use Illuminate\Support\Traits\ForwardsCalls;
+use Throwable;
 
 /**
  * @template TModel of \Illuminate\Database\Eloquent\Model = \Illuminate\Database\Eloquent\Model
@@ -41,10 +42,12 @@ class Refine extends Primitive
     use HasDelimiter;
     use HasFilters;
     use HasRequest;
+
     /**
      * @use \Honed\Core\Concerns\HasResource<TModel, TBuilder>
      */
     use HasResource;
+
     use HasScope;
     use HasSearches {
         getSearchKey as protected baseSearchKey;
@@ -53,6 +56,13 @@ class Refine extends Primitive
     use HasSorts {
         getSortKey as protected baseSortKey;
     }
+
+    /**
+     * The default namespace where refiners reside.
+     *
+     * @var string
+     */
+    public static $namespace = 'App\\Refiners\\';
 
     /**
      * Whether the refine pipeline has been run.
@@ -64,28 +74,21 @@ class Refine extends Primitive
     /**
      * A closure to be called before the refiners have been applied.
      *
-     * @var (\Closure(TBuilder):void|TBuilder)|null
+     * @var (Closure(TBuilder):void|TBuilder)|null
      */
     protected $before;
 
     /**
      * A closure to be called after the refiners have been applied.
      *
-     * @var (\Closure(TBuilder):void|TBuilder)|null
+     * @var (Closure(TBuilder):void|TBuilder)|null
      */
     protected $after;
 
     /**
-     * The default namespace where refiners reside.
-     *
-     * @var string
-     */
-    public static $namespace = 'App\\Refiners\\';
-
-    /**
      * How to resolve the refiner for the given model name.
      *
-     * @var (\Closure(class-string<\Illuminate\Database\Eloquent\Model>):class-string<\Honed\Refine\Refine>)|null
+     * @var (Closure(class-string<\Illuminate\Database\Eloquent\Model>):class-string<Refine>)|null
      */
     protected static $refinerResolver;
 
@@ -97,6 +100,20 @@ class Refine extends Primitive
         parent::__construct();
 
         $this->request($request);
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * @param  array<int, mixed>  $parameters
+     */
+    public function __call($method, $parameters)
+    {
+        if (static::hasMacro($method)) {
+            return parent::macroCall($method, $parameters);
+        }
+
+        return $this->forwardBuilderCall($method, $parameters);
     }
 
     /**
@@ -117,6 +134,77 @@ class Refine extends Primitive
     }
 
     /**
+     * Get a new refiner instance for the given model name.
+     *
+     * @template TClass of \Illuminate\Database\Eloquent\Model
+     *
+     * @param  class-string<TClass>  $modelName
+     * @param  Closure|null  $before
+     * @return Refine<TClass>
+     */
+    public static function refinerForModel($modelName, $before = null)
+    {
+        $refiner = static::resolveRefinerName($modelName);
+
+        return $refiner::make($before);
+    }
+
+    /**
+     * Get the refiner name for the given model name.
+     *
+     * @param  class-string<\Illuminate\Database\Eloquent\Model>  $className
+     * @return class-string<Refine>
+     */
+    public static function resolveRefinerName($className)
+    {
+        $resolver = static::$refinerResolver ?? function (string $className) {
+            $appNamespace = static::appNamespace();
+
+            $className = Str::startsWith($className, $appNamespace.'Models\\')
+                ? Str::after($className, $appNamespace.'Models\\')
+                : Str::after($className, $appNamespace);
+
+            /** @var class-string<Refine> */
+            return static::$namespace.$className.'Refiner';
+        };
+
+        return $resolver($className);
+    }
+
+    /**
+     * Specify the default namespace that contains the application's refiners.
+     *
+     * @param  string  $namespace
+     * @return void
+     */
+    public static function useNamespace($namespace)
+    {
+        static::$namespace = $namespace;
+    }
+
+    /**
+     * Specify the callback that should be invoked to guess the name of a refiner for a model.
+     *
+     * @param  Closure(class-string<\Illuminate\Database\Eloquent\Model>):class-string<Refine>  $callback
+     * @return void
+     */
+    public static function guessRefinersUsing($callback)
+    {
+        static::$refinerResolver = $callback;
+    }
+
+    /**
+     * Flush the refine class global configuration statw.
+     *
+     * @return void
+     */
+    public static function flushState()
+    {
+        static::$refinerResolver = null;
+        static::$namespace = 'App\\Refine\\';
+    }
+
+    /**
      * Determine if the refine pipeline has been run.
      *
      * @return bool
@@ -129,7 +217,7 @@ class Refine extends Primitive
     /**
      * Register a callback to be executed before the refiners.
      *
-     * @param  (\Closure(TBuilder):void|TBuilder)|null  $callback
+     * @param  (Closure(TBuilder):void|TBuilder)|null  $callback
      * @return $this
      */
     public function before($callback)
@@ -142,7 +230,7 @@ class Refine extends Primitive
     /**
      * Get the refiner to be executed before the refiners have been applied.
      *
-     * @return (\Closure(TBuilder):void|TBuilder)|null
+     * @return (Closure(TBuilder):void|TBuilder)|null
      */
     public function getBeforeCallback()
     {
@@ -151,7 +239,7 @@ class Refine extends Primitive
         }
 
         if ($this instanceof RefinesBefore) {
-            return \Closure::fromCallable([$this, 'beforeRefining']);
+            return Closure::fromCallable([$this, 'beforeRefining']);
         }
 
         return null;
@@ -160,7 +248,7 @@ class Refine extends Primitive
     /**
      * Register a callback to be executed after the refiners.
      *
-     * @param  (\Closure(TBuilder):void|TBuilder)|null  $callback
+     * @param  (Closure(TBuilder):void|TBuilder)|null  $callback
      * @return $this
      */
     public function after($callback)
@@ -173,7 +261,7 @@ class Refine extends Primitive
     /**
      * Get the refiner to be executed after the refiners have been applied.
      *
-     * @return (\Closure(TBuilder):void|TBuilder)|null
+     * @return (Closure(TBuilder):void|TBuilder)|null
      */
     public function getAfterCallback()
     {
@@ -182,7 +270,7 @@ class Refine extends Primitive
         }
 
         if ($this instanceof RefinesAfter) {
-            return \Closure::fromCallable([$this, 'afterRefining']);
+            return Closure::fromCallable([$this, 'afterRefining']);
         }
 
         return null;
@@ -191,7 +279,7 @@ class Refine extends Primitive
     /**
      * Add the given refiners to be used.
      *
-     * @param  array<int, \Honed\Refine\Refiner>|\Illuminate\Support\Collection<int, \Honed\Refine\Refiner>  $refiners
+     * @param  array<int, Refiner>|\Illuminate\Support\Collection<int, Refiner>  $refiners
      * @return $this
      */
     public function with($refiners)
@@ -297,6 +385,22 @@ class Refine extends Primitive
     }
 
     /**
+     * Get the application namespace for the application.
+     *
+     * @return string
+     */
+    protected static function appNamespace()
+    {
+        try {
+            return Container::getInstance()
+                ->make(Application::class)
+                ->getNamespace();
+        } catch (Throwable) {
+            return 'App\\';
+        }
+    }
+
+    /**
      * Execute the refiner pipeline.
      *
      * @return array<int, class-string>
@@ -310,93 +414,6 @@ class Refine extends Primitive
             RefineSorts::class,
             AfterRefining::class,
         ];
-    }
-
-    /**
-     * Get a new refiner instance for the given model name.
-     *
-     * @template TClass of \Illuminate\Database\Eloquent\Model
-     *
-     * @param  class-string<TClass>  $modelName
-     * @param  \Closure|null  $before
-     * @return \Honed\Refine\Refine<TClass>
-     */
-    public static function refinerForModel($modelName, $before = null)
-    {
-        $refiner = static::resolveRefinerName($modelName);
-
-        return $refiner::make($before);
-    }
-
-    /**
-     * Get the refiner name for the given model name.
-     *
-     * @param  class-string<\Illuminate\Database\Eloquent\Model>  $className
-     * @return class-string<\Honed\Refine\Refine>
-     */
-    public static function resolveRefinerName($className)
-    {
-        $resolver = static::$refinerResolver ?? function (string $className) {
-            $appNamespace = static::appNamespace();
-
-            $className = Str::startsWith($className, $appNamespace.'Models\\')
-                ? Str::after($className, $appNamespace.'Models\\')
-                : Str::after($className, $appNamespace);
-
-            /** @var class-string<\Honed\Refine\Refine> */
-            return static::$namespace.$className.'Refiner';
-        };
-
-        return $resolver($className);
-    }
-
-    /**
-     * Get the application namespace for the application.
-     *
-     * @return string
-     */
-    protected static function appNamespace()
-    {
-        try {
-            return Container::getInstance()
-                ->make(Application::class)
-                ->getNamespace();
-        } catch (\Throwable) {
-            return 'App\\';
-        }
-    }
-
-    /**
-     * Specify the default namespace that contains the application's refiners.
-     *
-     * @param  string  $namespace
-     * @return void
-     */
-    public static function useNamespace($namespace)
-    {
-        static::$namespace = $namespace;
-    }
-
-    /**
-     * Specify the callback that should be invoked to guess the name of a refiner for a model.
-     *
-     * @param  \Closure(class-string<\Illuminate\Database\Eloquent\Model>):class-string<\Honed\Refine\Refine>  $callback
-     * @return void
-     */
-    public static function guessRefinersUsing($callback)
-    {
-        static::$refinerResolver = $callback;
-    }
-
-    /**
-     * Flush the refine class global configuration statw.
-     * 
-     * @return void
-     */
-    public static function flushState()
-    {
-        static::$refinerResolver = null;
-        static::$namespace = 'App\\Refine\\';
     }
 
     /**
@@ -452,19 +469,5 @@ class Refine extends Primitive
             Builder::class => [$resource],
             default => [App::make($parameterType)],
         };
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @param  array<int, mixed>  $parameters
-     */
-    public function __call($method, $parameters)
-    {
-        if (static::hasMacro($method)) {
-            return parent::macroCall($method, $parameters);
-        }
-
-        return $this->forwardBuilderCall($method, $parameters);
     }
 }

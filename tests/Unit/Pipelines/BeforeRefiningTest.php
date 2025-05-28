@@ -10,7 +10,7 @@ use Honed\Refine\Tests\Stubs\Product;
 beforeEach(function () {
     $this->builder = Product::query();
     $this->refine = Refine::make($this->builder);
-    $this->pipe = new BeforeRefining;
+    $this->pipe = new BeforeRefining();
     $this->closure = fn ($refine) => $refine;
 });
 

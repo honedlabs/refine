@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Request;
 
 beforeEach(function () {
     $this->builder = Product::query();
-    $this->pipe = new RefineFilters;
+    $this->pipe = new RefineFilters();
     $this->closure = fn ($refine) => $refine;
 
     $filters = [
