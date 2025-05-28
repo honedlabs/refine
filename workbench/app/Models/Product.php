@@ -3,9 +3,9 @@
 namespace Workbench\App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Laravel\Scout\Searchable;
 use Workbench\App\Enums\Status;
+use Illuminate\Database\Eloquent\Model;
 
 class Product extends Model
 {
@@ -13,7 +13,6 @@ class Product extends Model
      * @use \Illuminate\Database\Eloquent\Factories\HasFactory<
      */
     use HasFactory;
-
     use Searchable;
 
     protected $guarded = [];

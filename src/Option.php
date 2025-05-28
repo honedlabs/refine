@@ -7,9 +7,6 @@ use Honed\Core\Concerns\HasValue;
 use Honed\Core\Concerns\IsActive;
 use Honed\Core\Primitive;
 
-use function in_array;
-use function is_array;
-
 class Option extends Primitive
 {
     use HasLabel;
@@ -53,7 +50,7 @@ class Option extends Primitive
         $optionValue = $this->getValue();
 
         $active = match (true) {
-            is_array($value) => in_array($optionValue, $value, true),
+            \is_array($value) => \in_array($optionValue, $value, true),
             default => $optionValue === $value,
         };
 

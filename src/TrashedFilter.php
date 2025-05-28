@@ -2,7 +2,6 @@
 
 namespace Honed\Refine;
 
-use Closure;
 use Honed\Refine\Contracts\FromOptions;
 
 /**
@@ -43,7 +42,7 @@ final class TrashedFilter extends Filter implements FromOptions
     /**
      * Register the query expression to resolve the filter.
      *
-     * @return Closure(TBuilder $builder, mixed $value):TBuilder
+     * @return \Closure(TBuilder $builder, mixed $value):TBuilder
      */
     public function queryAs()
     {
@@ -56,7 +55,7 @@ final class TrashedFilter extends Filter implements FromOptions
 
     /**
      * {@inheritdoc}
-     *
+     * 
      * @return array<string, string>
      */
     public function optionsFrom()

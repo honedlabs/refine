@@ -5,11 +5,6 @@ namespace Honed\Refine\Concerns;
 use Honed\Refine\Search;
 use Illuminate\Support\Arr;
 
-use function array_filter;
-use function array_map;
-use function array_merge;
-use function array_values;
-
 trait HasSearches
 {
     /**
@@ -22,7 +17,7 @@ trait HasSearches
     /**
      * List of the searches.
      *
-     * @var array<int,Search>
+     * @var array<int,\Honed\Refine\Search>
      */
     protected $searches = [];
 
@@ -74,39 +69,6 @@ trait HasSearches
      * @var string|null
      */
     protected $term;
-
-    /**
-     * Set the default query parameter to identify the search.
-     *
-     * @param  string  $searchKey
-     * @return void
-     */
-    public static function useSearchKey($searchKey = 'search')
-    {
-        static::$useSearchKey = $searchKey;
-    }
-
-    /**
-     * Set the default query parameter to identify the columns to search.
-     *
-     * @param  string  $matchKey
-     * @return void
-     */
-    public static function useMatchKey($matchKey = 'match')
-    {
-        static::$useMatchKey = $matchKey;
-    }
-
-    /**
-     * Determine if matching is enabled from the config.
-     *
-     * @param  bool  $match
-     * @return void
-     */
-    public static function shouldMatch($match = true)
-    {
-        static::$shouldMatch = $match;
-    }
 
     /**
      * Set whether the searchs should be applied.
@@ -174,7 +136,7 @@ trait HasSearches
     /**
      * Define the searches for the instance.
      *
-     * @return array<int, Search>
+     * @return array<int, \Honed\Refine\Search>
      */
     public function searches()
     {
@@ -184,15 +146,15 @@ trait HasSearches
     /**
      * Merge a set of searches with the existing searches.
      *
-     * @param  Search|iterable<int, Search>  ...$searches
+     * @param  \Honed\Refine\Search|iterable<int, \Honed\Refine\Search>  ...$searches
      * @return $this
      */
     public function withSearches(...$searches)
     {
-        /** @var array<int, Search> $searches */
+        /** @var array<int, \Honed\Refine\Search> $searches */
         $searches = Arr::flatten($searches);
 
-        $this->searches = array_merge($this->searches, $searches);
+        $this->searches = \array_merge($this->searches, $searches);
 
         return $this;
     }
@@ -200,7 +162,7 @@ trait HasSearches
     /**
      * Retrieve the columns to be used for searching.
      *
-     * @return array<int,Search>
+     * @return array<int,\Honed\Refine\Search>
      */
     public function getSearches()
     {
@@ -208,9 +170,9 @@ trait HasSearches
             return [];
         }
 
-        return once(fn () => array_values(
-            array_filter(
-                array_merge($this->searches(), $this->searches),
+        return once(fn () => \array_values(
+            \array_filter(
+                \array_merge($this->searches(), $this->searches),
                 static fn (Search $search) => $search->isAllowed()
             )
         ));
@@ -240,6 +202,17 @@ trait HasSearches
     }
 
     /**
+     * Set the default query parameter to identify the search.
+     *
+     * @param  string  $searchKey
+     * @return void
+     */
+    public static function useSearchKey($searchKey = 'search')
+    {
+        static::$useSearchKey = $searchKey;
+    }
+
+    /**
      * Set the query parameter to identify the columns to search.
      *
      * @param  string  $matchKey
@@ -263,6 +236,17 @@ trait HasSearches
     }
 
     /**
+     * Set the default query parameter to identify the columns to search.
+     *
+     * @param  string  $matchKey
+     * @return void
+     */
+    public static function useMatchKey($matchKey = 'match')
+    {
+        static::$useMatchKey = $matchKey;
+    }
+
+    /**
      * Set whether the search columns can be toggled.
      *
      * @param  bool|null  $match
@@ -283,6 +267,17 @@ trait HasSearches
     public function matches()
     {
         return (bool) ($this->match ?? static::$shouldMatch);
+    }
+
+    /**
+     * Determine if matching is enabled from the config.
+     *
+     * @param  bool  $match
+     * @return void
+     */
+    public static function shouldMatch($match = true)
+    {
+        static::$shouldMatch = $match;
     }
 
     /**
@@ -329,7 +324,7 @@ trait HasSearches
             return [];
         }
 
-        return array_map(
+        return \array_map(
             static fn (Search $search) => $search->toArray(),
             $this->getSearches()
         );

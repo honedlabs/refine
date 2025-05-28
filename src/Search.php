@@ -4,9 +4,6 @@ namespace Honed\Refine;
 
 use Honed\Refine\Concerns\HasSearch;
 
-use function array_merge;
-use function is_null;
-
 /**
  * @template TModel of \Illuminate\Database\Eloquent\Model = \Illuminate\Database\Eloquent\Model
  * @template TBuilder of \Illuminate\Database\Eloquent\Builder<TModel> = \Illuminate\Database\Eloquent\Builder<TModel>
@@ -95,7 +92,7 @@ class Search extends Refiner
     {
         [$_, $term] = $value;
 
-        return is_null($term);
+        return \is_null($term);
     }
 
     /**
@@ -107,7 +104,7 @@ class Search extends Refiner
     {
         [$_, $term] = $value;
 
-        return array_merge(parent::getBindings($term, $builder), [
+        return \array_merge(parent::getBindings($term, $builder), [
             'boolean' => $this->getBoolean(),
         ]);
     }

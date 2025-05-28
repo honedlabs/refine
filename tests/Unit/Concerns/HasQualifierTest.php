@@ -6,7 +6,7 @@ use Honed\Refine\Concerns\HasQualifier;
 use Honed\Refine\Tests\Stubs\Product;
 
 beforeEach(function () {
-    $this->test = new class()
+    $this->test = new class
     {
         use HasQualifier;
     };
