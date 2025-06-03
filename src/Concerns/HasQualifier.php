@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Honed\Refine\Concerns;
 
+use Illuminate\Support\Str;
+
 use function is_string;
-use function mb_rtrim;
-use function str_contains;
 
 trait HasQualifier
 {
@@ -63,8 +65,8 @@ trait HasQualifier
             return $column;
         }
 
-        if (is_string($qualifier) && ! str_contains($column, '.')) {
-            $column = mb_rtrim($qualifier, '.').'.'.$column;
+        if (is_string($qualifier) && ! Str::contains($column, '.')) {
+            $column = Str::finish($qualifier, '.').$column;
         }
 
         return $builder

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Illuminate\Console\Command;
 
 arch()->preset()->php();
@@ -12,7 +14,7 @@ arch('it will not use debugging functions')
 
 arch('strict types')
     ->expect('Honed\Refine')
-    ->not->toUseStrictTypes();
+    ->toUseStrictTypes();
 
 arch('concerns')
     ->expect('Honed\Refine\Concerns')
@@ -23,13 +25,9 @@ arch('contracts')
     ->toBeInterfaces();
 
 arch('commands')
-    ->expect('Honed\Refine\Console\Commands')
+    ->expect('Honed\Refine\Commands')
     ->toBeClasses()
     ->toExtend(Command::class);
-
-arch('enums')
-    ->expect('Honed\Refine\Enums')
-    ->toBeEnums();
 
 arch('pipelines')
     ->expect('Honed\Refine\Pipelines')

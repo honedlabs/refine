@@ -105,7 +105,7 @@ it('applies query', function () {
 });
 
 it('applies with unqualified column', function () {
-    expect($this->sort->qualifies(false))
+    expect($this->sort->qualify(false))
         ->refine($this->builder, [$this->name, 'asc'])->toBeTrue();
 
     expect($this->builder->getQuery()->orders)

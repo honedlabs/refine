@@ -18,11 +18,11 @@ it('has qualifier', function () {
         ->getQualifier()->toBeTrue()
         ->isQualifying()->toBeTrue()
         // If it does not qualify
-        ->qualifies(false)->toBe($this->test)
+        ->qualify(false)->toBe($this->test)
         ->getQualifier()->toBeFalse()
         ->isQualifying()->toBeFalse()
         // Qualifies with boolean
-        ->qualifies()->toBe($this->test)
+        ->qualify()->toBe($this->test)
         ->getQualifier()->toBeTrue()
         ->isQualifying()->toBeTrue()
         // If it has a custom qualifier
@@ -40,7 +40,7 @@ it('qualifies column', function () {
         ->qualifyColumn('name')->toBe('name')
         ->qualifyColumn('name', $builder)->toBe('products.name')
         // If it does not qualify
-        ->qualifies(false)->toBe($this->test)
+        ->qualify(false)->toBe($this->test)
         ->isQualifying()->toBeFalse()
         ->qualifyColumn('name')->toBe('name')
         ->qualifyColumn('name', $builder)->toBe('name')

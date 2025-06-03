@@ -1,10 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Workbench\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Str;
-use Workbench\App\Enums\Status;
 use Workbench\App\Models\Product;
 
 /**
@@ -29,13 +29,9 @@ class ProductFactory extends Factory
     public function definition(): array
     {
         return [
-            'public_id' => Str::uuid(),
-            'name' => fake()->unique()->word(),
+            'name' => fake()->words(3, true),
             'description' => fake()->sentence(),
-            'price' => fake()->randomNumber(4),
-            'best_seller' => fake()->boolean(),
-            'status' => fake()->randomElement(Status::cases()),
-            'created_at' => now()->subDays(fake()->randomNumber(2)),
+            'price' => fake()->numberBetween(100, 1000),
         ];
     }
 }

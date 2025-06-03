@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Honed\Refine;
 
 /**
@@ -13,10 +15,10 @@ class BooleanFilter extends Filter
     /**
      * {@inheritdoc}
      */
-    protected $as = 'boolean';
+    protected $type = 'boolean';
 
     /**
      * {@inheritdoc}
      */
-    protected $type = 'boolean';
+    protected $as = 'boolean';
 }

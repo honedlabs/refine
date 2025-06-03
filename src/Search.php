@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Honed\Refine;
 
 use Honed\Refine\Concerns\HasSearch;
@@ -21,16 +23,16 @@ class Search extends Refiner
     use HasSearch;
 
     /**
+     * {@inheritdoc}
+     */
+    protected $type = 'search';
+
+    /**
      * The query boolean to use for the search.
      *
      * @var 'and'|'or'
      */
     protected $boolean = 'and';
-
-    /**
-     * {@inheritdoc}
-     */
-    protected $type = 'search';
 
     /**
      * Set the query boolean to use for the search.

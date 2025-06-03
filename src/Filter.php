@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Honed\Refine;
 
 use BackedEnum;
@@ -37,6 +39,11 @@ class Filter extends Refiner
     use Validatable;
 
     /**
+     * {@inheritdoc}
+     */
+    protected $type = 'filter';
+
+    /**
      * The operator to use for the filter.
      *
      * @var string
@@ -56,11 +63,6 @@ class Filter extends Refiner
      * @var mixed
      */
     protected $default;
-
-    /**
-     * {@inheritdoc}
-     */
-    protected $type = 'filter';
 
     /**
      * Set the filter to be for boolean values.
@@ -391,7 +393,7 @@ class Filter extends Refiner
     /**
      * {@inheritdoc}
      */
-    public function toArray()
+    public function toArray($named = [], $typed = [])
     {
         $value = $this->getValue();
 

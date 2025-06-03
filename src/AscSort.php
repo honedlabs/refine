@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Honed\Refine;
 
 /**
@@ -13,10 +15,10 @@ class AscSort extends Sort
     /**
      * {@inheritdoc}
      */
-    protected $fixed = 'asc';
+    protected $type = 'asc';
 
     /**
      * {@inheritdoc}
      */
-    protected $type = 'asc';
+    protected $fixed = 'asc';
 }

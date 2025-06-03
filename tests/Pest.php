@@ -2,32 +2,9 @@
 
 declare(strict_types=1);
 
-use Honed\Refine\Tests\Stubs\Product;
-use Honed\Refine\Tests\Stubs\Status;
 use Honed\Refine\Tests\TestCase;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Request as FacadesRequest;
-use Illuminate\Support\Str;
 
 uses(TestCase::class)->in(__DIR__);
-
-function generate(string $param, mixed $value): Request
-{
-    return FacadesRequest::create('/', 'GET', [$param => $value]);
-}
-
-function product(?string $name = null): Product
-{
-    return Product::create([
-        'public_id' => Str::uuid(),
-        'name' => $name ?? fake()->unique()->word(),
-        'description' => fake()->sentence(),
-        'price' => fake()->randomNumber(4),
-        'best_seller' => fake()->boolean(),
-        'status' => fake()->randomElement(Status::cases()),
-        'created_at' => now()->subDays(fake()->randomNumber(2)),
-    ]);
-}
 
 expect()->extend('toBeWhere', function (string $column, mixed $value, string $operator = '=', string $boolean = 'and') {
     return $this->toBeArray()

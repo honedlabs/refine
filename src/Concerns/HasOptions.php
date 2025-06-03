@@ -1,9 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Honed\Refine\Concerns;
 
 use BackedEnum;
-use Honed\Refine\Contracts\FromOptions;
+use Honed\Refine\Contracts\WithOptions;
 use Honed\Refine\Option;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
@@ -122,8 +124,8 @@ trait HasOptions
             return $this->options;
         }
 
-        if ($this instanceof FromOptions) {
-            return $this->options = $this->createOptions($this->optionsFrom());
+        if ($this instanceof WithOptions) {
+            return $this->options = $this->createOptions($this->optionsUsing());
         }
 
         return [];

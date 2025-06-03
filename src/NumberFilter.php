@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Honed\Refine;
 
 /**
@@ -13,10 +15,10 @@ class NumberFilter extends Filter
     /**
      * {@inheritdoc}
      */
-    protected $as = 'int';
+    protected $type = 'number';
 
     /**
      * {@inheritdoc}
      */
-    protected $type = 'number';
+    protected $as = 'int';
 }

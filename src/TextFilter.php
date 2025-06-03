@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Honed\Refine;
 
 /**
@@ -13,10 +15,10 @@ class TextFilter extends Filter
     /**
      * {@inheritdoc}
      */
-    protected $as = 'string';
+    protected $type = 'text';
 
     /**
      * {@inheritdoc}
      */
-    protected $type = 'text';
+    protected $as = 'string';
 }

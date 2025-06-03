@@ -13,7 +13,7 @@ use ReflectionClass;
  *
  * @property-read string|null $refiner The class string of the refine for this model.
  */
-trait HasRefine
+trait HasRefiner
 {
     /**
      * Get the refine instance for the model.

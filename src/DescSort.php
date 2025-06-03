@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Honed\Refine;
 
 /**
@@ -13,10 +15,10 @@ class DescSort extends Sort
     /**
      * {@inheritdoc}
      */
-    protected $fixed = 'desc';
+    protected $type = 'desc';
 
     /**
      * {@inheritdoc}
      */
-    protected $type = 'desc';
+    protected $fixed = 'desc';
 }

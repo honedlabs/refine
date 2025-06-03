@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Honed\Refine;
 
 /**
@@ -13,15 +15,15 @@ class SelectFilter extends Filter
     /**
      * {@inheritdoc}
      */
+    protected $type = 'select';
+
+    /**
+     * {@inheritdoc}
+     */
     protected $as = 'array';
 
     /**
      * {@inheritdoc}
      */
     protected $multiple = true;
-
-    /**
-     * {@inheritdoc}
-     */
-    protected $type = 'select';
 }

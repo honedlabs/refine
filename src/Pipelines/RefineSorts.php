@@ -7,7 +7,6 @@ namespace Honed\Refine\Pipelines;
 use Closure;
 use Honed\Core\Interpret;
 
-use function mb_substr;
 use function str_starts_with;
 
 /**

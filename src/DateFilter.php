@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Honed\Refine;
 
 /**
@@ -13,10 +15,10 @@ class DateFilter extends Filter
     /**
      * {@inheritdoc}
      */
-    protected $as = 'date';
+    protected $type = 'date';
 
     /**
      * {@inheritdoc}
      */
-    protected $type = 'date';
+    protected $as = 'date';
 }

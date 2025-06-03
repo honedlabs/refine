@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Honed\Refine;
 
 use Honed\Refine\Concerns\HasDirection;
@@ -20,16 +22,16 @@ class Sort extends Refiner
     use HasDirection;
 
     /**
+     * {@inheritdoc}
+     */
+    protected $type = 'sort';
+
+    /**
      * Whether it is the default.
      *
      * @var bool
      */
     protected $default = false;
-
-    /**
-     * {@inheritdoc}
-     */
-    protected $type = 'sort';
 
     /**
      * Set as the default.
@@ -206,7 +208,7 @@ class Sort extends Refiner
     /**
      * {@inheritDoc}
      */
-    public function toArray()
+    public function toArray($named = [], $typed = [])
     {
         return array_merge(parent::toArray(), [
             'direction' => $this->getDirection(),

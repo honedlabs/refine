@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Honed\Refine;
 
 /**
@@ -13,10 +15,10 @@ class TimeFilter extends Filter
     /**
      * {@inheritdoc}
      */
-    protected $as = 'time';
+    protected $type = 'time';
 
     /**
      * {@inheritdoc}
      */
-    protected $type = 'time';
+    protected $as = 'time';
 }

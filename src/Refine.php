@@ -1,9 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Honed\Refine;
 
 use Closure;
-use Honed\Core\Concerns\HasRequest;
 use Honed\Core\Concerns\HasResource;
 use Honed\Core\Concerns\HasScope;
 use Honed\Core\Parameters;
@@ -41,7 +42,6 @@ class Refine extends Primitive
     use ForwardsCalls;
     use HasDelimiter;
     use HasFilters;
-    use HasRequest;
 
     /**
      * @use \Honed\Core\Concerns\HasResource<TModel, TBuilder>
@@ -72,6 +72,13 @@ class Refine extends Primitive
     protected $refined = false;
 
     /**
+     * Whether the refine pipeline should use Laravel Scout's search.
+     *
+     * @var bool
+     */
+    protected $scout = false;
+
+    /**
      * A closure to be called before the refiners have been applied.
      *
      * @var (Closure(TBuilder):void|TBuilder)|null
@@ -95,11 +102,10 @@ class Refine extends Primitive
     /**
      * Create a new refine instance.
      */
-    public function __construct(Request $request)
-    {
+    public function __construct(
+        protected Request $request
+    ) {
         parent::__construct();
-
-        $this->request($request);
     }
 
     /**
@@ -127,7 +133,7 @@ class Refine extends Primitive
         $refine = resolve(static::class);
 
         if ($resource) {
-            return $refine->resource($resource);
+            return $refine->withResource($resource);
         }
 
         return $refine;
@@ -335,6 +341,16 @@ class Refine extends Primitive
     }
 
     /**
+     * Get the request instance.
+     *
+     * @return Request
+     */
+    public function getRequest()
+    {
+        return $this->request;
+    }
+
+    /**
      * Get the config for the refine as an array.
      *
      * @return array<string,mixed>
@@ -353,7 +369,7 @@ class Refine extends Primitive
     /**
      * {@inheritdoc}
      */
-    public function toArray()
+    public function toArray($named = [], $typed = [])
     {
         return [
             'config' => $this->configToArray(),

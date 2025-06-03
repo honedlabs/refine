@@ -1,4 +1,7 @@
-name: run-tests
+name: tests
+
+permissions:
+  contents: read
 
 on:
   push:

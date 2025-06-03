@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Honed\Refine;
 
 use Honed\Core\Concerns\HasLabel;
@@ -33,7 +35,7 @@ class Option extends Primitive
     /**
      * {@inheritdoc}
      */
-    public function toArray()
+    public function toArray($named = [], $typed = [])
     {
         return [
             'value' => $this->getValue(),
