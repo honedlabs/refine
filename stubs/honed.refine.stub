@@ -30,7 +30,7 @@ class {{ class }} extends Refine
     /**
      * Define the database resource to use.
      * 
-     * @return TBuilder|TModel|class-string<TModel>
+     * @return TBuilder
      */
     public function resource()
     {

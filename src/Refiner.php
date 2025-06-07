@@ -21,7 +21,7 @@ use Illuminate\Support\Str;
  * @template TModel of \Illuminate\Database\Eloquent\Model = \Illuminate\Database\Eloquent\Model
  * @template TBuilder of \Illuminate\Database\Eloquent\Builder<TModel> = \Illuminate\Database\Eloquent\Builder<TModel>
  *
- * @method void defaultQuery(TBuilder $builder, mixed ...$parameters) Apply the default refiner query to the builder.
+ * @method void apply(TBuilder $builder, mixed ...$parameters) Apply the refiner query to apply to the builder.
  */
 abstract class Refiner extends Primitive
 {
@@ -50,6 +50,27 @@ abstract class Refiner extends Primitive
         return resolve(static::class)
             ->name($name)
             ->label($label ?? static::makeLabel($name));
+    }
+
+    /**
+     * Flush the global configuration state.
+     *
+     * @return void
+     */
+    public static function flushState()
+    {
+        static::$shouldQualify = false;
+    }
+
+    /**
+     * Get the name.
+     *
+     * @return string
+     */
+    public function getName()
+    {
+        /** @var string */
+        return $this->name;
     }
 
     /**
@@ -154,7 +175,7 @@ abstract class Refiner extends Primitive
         $bindings = $this->getBindings($value, $builder);
 
         if (! $this->hasQuery()) {
-            $this->query(Closure::fromCallable([$this, 'defaultQuery']));
+            $this->query(Closure::fromCallable([$this, 'apply']));
         }
 
         $this->modifyQuery($builder, $bindings);

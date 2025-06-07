@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Honed\Refine\Concerns;
 
-use Honed\Refine\Attributes\Refiner;
+use Honed\Refine\Attributes\UseRefiner;
 use Honed\Refine\Refine;
 use ReflectionClass;
 
@@ -34,11 +34,11 @@ trait HasRefiner
     protected static function newRefiner()
     {
         if (isset(static::$refiner)) {
-            return static::$refiner::make();
+            return static::$refiner::make(static::class);
         }
 
-        if ($refiner = static::getRefinerAttribute()) {
-            return $refiner::make();
+        if ($refiner = static::getUseRefinerAttribute()) {
+            return $refiner::make(static::class);
         }
 
         return null;
@@ -49,15 +49,15 @@ trait HasRefiner
      *
      * @return class-string<Refine>|null
      */
-    protected static function getRefinerAttribute()
+    protected static function getUseRefinerAttribute()
     {
         $attributes = (new ReflectionClass(static::class))
-            ->getAttributes(Refiner::class);
+            ->getAttributes(UseRefiner::class);
 
         if ($attributes !== []) {
             $refiner = $attributes[0]->newInstance();
 
-            return $refiner->getRefiner();
+            return $refiner->refinerClass;
         }
 
         return null;

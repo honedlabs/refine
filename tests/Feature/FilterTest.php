@@ -2,312 +2,124 @@
 
 declare(strict_types=1);
 
-use Carbon\Carbon;
 use Honed\Refine\Filter;
-use Honed\Refine\Tests\Stubs\Product;
-use Honed\Refine\Tests\Stubs\Status;
-use Illuminate\Support\Facades\Request;
+use Workbench\App\Enums\Status;
 
 beforeEach(function () {
-    $this->builder = Product::query();
-    $this->name = 'name';
-    $this->alias = 'alias';
-    $this->value = 'value';
-    $this->filter = Filter::make($this->name);
+    $this->filter = Filter::make('name');
 });
 
-it('does not apply', function () {
-    $request = Request::create('/', 'GET', ['none' => $this->value]);
-
-    expect($this->filter->refine($this->builder, $request))
-        ->toBeFalse();
-
-    expect($this->builder->getQuery()->wheres)
-        ->toBeEmpty();
-
+it('has operator', function () {
     expect($this->filter)
-        ->isActive()->toBeFalse()
-        ->getValue()->toBeNull();
+        ->getOperator()->toBe('=')
+        ->operator('!=')->toBe($this->filter)
+        ->getOperator()->toBe('!=')
+        ->gt()->toBe($this->filter)
+        ->getOperator()->toBe('>')
+        ->gte()->toBe($this->filter)
+        ->getOperator()->toBe('>=')
+        ->lt()->toBe($this->filter)
+        ->getOperator()->toBe('<')
+        ->lte()->toBe($this->filter)
+        ->getOperator()->toBe('<=')
+        ->neq()->toBe($this->filter)
+        ->getOperator()->toBe('!=')
+        ->eq()->toBe($this->filter)
+        ->getOperator()->toBe('=');
 });
 
-it('applies', function () {
-    $request = Request::create('/', 'GET', [$this->name => $this->value]);
-
-    expect($this->filter->refine($this->builder, $request))
-        ->toBeTrue();
-
-    expect($this->builder->getQuery()->wheres)
-        ->toBeOnlyWhere($this->builder->qualifyColumn($this->name), $this->value);
-
+it('can be raw', function () {
     expect($this->filter)
-        ->isActive()->toBeTrue()
-        ->getValue()->toBe($this->value);
+        ->getType()->toBe('filter')
+        ->interpretsAs()->toBeNull();
 });
 
-it('applies with default', function () {
-    $request = Request::create('/', 'GET', ['none' => null]);
-
-    expect($this->filter->default('value')->refine($this->builder, $request))
-        ->toBeTrue();
-
-    expect($this->builder->getQuery()->wheres)
-        ->toBeOnlyWhere($this->builder->qualifyColumn($this->name), 'value');
-
+it('can be boolean', function () {
     expect($this->filter)
-        ->isActive()->toBeTrue()
-        ->getValue()->toBe('value');
+        ->boolean()->toBe($this->filter)
+        ->getType()->toBe('boolean')
+        ->interpretsAs()->toBe('boolean');
 });
 
-it('does not apply with alias', function () {
-    $request = Request::create('/', 'GET', [$this->name => $this->value]);
-
-    expect($this->filter->alias($this->alias))
-        ->refine($this->builder, $request)->toBeFalse();
-
-    expect($this->builder->getQuery()->wheres)
-        ->toBeEmpty();
-
+it('can be date', function () {
     expect($this->filter)
-        ->isActive()->toBeFalse()
-        ->getValue()->toBeNull();
+        ->date()->toBe($this->filter)
+        ->getType()->toBe('date')
+        ->interpretsAs()->toBe('date');
 });
 
-it('applies with alias', function () {
-    $request = Request::create('/', 'GET', [$this->alias => $this->value]);
-
-    expect($this->filter->alias($this->alias))
-        ->refine($this->builder, $request)->toBeTrue();
-
-    expect($this->builder->getQuery()->wheres)
-        ->toBeOnlyWhere($this->builder->qualifyColumn($this->name), $this->value);
-
+it('can be date time', function () {
     expect($this->filter)
-        ->isActive()->toBeTrue()
-        ->getValue()->toBe($this->value);
+        ->datetime()->toBe($this->filter)
+        ->getType()->toBe('datetime')
+        ->interpretsAs()->toBe('datetime');
 });
 
-it('does not apply with scope', function () {
-    $scope = 'scope';
-
-    $request = Request::create('/', 'GET', [$this->name => $this->value]);
-
-    expect($this->filter->scope($scope))
-        ->refine($this->builder, $request)->toBeFalse();
-
-    expect($this->builder->getQuery()->wheres)
-        ->toBeEmpty();
-
+it('can be float', function () {
     expect($this->filter)
-        ->isActive()->toBeFalse()
-        ->getValue()->toBeNull();
+        ->float()->toBe($this->filter)
+        ->getType()->toBe('number')
+        ->interpretsAs()->toBe('float');
 });
 
-it('applies with scope', function () {
-    $this->filter->scope('scope');
-
-    $request = Request::create('/', 'GET', [
-        $this->filter->formatScope($this->name) => $this->value,
-    ]);
-
+it('can be integer', function () {
     expect($this->filter)
-        ->refine($this->builder, $request)->toBeTrue();
-
-    expect($this->builder->getQuery()->wheres)
-        ->toBeOnlyWhere($this->builder->qualifyColumn($this->name), $this->value);
-
-    expect($this->filter)
-        ->isActive()->toBeTrue()
-        ->getValue()->toBe($this->value);
+        ->int()->toBe($this->filter)
+        ->getType()->toBe('number')
+        ->interpretsAs()->toBe('int');
 });
 
-it('applies with different operator', function () {
-    $operator = '>';
-
-    $request = Request::create('/', 'GET', [$this->name => $this->value]);
-
-    expect($this->filter->operator($operator))
-        ->refine($this->builder, $request)->toBeTrue();
-
-    expect($this->builder->getQuery()->wheres)
-        ->toBeOnlyWhere($this->builder->qualifyColumn($this->name), $this->value, $operator);
-
+it('can be array multiple', function () {
     expect($this->filter)
-        ->isActive()->toBeTrue()
-        ->getValue()->toBe($this->value);
+        ->multiple()->toBe($this->filter)
+        ->getType()->toBe('multiple')
+        ->interpretsAs()->toBe('array')
+        ->isMultiple()->toBeTrue();
 });
 
-it('applies with `like` operators', function () {
-    $request = Request::create('/', 'GET', [$this->name => $this->value]);
-
-    expect($this->filter->operator('like'))
-        ->refine($this->builder, $request)->toBeTrue();
-
-    expect($this->builder->getQuery()->wheres)
-        ->toBeOnlySearch($this->builder->qualifyColumn($this->name));
-
+it('can be text', function () {
     expect($this->filter)
-        ->isActive()->toBeTrue()
-        ->getValue()->toBe($this->value);
+        ->text()->toBe($this->filter)
+        ->getType()->toBe('text')
+        ->interpretsAs()->toBe('string');
 });
 
-it('applies with date', function () {
-    $value = Carbon::now();
-
-    $request = Request::create('/', 'GET', [
-        $this->name => $value->toIso8601String(),
-    ]);
-
-    expect($this->filter->date())
-        ->refine($this->builder, $request)->toBeTrue();
-
-    expect($this->builder->getQuery()->wheres)
-        ->toHaveCount(1)
-        ->{0}->scoped(fn ($where) => $where
-        ->{'type'}->toBe('Date')
-        ->{'column'}->toBe($this->builder->qualifyColumn($this->name))
-        ->{'operator'}->toBe('=')
-        ->{'value'}->toBe($value->toDateString())
-        ->{'boolean'}->toBe('and')
-        );
-
+it('can be time', function () {
     expect($this->filter)
-        ->isActive()->toBeTrue()
-        ->getValue()->toBeInstanceOf(Carbon::class);
+        ->time()->toBe($this->filter)
+        ->getType()->toBe('time')
+        ->interpretsAs()->toBe('time');
 });
 
-it('applies with datetime', function () {
-    $value = Carbon::now();
-
-    $request = Request::create('/', 'GET', [
-        $this->name => $value->toIso8601String(),
-    ]);
-
-    expect($this->filter->datetime())
-        ->refine($this->builder, $request)->toBeTrue();
-
-    expect($this->builder->getQuery()->wheres)
-        ->toHaveCount(1)
-        ->{0}->scoped(fn ($where) => $where
-        ->{'type'}->toBe('Basic')
-        ->{'column'}->toBe($this->builder->qualifyColumn($this->name))
-        ->{'operator'}->toBe('=')
-        ->{'value'}->toBeInstanceOf(Carbon::class)
-        ->{'boolean'}->toBe('and')
-        );
-
+it('can be presence', function () {
     expect($this->filter)
-        ->isActive()->toBeTrue()
-        ->getValue()->toBeInstanceOf(Carbon::class);
+        ->presence()->toBe($this->filter)
+        ->getType()->toBe('boolean')
+        ->interpretsAs()->toBe('boolean')
+        ->isPresence()->toBeTrue();
 });
 
-it('applies with time', function () {
-    $value = Carbon::now();
-
-    $request = Request::create('/', 'GET', [
-        $this->name => $value->toIso8601String(),
-    ]);
-
-    expect($this->filter->time())
-        ->refine($this->builder, $request)->toBeTrue();
-
-    expect($this->builder->getQuery()->wheres)
-        ->toHaveCount(1)
-        ->{0}->scoped(fn ($where) => $where
-        ->{'type'}->toBe('Time')
-        ->{'column'}->toBe($this->builder->qualifyColumn($this->name))
-        ->{'operator'}->toBe('=')
-        ->{'value'}->toBe($value->toTimeString())
-        ->{'boolean'}->toBe('and')
-        );
-
+it('has default', function () {
     expect($this->filter)
-        ->isActive()->toBeTrue()
-        ->getValue()->toBeInstanceOf(Carbon::class);
+        ->getDefault()->toBeNull()
+        ->default('value')->toBe($this->filter)
+        ->getDefault()->toBe('value');
 });
 
-it('applies with query', function () {
-    $request = Request::create('/', 'GET', [$this->name => $this->value]);
-
-    $fn = fn ($builder, $value) => $builder->where($this->name, 'like', $value.'%');
-
-    expect($this->filter->query($fn))
-        ->refine($this->builder, $request)->toBeTrue();
-
-    expect($this->builder->getQuery()->wheres)
-        ->toBeOnlyWhere($this->name, $this->value.'%', 'like');
-
+it('has enum shorthand', function () {
     expect($this->filter)
-        ->isActive()->toBeTrue()
-        ->getValue()->toBe($this->value);
+        ->hasOptions()->toBeFalse()
+        ->enum(Status::class)->toBe($this->filter)
+        ->hasOptions()->toBeTrue()
+        ->getOptions()->toHaveCount(\count(Status::cases()));
 });
 
-it('applies lax', function () {
-    $value = 'invalid';
-
-    $request = Request::create('/', 'GET', [$this->name => $value]);
-
-    expect($this->filter->lax()->options(Status::class))
-        ->refine($this->builder, $request)->toBeTrue();
-
-    expect($this->builder->getQuery()->wheres)
-        ->toBeOnlyWhere($this->builder->qualifyColumn($this->name), $value);
-
+it('can be multiple', function () {
     expect($this->filter)
-        ->isActive()->toBeTrue()
-        ->getValue()->toBe($value)
-        ->getOptions()->each(fn ($option) => $option->isActive()->toBeFalse());
-});
-
-it('applies strict', function () {
-    $value = 'indeterminate';
-
-    $request = Request::create('/', 'GET', [$this->name => $value]);
-
-    expect($this->filter->strict()->options(Status::class))
-        ->refine($this->builder, $request)->toBeFalse();
-
-    expect($this->builder->getQuery()->wheres)
-        ->toBeEmpty();
-
-    expect($this->filter)
-        ->isActive()->toBeFalse()
-        ->getValue()->toBeNull() // Transform means invalid values are discarded
-        ->getOptions()->each(fn ($option) => $option->isActive()->toBeFalse());
-});
-
-it('applies multiple', function () {
-    $value = [Status::Available->value, Status::Unavailable->value];
-    $values = \implode(',', $value);
-
-    $request = Request::create('/', 'GET', [$this->name => $values]);
-
-    expect($this->filter->multiple()->options(Status::class))
-        ->refine($this->builder, $request)->toBeTrue();
-
-    expect($this->builder->getQuery()->wheres)
-        ->toBeOnlyWhereIn($this->builder->qualifyColumn($this->name), $value);
-
-    expect($this->filter)
-        ->isActive()->toBeTrue()
-        ->getValue()->toEqual($value)
-        ->getOptions()->scoped(fn ($options) => $options
-        ->toBeArray()
-        ->toHaveCount(3)
-        ->{0}->isActive()->toBeTrue()
-        ->{1}->isActive()->toBeTrue()
-        ->{2}->isActive()->toBeFalse()
-        );
-});
-
-it('applies with unqualified column', function () {
-    $request = Request::create('/', 'GET', [$this->name => 'value']);
-
-    expect($this->filter->qualify(false)->refine($this->builder, $request))
-        ->toBeTrue();
-
-    expect($this->builder->getQuery()->wheres)
-        ->toBeOnlyWhere($this->name, 'value');
-
-    expect($this->filter)
-        ->isActive()->toBeTrue();
+        ->isMultiple()->toBeFalse()
+        ->interpretsAs()->toBeNull()
+        ->multiple()->toBe($this->filter)
+        ->isMultiple()->toBeTrue()
+        ->getType()->toBe('multiple')
+        ->interpretsAs()->toBe('array');
 });

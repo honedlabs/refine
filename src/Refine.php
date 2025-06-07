@@ -21,6 +21,7 @@ use Honed\Refine\Pipelines\RefineFilters;
 use Honed\Refine\Pipelines\RefineSearches;
 use Honed\Refine\Pipelines\RefineSorts;
 use Illuminate\Container\Container;
+use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
@@ -30,6 +31,7 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Str;
 use Illuminate\Support\Traits\ForwardsCalls;
 use Throwable;
+use Laravel\Scout\Builder as ScoutBuilder;
 
 /**
  * @template TModel of \Illuminate\Database\Eloquent\Model = \Illuminate\Database\Eloquent\Model
@@ -62,7 +64,14 @@ class Refine extends Primitive
      *
      * @var string
      */
-    public static $namespace = 'App\\Refiners\\';
+    protected static $namespace = 'App\\Refiners\\';
+
+    /**
+     * The request instance.
+     *
+     * @var Request
+     */
+    protected $request;
 
     /**
      * Whether the refine pipeline has been run.
@@ -102,9 +111,9 @@ class Refine extends Primitive
     /**
      * Create a new refine instance.
      */
-    public function __construct(
-        protected Request $request
-    ) {
+    public function __construct(Request $request)
+    {
+        $this->request = $request;
         parent::__construct();
     }
 
@@ -126,11 +135,11 @@ class Refine extends Primitive
      * Create a new refine instance.
      *
      * @param  TModel|class-string<TModel>|TBuilder|null  $resource
-     * @return static
+     * @return self
      */
     public static function make($resource = null)
     {
-        $refine = resolve(static::class);
+        $refine = App::make(static::class);
 
         if ($resource) {
             return $refine->withResource($resource);
@@ -145,14 +154,15 @@ class Refine extends Primitive
      * @template TClass of \Illuminate\Database\Eloquent\Model
      *
      * @param  class-string<TClass>  $modelName
-     * @param  Closure|null  $before
+     * 
      * @return Refine<TClass>
      */
-    public static function refinerForModel($modelName, $before = null)
+    public static function refinerForModel($modelName)
     {
         $refiner = static::resolveRefinerName($modelName);
 
-        return $refiner::make($before);
+        return $refiner::make()
+            ->withResource($modelName);
     }
 
     /**
@@ -200,14 +210,19 @@ class Refine extends Primitive
     }
 
     /**
-     * Flush the refine class global configuration statw.
+     * Flush the global configuration state.
      *
      * @return void
      */
     public static function flushState()
     {
-        static::$refinerResolver = null;
         static::$namespace = 'App\\Refine\\';
+        static::$refinerResolver = null;
+        static::$shouldMatch = false;
+        static::$useDelimiter = ',';
+        static::$useSortKey = 'sort';
+        static::$useSearchKey = 'search';
+        static::$useMatchKey = 'match';
     }
 
     /**
@@ -283,6 +298,29 @@ class Refine extends Primitive
     }
 
     /**
+     * Set whether the refine pipeline should use Laravel Scout's search.
+     *
+     * @param  bool  $scout
+     * @return $this
+     */
+    public function scout($scout = true)
+    {
+        $this->scout = $scout;
+
+        return $this;
+    }
+
+    /**
+     * Determine if the refine pipeline should use Laravel Scout's search.
+     *
+     * @return bool
+     */
+    public function usesScout()
+    {
+        return $this->scout;
+    }
+
+    /**
      * Add the given refiners to be used.
      *
      * @param  array<int, Refiner>|\Illuminate\Support\Collection<int, Refiner>  $refiners
@@ -338,6 +376,19 @@ class Refine extends Primitive
     public function getMatchKey()
     {
         return $this->formatScope($this->baseMatchKey());
+    }
+
+    /**
+     * Set the request instance.
+     *
+     * @param  Request  $request
+     * @return $this
+     */
+    public function request($request)
+    {
+        $this->request = $request;
+
+        return $this;
     }
 
     /**
@@ -455,6 +506,7 @@ class Refine extends Primitive
     protected function resolveDefaultClosureDependencyForEvaluationByName($parameterName)
     {
         $resource = $this->getResource();
+
         $request = $this->getRequest();
 
         [$_, $singular, $plural] = Parameters::names($resource);
@@ -482,7 +534,9 @@ class Refine extends Primitive
         return match ($parameterType) {
             Request::class => [$request],
             Route::class => [$request->route()],
-            Builder::class => [$resource],
+            Builder::class,
+            ScoutBuilder::class,
+            BuilderContract::class => [$resource],
             default => [App::make($parameterType)],
         };
     }

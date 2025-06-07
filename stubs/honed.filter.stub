@@ -4,8 +4,8 @@ namespace {{ namespace }};
 
 use Honed\Refine\Filter;
 use Illuminate\Database\Eloquent\Builder;
-use Honed\Refine\Contracts\FromOptions;
-use Honed\Core\Contracts\FromQuery;
+use Honed\Refine\Contracts\WithOptions;
+use Honed\Core\Contracts\WithQuery;
 
 /**
  * @template TModel of \Illuminate\Database\Eloquent\Model = \Illuminate\Database\Eloquent\Model
@@ -13,7 +13,7 @@ use Honed\Core\Contracts\FromQuery;
  *
  * @extends \Honed\Refine\Filter<TModel, TBuilder>
  */
-class {{ class }} extends Filter
+class {{ class }} extends Filter // implements WithOptions, WithQuery
 {
     /**
      *  Create a new filter instance.
@@ -34,4 +34,26 @@ class {{ class }} extends Filter
     {
         //
     }
+
+    // /**
+    //  * Register the options for the filter.
+    //  *
+    //  * @return array<int, string>
+    //  */
+    // public function optionsUsing()
+    // {
+    //     //
+    // }
+
+    // /**
+    //  * Register the query expression to apply the filter.
+    //  *
+    //  * @param  TBuilder  $builder
+    //  * @param  mixed  $value
+    //  * @return void
+    //  */
+    // public function queryUsing($builder, $value)
+    // {
+    //     //
+    // }
 }

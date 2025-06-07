@@ -9,7 +9,7 @@ use BackedEnum;
 interface WithOptions
 {
     /**
-     * Define the source you wish to create options from.
+     * Provide the options for the filter.
      *
      * @return class-string<BackedEnum>|array<int|string,scalar|null>|\Illuminate\Support\Collection<int|string,scalar|null>
      */

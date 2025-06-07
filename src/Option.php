@@ -33,18 +33,6 @@ class Option extends Primitive
     }
 
     /**
-     * {@inheritdoc}
-     */
-    public function toArray($named = [], $typed = [])
-    {
-        return [
-            'value' => $this->getValue(),
-            'label' => $this->getLabel(),
-            'active' => $this->isActive(),
-        ];
-    }
-
-    /**
      * Activate the option.
      *
      * @param  mixed  $value
@@ -62,5 +50,17 @@ class Option extends Primitive
         $this->active = $active;
 
         return $active;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function toArray($named = [], $typed = [])
+    {
+        return [
+            'value' => $this->getValue(),
+            'label' => $this->getLabel(),
+            'active' => $this->isActive(),
+        ];
     }
 }

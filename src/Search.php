@@ -111,6 +111,7 @@ class Search extends Refiner
 
         return array_merge(parent::getBindings($term, $builder), [
             'boolean' => $this->getBoolean(),
+            'term' => $term,
         ]);
     }
 
@@ -123,7 +124,7 @@ class Search extends Refiner
      * @param  string  $boolean
      * @return void
      */
-    public function defaultQuery($builder, $value, $column, $boolean = 'and')
+    public function apply($builder, $value, $column, $boolean = 'and')
     {
         if ($this->isFullText()) {
             $this->searchRecall($builder, $value, $column, $boolean);

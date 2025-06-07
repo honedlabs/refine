@@ -4,29 +4,32 @@ declare(strict_types=1);
 
 namespace Workbench\App\Refiners;
 
+use Honed\Refine\Contracts\RefinesAfter;
+use Honed\Refine\Contracts\RefinesBefore;
 use Honed\Refine\Filter;
 use Honed\Refine\Refine;
 use Honed\Refine\Search;
-use Honed\Refine\Sort;
-use Honed\Refine\Tests\Stubs\Status;
-use Workbench\App\Models\Product;
+use Workbench\App\Models\User;
 
 /**
  * @template TModel of \Workbench\App\Models\Product
  * @template TBuilder of \Illuminate\Database\Eloquent\Builder<TModel>
  *
+ * @implements \Honed\Refine\Contracts\RefinesAfter<TModel, TBuilder>
+ * @implements \Honed\Refine\Contracts\RefinesBefore<TModel, TBuilder>
+ *
  * @extends \Honed\Refine\Refine<TModel, TBuilder>
  */
-class UserRefiner extends Refine
+class UserRefiner extends Refine implements RefinesAfter, RefinesBefore
 {
     /**
-     * Define the database resource to use.
+     * Define the resource to use for the query.
      *
      * @return TBuilder
      */
     public function resource()
     {
-        return Product::query();
+        return User::query();
     }
 
     /**
@@ -40,59 +43,6 @@ class UserRefiner extends Refine
         return [
             Filter::make('name')
                 ->operator('like'),
-
-            Filter::make('price', 'Maximum price')
-                ->strict()
-                ->operator('>=')
-                ->options([10, 20, 50, 100]),
-
-            Filter::make('status')
-                ->strict()
-                ->enum(Status::class)
-                ->multiple(),
-
-            Filter::make('status', 'Single')
-                ->alias('only')
-                ->enum(Status::class),
-
-            Filter::make('best_seller', 'Favourite')
-                ->asBoolean()
-                ->alias('favourite'),
-
-            Filter::make('created_at', 'Oldest')
-                ->alias('oldest')
-                ->asDate()
-                ->operator('>='),
-
-            Filter::make('created_at', 'Newest')
-                ->alias('newest')
-                ->asDate()
-                ->operator('<='),
-        ];
-    }
-
-    /**
-     * Define the sorts available to order the records.
-     *
-     * @return array<int, Sort<TModel, TBuilder>>
-     */
-    public function sorts()
-    {
-        /** @var array<int, Sort<TModel, TBuilder>> */
-        return [
-            Sort::make('name', 'A-Z')
-                ->alias('name-desc')
-                ->desc()
-                ->default(),
-
-            Sort::make('name', 'Z-A')
-                ->alias('name-asc')
-                ->asc(),
-
-            Sort::make('price'),
-
-            Sort::make('best_seller', 'Favourite')
-                ->alias('favourite'),
         ];
     }
 
@@ -106,7 +56,23 @@ class UserRefiner extends Refine
         /** @var array<int, Search<TModel, TBuilder>> */
         return [
             Search::make('name'),
-            Search::make('description'),
+            Search::make('email'),
         ];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function afterRefining($builder)
+    {
+        return $builder->latest();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function beforeRefining($builder)
+    {
+        return $builder->where('email', 'test@test.com');
     }
 }

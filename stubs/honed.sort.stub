@@ -3,7 +3,7 @@
 namespace {{ namespace }};
 
 use Honed\Refine\Sort;
-use Honed\Core\Contracts\FromQuery;
+use Honed\Core\Contracts\WithQuery;
 
 /**
  * @template TModel of \Illuminate\Database\Eloquent\Model = \Illuminate\Database\Eloquent\Model
@@ -11,7 +11,7 @@ use Honed\Core\Contracts\FromQuery;
  *
  * @extends \Honed\Refine\Sort<TModel, TBuilder>
  */
-class {{ class }} extends Sort
+class {{ class }} extends Sort // implements WithQuery
 {
     /**
      * Create a new sort instance.
@@ -32,4 +32,16 @@ class {{ class }} extends Sort
     {
         //
     }
+
+    // /**
+    //  * Register the query expression to apply the sort.
+    //  *
+    //  * @param  TBuilder  $builder
+    //  * @param  mixed  $value
+    //  * @return void
+    //  */
+    // public function queryUsing($builder, $direction)
+    // {
+    //     //
+    // }
 }

@@ -18,6 +18,11 @@ final class TrashedFilter extends Filter implements WithOptions, WithQuery
     /**
      * {@inheritdoc}
      */
+    protected $type = 'trashed';
+
+    /**
+     * {@inheritdoc}
+     */
     protected $name = 'trashed';
 
     /**
@@ -26,11 +31,6 @@ final class TrashedFilter extends Filter implements WithOptions, WithQuery
      * @var string
      */
     protected $label = 'Show deleted';
-
-    /**
-     * {@inheritdoc}
-     */
-    protected $type = 'trashed';
 
     /**
      * Create a new trashed filter instance.
@@ -52,9 +52,9 @@ final class TrashedFilter extends Filter implements WithOptions, WithQuery
     public function queryUsing($builder, $value)
     {
         return match ($value) {
-            'with' => $builder->withTrashed(),
-            'only' => $builder->onlyTrashed(),
-            default => $builder->withoutTrashed(),
+            'with' => $builder->withTrashed(), // @phpstan-ignore method.notFound
+            'only' => $builder->onlyTrashed(), // @phpstan-ignore method.notFound
+            default => $builder->withoutTrashed(), // @phpstan-ignore method.notFound
         };
     }
 

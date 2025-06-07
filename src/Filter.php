@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Honed\Refine;
 
 use BackedEnum;
-use Carbon\Carbon;
+use Carbon\CarbonInterface;
 use Honed\Core\Concerns\HasMeta;
 use Honed\Core\Concerns\HasScope;
 use Honed\Core\Concerns\InterpretsRequest;
@@ -63,6 +63,17 @@ class Filter extends Refiner
      * @var mixed
      */
     protected $default;
+
+    /**
+     * Flush the global configuration state.
+     *
+     * @return void
+     */
+    public static function flushState()
+    {
+        parent::flushState();
+        static::$useStrict = false;
+    }
 
     /**
      * Set the filter to be for boolean values.
@@ -313,33 +324,13 @@ class Filter extends Refiner
     }
 
     /**
-     * Define the default value to use for the filter even if it is not active.
-     *
-     * @return mixed
-     */
-    public function defineDefault()
-    {
-        return null;
-    }
-
-    /**
      * Get the default value to use for the filter even if it is not active.
      *
      * @return mixed
      */
     public function getDefault()
     {
-        return $this->default ??= $this->defineDefault();
-    }
-
-    /**
-     * Determine if the filter has a default value.
-     *
-     * @return bool
-     */
-    public function hasDefault()
-    {
-        return (bool) $this->getDefault();
+        return $this->default;
     }
 
     /**
@@ -397,7 +388,7 @@ class Filter extends Refiner
     {
         $value = $this->getValue();
 
-        if ($value instanceof Carbon) {
+        if ($value instanceof CarbonInterface) {
             $value = $value->toIso8601String();
         }
 
@@ -417,7 +408,7 @@ class Filter extends Refiner
      * @param  mixed  $value
      * @return void
      */
-    public function defaultQuery($builder, $column, $operator, $value)
+    public function apply($builder, $column, $operator, $value)
     {
         match (true) {
             $this->isFullText() && is_string($value) => $this->searchRecall(

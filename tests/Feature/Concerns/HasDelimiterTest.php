@@ -11,8 +11,10 @@ beforeEach(function () {
     {
         use HasDelimiter;
     };
+});
 
-    $this->test::useDelimiter();
+afterEach(function () {
+    $this->test::useDelimiter(',');
 });
 
 it('sets', function () {

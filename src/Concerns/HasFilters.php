@@ -31,12 +31,11 @@ trait HasFilters
     /**
      * Set whether the filters should be applied.
      *
-     * @param  bool  $filter
      * @return $this
      */
-    public function filter($filter = true)
+    public function disableFiltering()
     {
-        $this->filter = $filter;
+        $this->filter = false;
 
         return $this;
     }
@@ -46,19 +45,11 @@ trait HasFilters
      *
      * @return $this
      */
-    public function doNotFilter()
+    public function enableFiltering()
     {
-        return $this->filter(false);
-    }
+        $this->filter = true;
 
-    /**
-     * Set the filters to not be applied.
-     *
-     * @return $this
-     */
-    public function dontFilter()
-    {
-        return $this->doNotFilter();
+        return $this;
     }
 
     /**
@@ -66,7 +57,7 @@ trait HasFilters
      *
      * @return bool
      */
-    public function shouldFilter()
+    public function filteringEnabled()
     {
         return $this->filter;
     }
@@ -76,19 +67,9 @@ trait HasFilters
      *
      * @return bool
      */
-    public function shouldNotFilter()
+    public function filteringDisabled()
     {
-        return ! $this->shouldFilter();
-    }
-
-    /**
-     * Determine if the filters should not be applied.
-     *
-     * @return bool
-     */
-    public function shouldntFilter()
-    {
-        return $this->shouldNotFilter();
+        return ! $this->filteringEnabled();
     }
 
     /**
@@ -124,7 +105,7 @@ trait HasFilters
      */
     public function getFilters()
     {
-        if ($this->shouldNotFilter()) {
+        if ($this->filteringDisabled()) {
             return [];
         }
 

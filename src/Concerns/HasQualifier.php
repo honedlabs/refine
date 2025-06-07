@@ -13,9 +13,27 @@ trait HasQualifier
     /**
      * Whether to qualify against the builder.
      *
-     * @var bool|string
+     * @var bool|string|null
      */
-    protected $qualify = true;
+    protected $qualify;
+
+    /**
+     * Whether to qualify against the builder by default.
+     *
+     * @var bool
+     */
+    protected static $shouldQualify = false;
+
+    /**
+     * Set whether to qualify against the builder by default.
+     *
+     * @param  bool  $shouldQualify
+     * @return void
+     */
+    public static function shouldQualify($shouldQualify = true)
+    {
+        static::$shouldQualify = $shouldQualify;
+    }
 
     /**
      * Set whether to qualify against the builder.
@@ -37,7 +55,7 @@ trait HasQualifier
      */
     public function getQualifier()
     {
-        return $this->qualify;
+        return $this->qualify ?? static::$shouldQualify;
     }
 
     /**
@@ -47,7 +65,7 @@ trait HasQualifier
      */
     public function qualifies()
     {
-        return (bool) $this->qualify;
+        return (bool) $this->getQualifier();
     }
 
     /**

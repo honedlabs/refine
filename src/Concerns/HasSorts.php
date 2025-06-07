@@ -48,7 +48,7 @@ trait HasSorts
      * @param  string  $sortKey
      * @return void
      */
-    public static function useSortKey($sortKey)
+    public static function useSortKey($sortKey = 'sort')
     {
         static::$useSortKey = $sortKey;
     }
@@ -56,12 +56,11 @@ trait HasSorts
     /**
      * Set whether the sorts should be applied.
      *
-     * @param  bool  $sort
      * @return $this
      */
-    public function sort($sort = true)
+    public function disableSorting()
     {
-        $this->sort = $sort;
+        $this->sort = false;
 
         return $this;
     }
@@ -71,19 +70,11 @@ trait HasSorts
      *
      * @return $this
      */
-    public function doNotSort()
+    public function enableSorting()
     {
-        return $this->sort(false);
-    }
+        $this->sort = true;
 
-    /**
-     * Set the sorts to not be applied.
-     *
-     * @return $this
-     */
-    public function dontSort()
-    {
-        return $this->doNotSort();
+        return $this;
     }
 
     /**
@@ -91,7 +82,7 @@ trait HasSorts
      *
      * @return bool
      */
-    public function shouldSort()
+    public function sortingEnabled()
     {
         return $this->sort;
     }
@@ -101,19 +92,9 @@ trait HasSorts
      *
      * @return bool
      */
-    public function shouldNotSort()
+    public function sortingDisabled()
     {
-        return ! $this->shouldSort();
-    }
-
-    /**
-     * Determine if the sorts should not be applied.
-     *
-     * @return bool
-     */
-    public function shouldntSort()
-    {
-        return $this->shouldNotSort();
+        return ! $this->sortingEnabled();
     }
 
     /**
@@ -149,7 +130,7 @@ trait HasSorts
      */
     public function getSorts()
     {
-        if ($this->shouldNotSort()) {
+        if ($this->sortingDisabled()) {
             return [];
         }
 

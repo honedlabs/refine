@@ -13,16 +13,6 @@ use Illuminate\Support\ServiceProvider;
 class RefineServiceProvider extends ServiceProvider
 {
     /**
-     * Register any application services
-     *
-     * @return void
-     */
-    public function register()
-    {
-        $this->mergeConfigFrom(__DIR__.'/../config/refine.php', 'refine');
-    }
-
-    /**
      * Bootstrap the application services.
      */
     public function boot(): void
@@ -46,10 +36,6 @@ class RefineServiceProvider extends ServiceProvider
      */
     protected function offerPublishing()
     {
-        $this->publishes([
-            __DIR__.'/../config/refine.php' => config_path('refine.php'),
-        ], 'refine-config');
-
         $this->publishes([
             __DIR__.'/../stubs' => base_path('stubs'),
         ], 'refine-stubs');
