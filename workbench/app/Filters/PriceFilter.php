@@ -1,13 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Workbench\App\Filters;
 
-use Honed\Refine\Filter;
-use Illuminate\Database\Eloquent\Builder;
-use Honed\Refine\Contracts\FromOptions;
-use Honed\Core\Contracts\FromQuery;
 use Honed\Core\Contracts\WithQuery;
 use Honed\Refine\Contracts\WithOptions;
+use Honed\Refine\Filter;
 
 /**
  * @template TModel of \Illuminate\Database\Eloquent\Model = \Illuminate\Database\Eloquent\Model
@@ -17,16 +16,6 @@ use Honed\Refine\Contracts\WithOptions;
  */
 class PriceFilter extends Filter implements WithOptions, WithQuery
 {
-    /**
-     *  Create a new filter instance.
-     *
-     *  @return static
-     */
-    public static function new()
-    {
-        return resolve(static::class);
-    }
-
     /**
      * Provide the filter with any necessary setup.
      *
@@ -38,6 +27,16 @@ class PriceFilter extends Filter implements WithOptions, WithQuery
         $this->name('price');
         $this->label('Price');
         $this->strict();
+    }
+
+    /**
+     *  Create a new filter instance.
+     *
+     * @return static
+     */
+    public static function new()
+    {
+        return resolve(static::class);
     }
 
     /**

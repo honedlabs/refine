@@ -2,19 +2,19 @@
 
 declare(strict_types=1);
 
-use Honed\Refine\Sort;
 use Honed\Refine\Filter;
 use Honed\Refine\Refine;
 use Honed\Refine\Search;
-use Illuminate\Support\Str;
-use Illuminate\Http\Request;
-use Illuminate\Routing\Route;
-use Workbench\App\Models\Product;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Contracts\Auth\Access\Gate;
+use Honed\Refine\Sort;
 use Illuminate\Auth\Access\Gate as AccessGate;
+use Illuminate\Contracts\Auth\Access\Gate;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Routing\Route;
 use Illuminate\Support\Facades\Request as FacadesRequest;
+use Illuminate\Support\Str;
+use Workbench\App\Models\Product;
 use Workbench\App\Refiners\ProductRefiner;
 
 beforeEach(function () {

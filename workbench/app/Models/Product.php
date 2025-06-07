@@ -23,8 +23,8 @@ class Product extends Model
      * @use \Honed\Refine\Concerns\HasRefiner<\Workbench\App\Refiners\ProductRefiner>
      */
     use HasRefiner;
-    use Searchable;
 
+    use Searchable;
     use SoftDeletes;
 
     /**

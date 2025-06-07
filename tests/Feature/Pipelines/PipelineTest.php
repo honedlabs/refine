@@ -148,13 +148,12 @@ it('has custom keys pipeline', function () {
 
 it('has scout pipeline', function () {
     Product::factory(10)->create([
-        'name' => 'test'
+        'name' => 'test',
     ]);
 
     $this->artisan('scout:import', ['model' => Product::class]);
 
     Product::search('test');
-
 
     // Decorator around the builder?
     // dd(

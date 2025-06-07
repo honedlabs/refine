@@ -30,8 +30,8 @@ use Illuminate\Routing\Route;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Str;
 use Illuminate\Support\Traits\ForwardsCalls;
-use Throwable;
 use Laravel\Scout\Builder as ScoutBuilder;
+use Throwable;
 
 /**
  * @template TModel of \Illuminate\Database\Eloquent\Model = \Illuminate\Database\Eloquent\Model
@@ -154,7 +154,6 @@ class Refine extends Primitive
      * @template TClass of \Illuminate\Database\Eloquent\Model
      *
      * @param  class-string<TClass>  $modelName
-     * 
      * @return Refine<TClass>
      */
     public static function refinerForModel($modelName)
