@@ -531,6 +531,7 @@ class Refine extends Primitive
         $request = $this->getRequest();
 
         return match ($parameterType) {
+            static::class => [$this],
             Request::class => [$request],
             Route::class => [$request->route()],
             Builder::class,
