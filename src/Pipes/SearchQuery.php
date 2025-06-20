@@ -59,7 +59,7 @@ class SearchQuery extends Pipe
             $instance->getRequest(), $instance->getSearchKey()
         );
 
-        return $term ? str_replace('+', ' ', trim($term)) : null;
+        return $term ? str_replace('+', ' ', mb_trim($term)) : null;
     }
 
     /**
