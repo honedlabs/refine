@@ -9,27 +9,9 @@ trait HasDelimiter
     /**
      * The delimiter to use for parsing array values.
      *
-     * @var string|null
-     */
-    protected $delimiter;
-
-    /**
-     * The default delimiter to use for parsing array values.
-     *
      * @var string
      */
-    protected static $useDelimiter = ',';
-
-    /**
-     * Set the delimiter to use by default.
-     *
-     * @param  string  $delimiter
-     * @return void
-     */
-    public static function useDelimiter($delimiter = ',')
-    {
-        static::$useDelimiter = $delimiter;
-    }
+    protected $delimiter = ',';
 
     /**
      * Set the delimiter.
@@ -51,6 +33,6 @@ trait HasDelimiter
      */
     public function getDelimiter()
     {
-        return $this->delimiter ?? static::$useDelimiter;
+        return $this->delimiter;
     }
 }

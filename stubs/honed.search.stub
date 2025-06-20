@@ -2,19 +2,12 @@
 
 namespace {{ namespace }};
 
-use Honed\Refine\Search;
-use Honed\Core\Contracts\WithQuery;
+use Honed\Refine\Searches\Search;
 
-/**
- * @template TModel of \Illuminate\Database\Eloquent\Model = \Illuminate\Database\Eloquent\Model
- * @template TBuilder of \Illuminate\Database\Eloquent\Builder<TModel> = \Illuminate\Database\Eloquent\Builder<TModel>
- *
- * @extends \Honed\Refine\Search<TModel, TBuilder>
- */
-class {{ class }} extends Search // implements WithQuery
+class {{ class }} extends Search
 {
     /**
-     *  Create a new search instance.
+     * Create a new search instance.
      *
      * @return static
      */
@@ -24,24 +17,13 @@ class {{ class }} extends Search // implements WithQuery
     }
 
     /**
-     * Provide the search with any necessary setup.
+     * Define the search instance.
      *
-     * @return void
+     * @param  $this  $search
+     * @return $this
      */
-    public function setUp()
+    protected function definition(Search $search): Search
     {
-        //
+        return $search;
     }
-
-    // /**
-    //  * Register the query expression to apply the search.
-    //  *
-    //  * @param  TBuilder  $builder
-    //  * @param  mixed  $value
-    //  * @return void
-    //  */
-    // public function queryUsing($builder, $term)
-    // {
-    //     //
-    // }
 }

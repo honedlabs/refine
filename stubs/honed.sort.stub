@@ -2,16 +2,9 @@
 
 namespace {{ namespace }};
 
-use Honed\Refine\Sort;
-use Honed\Core\Contracts\WithQuery;
+use Honed\Refine\Sorts\Sort;
 
-/**
- * @template TModel of \Illuminate\Database\Eloquent\Model = \Illuminate\Database\Eloquent\Model
- * @template TBuilder of \Illuminate\Database\Eloquent\Builder<TModel> = \Illuminate\Database\Eloquent\Builder<TModel>
- *
- * @extends \Honed\Refine\Sort<TModel, TBuilder>
- */
-class {{ class }} extends Sort // implements WithQuery
+class {{ class }} extends Sort
 {
     /**
      * Create a new sort instance.
@@ -22,26 +15,25 @@ class {{ class }} extends Sort // implements WithQuery
     {
         return resolve(static::class);
     }
-
+    
     /**
-     * Provide the sort with any necessary setup.
-     *
-     * @return void
+     * Define the type of the sort.
+     * 
+     * @return string
      */
-    public function setUp()
+    public function type()
     {
-        //
+        return 'sort';
     }
 
-    // /**
-    //  * Register the query expression to apply the sort.
-    //  *
-    //  * @param  TBuilder  $builder
-    //  * @param  mixed  $value
-    //  * @return void
-    //  */
-    // public function queryUsing($builder, $direction)
-    // {
-    //     //
-    // }
+    /**
+     * Define the sort instance.
+     *
+     * @param  $this  $sort
+     * @return $this
+     */
+    protected function definition(Sort $sort): Sort
+    {
+        return $sort;
+    }
 }

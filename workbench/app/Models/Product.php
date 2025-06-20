@@ -20,7 +20,7 @@ class Product extends Model
     use HasFactory;
 
     /**
-     * @use \Honed\Refine\Concerns\HasRefiner<\Workbench\App\Refiners\ProductRefiner>
+     * @use \Honed\Refine\Concerns\HasRefiner<\Workbench\App\Refiners\RefineProduct>
      */
     use HasRefiner;
 

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Workbench\App\Models;
 
-use Workbench\App\Refiners\UserRefiner;
+use Workbench\App\Refiners\RefineUser;
 
 class AuthUser extends User
 {
@@ -20,5 +20,5 @@ class AuthUser extends User
      *
      * @var class-string<\Honed\Refine\Refine>
      */
-    protected static $refiner = UserRefiner::class;
+    protected static $refiner = RefineUser::class;
 }

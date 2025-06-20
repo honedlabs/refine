@@ -13,19 +13,9 @@ beforeEach(function () {
     };
 });
 
-afterEach(function () {
-    $this->test::useDelimiter(',');
-});
-
 it('sets', function () {
     expect($this->test)
         ->getDelimiter()->toBe(',')
         ->delimiter('|')->toBe($this->test)
         ->getDelimiter()->toBe('|');
-});
-
-it('sets global delimiter', function () {
-    $this->test::useDelimiter('|');
-
-    expect($this->test->getDelimiter())->toBe('|');
 });

@@ -8,7 +8,7 @@ use Illuminate\Console\GeneratorCommand;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputOption;
 
-use function mb_trim;
+use function trim;
 
 #[AsCommand(name: 'make:filter')]
 class FilterMakeCommand extends GeneratorCommand
@@ -52,7 +52,7 @@ class FilterMakeCommand extends GeneratorCommand
      */
     protected function resolveStubPath($stub)
     {
-        return file_exists($customPath = $this->laravel->basePath(mb_trim($stub, '/')))
+        return file_exists($customPath = $this->laravel->basePath(trim($stub, '/')))
             ? $customPath
             : __DIR__.'/../..'.$stub;
     }
@@ -69,6 +69,8 @@ class FilterMakeCommand extends GeneratorCommand
     }
 
     /**
+     * Get the console command options.
+     *
      * @return array<int,array<int,mixed>>
      */
     protected function getOptions(): array

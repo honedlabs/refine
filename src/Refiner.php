@@ -12,8 +12,9 @@ use Honed\Core\Concerns\HasMeta;
 use Honed\Core\Concerns\HasName;
 use Honed\Core\Concerns\HasQuery;
 use Honed\Core\Concerns\HasType;
-use Honed\Core\Concerns\HasValue;
+use Honed\Core\Concerns\IsActive;
 use Honed\Core\Primitive;
+use Honed\Refine\Concerns\CanBeHidden;
 use Honed\Refine\Concerns\HasQualifier;
 use Illuminate\Support\Str;
 
@@ -26,6 +27,7 @@ use Illuminate\Support\Str;
 abstract class Refiner extends Primitive
 {
     use Allowable;
+    use CanBeHidden;
     use HasAlias;
     use HasLabel;
     use HasMeta;
@@ -36,7 +38,7 @@ abstract class Refiner extends Primitive
     use HasQuery;
 
     use HasType;
-    use HasValue;
+    use IsActive;
 
     /**
      * Create a new refiner instance.
@@ -53,134 +55,11 @@ abstract class Refiner extends Primitive
     }
 
     /**
-     * Flush the global configuration state.
-     *
-     * @return void
-     */
-    public static function flushState()
-    {
-        static::$shouldQualify = false;
-    }
-
-    /**
-     * Get the name.
-     *
-     * @return string
-     */
-    public function getName()
-    {
-        /** @var string */
-        return $this->name;
-    }
-
-    /**
-     * Determine if the refiner is currently being applied.
-     *
-     * @return bool
-     */
-    public function isActive()
-    {
-        return filled($this->getValue());
-    }
-
-    /**
-     * Get the value for the refiner from the request.
-     *
-     * @param  \Illuminate\Http\Request|mixed  $value
-     * @return mixed
-     */
-    public function getRequestValue($value)
-    {
-        return $value;
-    }
-
-    /**
      * Get the parameter for the refiner.
-     *
-     * @return string
      */
-    public function getParameter()
+    public function getParameter(): string
     {
         return $this->getAlias() ?? $this->guessParameter();
-    }
-
-    /**
-     * Guess the parameter for the refiner.
-     *
-     * @return string
-     */
-    public function guessParameter()
-    {
-        return Str::of($this->getName())
-            ->afterLast('.')
-            ->value();
-    }
-
-    /**
-     * Transform the value for the refiner from the request.
-     *
-     * @param  mixed  $value
-     * @return mixed
-     */
-    public function transformParameter($value)
-    {
-        return $value;
-    }
-
-    /**
-     * Determine if the value is invalid.
-     *
-     * @param  mixed  $value
-     * @return bool
-     */
-    public function invalidValue($value)
-    {
-        return false;
-    }
-
-    /**
-     * Get the bindings for the refiner closure.
-     *
-     * @param  mixed  $value
-     * @param  TBuilder  $builder
-     * @return array<string,mixed>
-     */
-    public function getBindings($value, $builder)
-    {
-        return [
-            'value' => $value,
-            'column' => $this->qualifyColumn($this->getName(), $builder),
-        ];
-    }
-
-    /**
-     * Refine the builder using the request.
-     *
-     * @param  TBuilder  $builder
-     * @param  \Illuminate\Http\Request|mixed  $requestValue
-     * @return bool
-     */
-    public function refine($builder, $requestValue)
-    {
-        $value = $this->getRequestValue($requestValue);
-
-        $value = $this->transformParameter($value);
-
-        $this->value($value);
-
-        if (! $this->isActive() || $this->invalidValue($value)) {
-            return false;
-        }
-
-        $bindings = $this->getBindings($value, $builder);
-
-        if (! $this->hasQuery()) {
-            $this->query(Closure::fromCallable([$this, 'apply']));
-        }
-
-        $this->modifyQuery($builder, $bindings);
-
-        return true;
     }
 
     /**
@@ -188,7 +67,7 @@ abstract class Refiner extends Primitive
      *
      * @return array<string,mixed>
      */
-    public function toArray($named = [], $typed = [])
+    public function toArray()
     {
         return [
             'name' => $this->getParameter(),
@@ -196,6 +75,60 @@ abstract class Refiner extends Primitive
             'type' => $this->getType(),
             'active' => $this->isActive(),
             'meta' => $this->getMeta(),
+        ];
+    }
+
+    /**
+     * Handle refining the query.
+     *
+     * @param  TBuilder  $query
+     * @param  array<string,mixed>  $bindings
+     * @return true
+     */
+    protected function refine($query, $bindings)
+    {
+        if (! $this->hasQuery()) {
+            $this->query(Closure::fromCallable([$this, 'apply']));
+        }
+
+        $this->modifyQuery($query, $bindings);
+
+        return true;
+    }
+
+    /**
+     * Guess the parameter for the refiner.
+     *
+     * @return string
+     */
+    protected function guessParameter()
+    {
+        /** @var string */
+        $name = $this->getName();
+
+        return Str::of($name)
+            ->afterLast('.')
+            ->value();
+    }
+
+    /**
+     * Get the bindings for the refiner closure.
+     *
+     * @param  TBuilder  $query
+     * @return array<string,mixed>
+     */
+    protected function getBindings($query)
+    {
+        /** @var string */
+        $name = $this->getName();
+
+        return [
+            'builder' => $query,
+            'query' => $query,
+            'q' => $query,
+            'name' => $name,
+            'refiner' => $this,
+            'column' => $this->qualifyColumn($name, $query),
         ];
     }
 }

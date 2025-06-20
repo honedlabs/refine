@@ -29,6 +29,6 @@ arch('commands')
     ->toBeClasses()
     ->toExtend(Command::class);
 
-arch('pipelines')
-    ->expect('Honed\Refine\Pipelines')
+arch('pipes')
+    ->expect('Honed\Refine\Pipes')
     ->toBeClasses();

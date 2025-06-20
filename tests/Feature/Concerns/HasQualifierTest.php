@@ -12,49 +12,37 @@ beforeEach(function () {
     };
 });
 
-afterEach(function () {
-    $this->test::shouldQualify(false);
-});
-
 it('has qualifier', function () {
     expect($this->test)
         // Base case
         ->getQualifier()->toBeFalse()
-        ->qualifies()->toBeFalse()
+        ->isQualifying()->toBeFalse()
         // If it does not qualify
         ->qualify(false)->toBe($this->test)
         ->getQualifier()->toBeFalse()
-        ->qualifies()->toBeFalse()
+        ->isQualifying()->toBeFalse()
         // Qualifies with boolean
         ->qualify()->toBe($this->test)
         ->getQualifier()->toBeTrue()
-        ->qualifies()->toBeTrue();
+        ->isQualifying()->toBeTrue();
 });
 
-it('has qualifier globally', function () {
-    $this->test::shouldQualify(true);
-
-    expect($this->test)
-        ->getQualifier()->toBeTrue()
-        ->qualifies()->toBeTrue();
-});
-
-it('qualifies column', function () {
+it('isQualifying column', function () {
     $builder = User::query();
 
     expect($this->test)
         // Base case
-        ->qualifies()->toBeFalse()
+        ->isQualifying()->toBeFalse()
         ->qualifyColumn('name')->toBe('name')
         ->qualifyColumn('name', $builder)->toBe('name')
         // If it does not qualify
         ->qualify()->toBe($this->test)
-        ->qualifies()->toBeTrue()
+        ->isQualifying()->toBeTrue()
         ->qualifyColumn('name')->toBe('name')
         ->qualifyColumn('name', $builder)->toBe('users.name')
         // If it has a cistom qualifier
         ->qualify('products')->toBe($this->test)
-        ->qualifies()->toBeTrue()
+        ->isQualifying()->toBeTrue()
         ->qualifyColumn('name')->toBe('products.name')
         ->qualifyColumn('name', $builder)->toBe('products.name');
 });

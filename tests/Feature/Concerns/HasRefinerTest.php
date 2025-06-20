@@ -7,14 +7,14 @@ use Illuminate\Support\Str;
 use Workbench\App\Models\AuthUser;
 use Workbench\App\Models\Product;
 use Workbench\App\Models\User;
-use Workbench\App\Refiners\ProductRefiner;
-use Workbench\App\Refiners\UserRefiner;
+use Workbench\App\Refiners\RefineProduct;
+use Workbench\App\Refiners\RefineUser;
 
 beforeEach(function () {
     Refine::useNamespace('Workbench\App\Refiners');
     Refine::guessRefinersUsing(fn ($model) => Str::of($model)
         ->afterLast('\\')
-        ->append('Refiner')
+        ->prepend('Refine')
         ->prepend('Workbench\App\Refiners\\')
         ->value()
     );
@@ -26,15 +26,15 @@ afterEach(function () {
 
 it('has refiner from static property', function () {
     expect(AuthUser::refiner())
-        ->toBeInstanceOf(UserRefiner::class);
+        ->toBeInstanceOf(RefineUser::class);
 });
 
 it('has refiner from attribute', function () {
     expect(User::refiner())
-        ->toBeInstanceOf(UserRefiner::class);
+        ->toBeInstanceOf(RefineUser::class);
 });
 
 it('has refiner from guessing', function () {
     expect(Product::refiner())
-        ->toBeInstanceOf(ProductRefiner::class);
+        ->toBeInstanceOf(RefineProduct::class);
 });
