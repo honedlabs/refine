@@ -5,9 +5,10 @@ declare(strict_types=1);
 namespace Honed\Refine\Pipes;
 
 use Honed\Core\Interpret;
+use Honed\Core\Pipe;
 
 /**
- * @template TClass of \Honed\Refine\Refine
+ * @template TClass of \Honed\Refine\Contracts\RefinesData
  *
  * @extends Pipe<TClass>
  */
@@ -23,7 +24,7 @@ class SearchQuery extends Pipe
     {
         [$term, $columns] = $this->getValues($instance);
 
-        $instance->term($term);
+        $instance->setTerm($term);
 
         match (true) {
             $instance->isScout() => $this->scout($instance),
@@ -59,7 +60,7 @@ class SearchQuery extends Pipe
             $instance->getRequest(), $instance->getSearchKey()
         );
 
-        return $term ? str_replace('+', ' ', mb_trim($term)) : null;
+        return $term ? str_replace('+', ' ', trim($term)) : null;
     }
 
     /**
@@ -70,7 +71,7 @@ class SearchQuery extends Pipe
      */
     public function getColumns($instance)
     {
-        if ($instance->isNotMatchable()) {
+        if (! $instance->isMatchable()) {
             return null;
         }
 
@@ -92,7 +93,6 @@ class SearchQuery extends Pipe
     {
         $model = $instance->getModel();
 
-        // Don't search if there is no term.
         if (! $term = $instance->getTerm()) {
             return;
         }

@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Honed\Refine\Pipes;
 
+use Honed\Core\Pipe;
+
 /**
- * @template TClass of \Honed\Refine\Refine
+ * @template TClass of \Honed\Refine\Contracts\RefinesData
  *
  * @extends Pipe<TClass>
  */
@@ -41,7 +43,7 @@ class FilterQuery extends Pipe
         $applied = false;
 
         foreach ($instance->getFilters() as $filter) {
-            $value = $instance->getFilterValue($request, $filter);
+            $value = $this->getRequestValue($instance, $request, $filter);
 
             if ($filter->handle($builder, $value)) {
                 $applied = true;
@@ -70,5 +72,22 @@ class FilterQuery extends Pipe
             //     $instance->persistFilter($filter, $value);
             // }
         }
+    }
+
+    /**
+     * Get the filter value from the request.
+     *
+     * @param  TClass  $instance
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \Honed\Refine\Filters\Filter  $filter
+     * @return mixed
+     */
+    protected function getRequestValue($instance, $request, $filter)
+    {
+        $key = $instance->formatScope($filter->getParameter());
+
+        $delimiter = $instance->getDelimiter();
+
+        return $filter->interpret($request, $key, $delimiter);
     }
 }

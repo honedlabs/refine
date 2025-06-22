@@ -68,7 +68,7 @@ it('disables filtering', function () {
 
     $this->pipe->run(
         $this->refine
-            ->notFilterable()
+            ->filterable(false)
             ->request($request)
     );
 

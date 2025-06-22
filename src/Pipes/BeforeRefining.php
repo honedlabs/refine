@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Honed\Refine\Pipes;
 
+use Honed\Core\Pipe;
+
 /**
- * @template TClass of \Honed\Refine\Refine
+ * @template TClass of \Honed\Refine\Contracts\RefinesData
  *
  * @extends Pipe<TClass>
  */

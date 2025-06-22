@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Honed\Refine\Sorts\Concerns;
 
-use Honed\Core\Interpret;
 use Honed\Refine\Sorts\Sort;
 use Illuminate\Support\Arr;
 
@@ -49,17 +48,6 @@ trait HasSorts
     }
 
     /**
-     * Set whether the sorts should not be applied.
-     *
-     * @param  bool  $disable
-     * @return $this
-     */
-    public function notSortable($disable = true)
-    {
-        return $this->sortable(! $disable);
-    }
-
-    /**
      * Determine if the sorts should be applied.
      *
      * @return bool
@@ -67,16 +55,6 @@ trait HasSorts
     public function isSortable()
     {
         return $this->sortable;
-    }
-
-    /**
-     * Determine if the sorts should not be applied.
-     *
-     * @return bool
-     */
-    public function isNotSortable()
-    {
-        return ! $this->isSortable();
     }
 
     /**
@@ -102,7 +80,7 @@ trait HasSorts
      */
     public function getSorts()
     {
-        if ($this->isNotSortable()) {
+        if (! $this->isSortable()) {
             return [];
         }
 
@@ -161,25 +139,6 @@ trait HasSorts
             $this->getSorts(),
             static fn (Sort $sort) => $sort->isActive()
         );
-    }
-
-    /**
-     * Get the sort parameter from the request.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return array{string|null, 'asc'|'desc'|null}
-     */
-    public function getSortValue($request)
-    {
-        $key = $this->getSortKey();
-
-        $sort = Interpret::string($request, $key);
-
-        return match (true) {
-            ! $sort => [null, null],
-            str_starts_with($sort, '-') => [mb_substr($sort, 1), 'desc'],
-            default => [$sort, 'asc'],
-        };
     }
 
     /**

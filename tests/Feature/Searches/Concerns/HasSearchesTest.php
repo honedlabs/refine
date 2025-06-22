@@ -12,31 +12,23 @@ beforeEach(function () {
 
 it('is searchable', function () {
     expect($this->test)
-        ->searchable()->toBe($this->test)
         ->isSearchable()->toBeTrue()
-        ->isNotSearchable()->toBeFalse()
-        ->notSearchable()->toBe($this->test)
-        ->isSearchable()->toBeFalse()
-        ->isNotSearchable()->toBeTrue();
+        ->searchable(false)->toBe($this->test)
+        ->isSearchable()->toBeFalse();
 });
 
 it('is matchable', function () {
     expect($this->test)
-        ->matchable()->toBe($this->test)
-        ->isMatchable()->toBeTrue()
-        ->isNotMatchable()->toBeFalse()
-        ->notMatchable()->toBe($this->test)
         ->isMatchable()->toBeFalse()
-        ->isNotMatchable()->toBeTrue();
+        ->matchable()->toBe($this->test)
+        ->isMatchable()->toBeTrue();
 });
 
 it('can use scout', function () {
     expect($this->test)
         ->isScout()->toBeFalse()
-        ->isNotScout()->toBeTrue()
         ->scout()->toBe($this->test)
-        ->isScout()->toBeTrue()
-        ->isNotScout()->toBeFalse();
+        ->isScout()->toBeTrue();
 });
 
 it('adds searches', function () {
@@ -90,6 +82,6 @@ it('hides searches from serialization', function () {
     expect($this->test->matchable())
         ->searches([Search::make('name')])->toBe($this->test)
         ->searchesToArray()->toHaveCount(1)
-        ->notSearchable()->toBe($this->test)
+        ->searchable(false)->toBe($this->test)
         ->searchesToArray()->toBeEmpty();
 });

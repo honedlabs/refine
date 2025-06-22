@@ -43,7 +43,8 @@ it('can retrieve all data from the session', function () {
 
     $store = SessionStore::make('session');
 
-    expect($store->get())->toEqual(['key' => 'value']);
+    expect($store)
+        ->get()->toEqual(['key' => 'value']);
 });
 
 it('can retrieve data from the session', function () {
@@ -53,7 +54,8 @@ it('can retrieve data from the session', function () {
 
     $store = SessionStore::make('session');
 
-    expect($store->get('key'))->toEqual('value');
+    expect($store)
+        ->get('key')->toEqual('value');
 });
 
 it('retrieves null when the key does not exist', function () {

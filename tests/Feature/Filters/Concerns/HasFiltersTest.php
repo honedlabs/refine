@@ -12,12 +12,9 @@ beforeEach(function () {
 
 it('is filterable', function () {
     expect($this->test)
-        ->filterable()->toBe($this->test)
         ->isFilterable()->toBeTrue()
-        ->isNotFilterable()->toBeFalse()
-        ->notFilterable()->toBe($this->test)
-        ->isFilterable()->toBeFalse()
-        ->isNotFilterable()->toBeTrue();
+        ->filterable(false)->toBe($this->test)
+        ->isFilterable()->toBeFalse();
 });
 
 it('adds filters', function () {
@@ -49,6 +46,6 @@ it('hides filters from serialization', function () {
     expect($this->test)
         ->filters([Filter::make('name')])->toBe($this->test)
         ->filtersToArray()->toHaveCount(1)
-        ->notFilterable()->toBe($this->test)
+        ->filterable(false)->toBe($this->test)
         ->filtersToArray()->toBeEmpty();
 });

@@ -23,7 +23,7 @@ afterEach(function () {
 it('forwards calls to the builder', function () {
     expect($this->test)
         ->paginate(10)->toBeInstanceOf(LengthAwarePaginator::class)
-        ->isRefined()->toBeTrue();
+        ->isCompleted()->toBeTrue();
 });
 
 it('has macro', function () {

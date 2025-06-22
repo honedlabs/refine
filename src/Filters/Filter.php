@@ -266,7 +266,7 @@ class Filter extends Refiner
 
         $this->checkIfActive($value);
 
-        if ($this->isInactive() || ! $this->validate($value)) {
+        if (! $this->isActive() || ! $this->validate($value)) {
             return false;
         }
 

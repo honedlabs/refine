@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace Honed\Refine\Pipes;
 
+use Honed\Core\Interpret;
+use Honed\Core\Pipe;
+
 /**
- * @template TClass of \Honed\Refine\Refine
+ * @template TClass of \Honed\Refine\Contracts\RefinesData
  *
  * @extends Pipe<TClass>
  */
@@ -30,26 +33,6 @@ class SortQuery extends Pipe
         }
 
         $this->defaultSort($instance);
-    }
-
-    /**
-     * Get the sort name and direction from the request, or from a persisted
-     * value.
-     *
-     * @param  TClass  $instance
-     * @return array{string|null, 'asc'|'desc'|null}
-     */
-    public function getValues($instance)
-    {
-        $request = $instance->getRequest();
-
-        [$parameter, $direction] = $instance->getSortValue($request);
-
-        return match (true) {
-            (bool) $parameter => [$parameter, $direction],
-            $instance->shouldPersistSort() => [null, null],
-            default => [null, null]
-        };
     }
 
     /**
@@ -90,6 +73,49 @@ class SortQuery extends Pipe
 
             $sort->handle($builder, $parameter, null);
         }
+    }
+
+    /**
+     * Get the sort name and direction from the request, or from a persisted
+     * value.
+     *
+     * @param  TClass  $instance
+     * @return array{string|null, 'asc'|'desc'|null}
+     */
+    public function getValues($instance)
+    {
+        $request = $instance->getRequest();
+
+        $key = $instance->getSortKey();
+
+        [$parameter, $direction] = $this->getOrder(
+            $request, $key
+        );
+
+        return match (true) {
+            (bool) $parameter => [$parameter, $direction],
+            $instance->shouldPersistSort()
+                && ! $request->has($key) => [null, null],
+            default => [null, null]
+        };
+    }
+
+    /**
+     * Get the sort parameter from the request.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  string  $key
+     * @return array{string|null, 'asc'|'desc'|null}
+     */
+    public function getOrder($request, $key)
+    {
+        $sort = Interpret::string($request, $key);
+
+        return match (true) {
+            ! $sort => [null, null],
+            str_starts_with($sort, '-') => [mb_substr($sort, 1), 'desc'],
+            default => [$sort, 'asc'],
+        };
     }
 
     /**

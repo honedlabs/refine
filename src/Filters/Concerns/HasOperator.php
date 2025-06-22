@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Honed\Refine\Filters\Concerns;
 
+use Honed\Refine\Enums\Operator;
+
 trait HasOperator
 {
     /**
@@ -16,12 +18,16 @@ trait HasOperator
     /**
      * Set the operator to use for the filter.
      *
-     * @param  string  $operator
+     * @param  string|Operator  $operator
      * @return $this
      */
     public function operator($operator)
     {
-        $this->operator = mb_strtoupper($operator, 'UTF8');
+        if ($operator instanceof Operator) {
+            $this->operator = $operator->operator();
+        } else {
+            $this->operator = mb_strtoupper($operator, 'UTF8');
+        }
 
         return $this;
     }
@@ -33,7 +39,7 @@ trait HasOperator
      */
     public function greaterThan()
     {
-        return $this->operator('>');
+        return $this->operator(Operator::GreaterThan->operator());
     }
 
     /**
@@ -43,7 +49,7 @@ trait HasOperator
      */
     public function gt()
     {
-        return $this->operator('>');
+        return $this->greaterThan();
     }
 
     /**
@@ -53,7 +59,7 @@ trait HasOperator
      */
     public function greaterThanOrEqualTo()
     {
-        return $this->operator('>=');
+        return $this->operator(Operator::GreaterThanOrEqual->operator());
     }
 
     /**
@@ -63,7 +69,7 @@ trait HasOperator
      */
     public function gte()
     {
-        return $this->operator('>=');
+        return $this->greaterThanOrEqualTo();
     }
 
     /**
@@ -73,7 +79,7 @@ trait HasOperator
      */
     public function lessThan()
     {
-        return $this->operator('<');
+        return $this->operator(Operator::LessThan->operator());
     }
 
     /**
@@ -83,7 +89,7 @@ trait HasOperator
      */
     public function lt()
     {
-        return $this->operator('<');
+        return $this->lessThan();
     }
 
     /**
@@ -93,7 +99,7 @@ trait HasOperator
      */
     public function lessThanOrEqualTo()
     {
-        return $this->operator('<=');
+        return $this->operator(Operator::LessThanOrEqual->operator());
     }
 
     /**
@@ -103,7 +109,7 @@ trait HasOperator
      */
     public function lte()
     {
-        return $this->operator('<=');
+        return $this->lessThanOrEqualTo();
     }
 
     /**
@@ -113,7 +119,7 @@ trait HasOperator
      */
     public function notEqualTo()
     {
-        return $this->operator('!=');
+        return $this->operator(Operator::IsNot->operator());
     }
 
     /**
@@ -123,7 +129,7 @@ trait HasOperator
      */
     public function neq()
     {
-        return $this->operator('!=');
+        return $this->notEqualTo();
     }
 
     /**
@@ -133,7 +139,7 @@ trait HasOperator
      */
     public function equals()
     {
-        return $this->operator('=');
+        return $this->operator(Operator::Is->operator());
     }
 
     /**
@@ -143,7 +149,7 @@ trait HasOperator
      */
     public function eq()
     {
-        return $this->operator('=');
+        return $this->equals();
     }
 
     /**
@@ -153,7 +159,7 @@ trait HasOperator
      */
     public function like()
     {
-        return $this->operator('LIKE');
+        return $this->operator(Operator::Contains->operator());
     }
 
     /**

@@ -103,7 +103,7 @@ it('disables search', function () {
 
     $this->pipe->run(
         $this->refine
-            ->notSearchable()
+            ->searchable(false)
             ->request($request)
     );
 

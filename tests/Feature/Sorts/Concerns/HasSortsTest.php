@@ -12,12 +12,9 @@ beforeEach(function () {
 
 it('is sortable', function () {
     expect($this->test)
-        ->sortable()->toBe($this->test)
         ->isSortable()->toBeTrue()
-        ->isNotSortable()->toBeFalse()
-        ->notSortable()->toBe($this->test)
-        ->isSortable()->toBeFalse()
-        ->isNotSortable()->toBeTrue();
+        ->sortable(false)->toBe($this->test)
+        ->isSortable()->toBeFalse();
 });
 
 it('adds sorts', function () {
@@ -72,6 +69,6 @@ it('hides sorts from serialization', function () {
     expect($this->test)
         ->sorts([Sort::make('name')])->toBe($this->test)
         ->sortsToArray()->toHaveCount(1)
-        ->notSortable()->toBe($this->test)
+        ->sortable(false)->toBe($this->test)
         ->sortsToArray()->toBeEmpty();
 });

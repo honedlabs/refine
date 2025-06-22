@@ -6,7 +6,6 @@ namespace Honed\Refine;
 
 use Closure;
 use Honed\Core\Concerns\Allowable;
-use Honed\Core\Concerns\HasAlias;
 use Honed\Core\Concerns\HasLabel;
 use Honed\Core\Concerns\HasMeta;
 use Honed\Core\Concerns\HasName;
@@ -28,7 +27,7 @@ abstract class Refiner extends Primitive
 {
     use Allowable;
     use CanBeHidden;
-    use HasAlias;
+    use Concerns\CanHaveAlias;
     use HasLabel;
     use HasMeta;
     use HasName;

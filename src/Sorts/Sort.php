@@ -91,7 +91,7 @@ class Sort extends Refiner
     {
         $this->checkIfActive($parameter, $direction);
 
-        if ($this->isInactive()) {
+        if (! $this->isActive()) {
             return false;
         }
 

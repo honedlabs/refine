@@ -10,7 +10,6 @@ use Honed\Core\Concerns\IsActive;
 use Honed\Core\Primitive;
 
 use function in_array;
-use function is_array;
 
 class Option extends Primitive
 {
@@ -40,14 +39,15 @@ class Option extends Primitive
      */
     public function activate($value)
     {
-        return $this->active = match (true) {
-            is_array($value) => in_array($this->getValue(), $value, true),
-            default => $this->getValue() === $value,
-        };
+        return $this->active = in_array(
+            $this->getValue(), (array) $value, true
+        );
     }
 
     /**
-     * {@inheritdoc}
+     * Get the instance as an array.
+     *
+     * @return array<string, mixed>
      */
     public function toArray()
     {

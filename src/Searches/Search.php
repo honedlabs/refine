@@ -97,7 +97,7 @@ class Search extends Refiner
     {
         $this->checkIfActive($columns);
 
-        if ($this->isInactive() || ! $term) {
+        if (! $this->isActive() || ! $term) {
             return false;
         }
 

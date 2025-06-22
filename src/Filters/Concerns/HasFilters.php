@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Honed\Refine\Filters\Concerns;
 
 use Honed\Refine\Filters\Filter;
-use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 
 use function array_filter;
@@ -42,17 +41,6 @@ trait HasFilters
     }
 
     /**
-     * Set whether the filters should not be applied.
-     *
-     * @param  bool  $disable
-     * @return $this
-     */
-    public function notFilterable($disable = true)
-    {
-        return $this->filterable(! $disable);
-    }
-
-    /**
      * Determine if the filters should be applied.
      *
      * @return bool
@@ -60,16 +48,6 @@ trait HasFilters
     public function isFilterable()
     {
         return $this->filterable;
-    }
-
-    /**
-     * Determine if the filters should not be applied.
-     *
-     * @return bool
-     */
-    public function isNotFilterable()
-    {
-        return ! $this->isFilterable();
     }
 
     /**
@@ -95,7 +73,7 @@ trait HasFilters
      */
     public function getFilters()
     {
-        if ($this->isNotFilterable()) {
+        if (! $this->isFilterable()) {
             return [];
         }
 
@@ -118,22 +96,6 @@ trait HasFilters
             $this->getFilters(),
             static fn (Filter $filter) => $filter->isActive()
         );
-    }
-
-    /**
-     * Get the filter value from the request.
-     *
-     * @param  Request  $request
-     * @param  Filter  $filter
-     * @return mixed
-     */
-    public function getFilterValue($request, $filter)
-    {
-        $key = $this->formatScope($filter->getParameter());
-
-        $delimiter = $this->getDelimiter();
-
-        return $filter->interpret($request, $key, $delimiter);
     }
 
     /**

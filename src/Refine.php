@@ -194,7 +194,7 @@ class Refine extends Primitive implements NullsAsUndefined, RefinesData
      */
     protected function forwardBuilderCall($method, $parameters)
     {
-        return $this->refine()
+        return $this->build()
             ->forwardDecoratedCallTo(
                 $this->getBuilder(),
                 $method,

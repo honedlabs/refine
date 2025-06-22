@@ -37,7 +37,7 @@ class CookieStore extends Store
         );
 
         if (is_array($data)) {
-            $this->data = $data;
+            $this->resolved = $data;
         }
 
         return $this;

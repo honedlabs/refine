@@ -80,7 +80,7 @@ it('disables sort', function () {
 
     $this->pipe->run(
         $this->refine
-            ->notSortable()
+            ->sortable(false)
             ->request($request)
     );
 

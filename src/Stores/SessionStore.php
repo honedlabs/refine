@@ -25,7 +25,7 @@ class SessionStore extends Store
         $data = $this->session->get($this->key, []);
 
         if (is_array($data)) {
-            $this->data = $data;
+            $this->resolved = $data;
         }
 
         return $this;
