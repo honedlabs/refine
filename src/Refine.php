@@ -30,6 +30,13 @@ class Refine extends Primitive implements NullsAsUndefined, RefinesData
     use ForwardsCalls;
 
     /**
+     * The identifier to use for evaluation.
+     *
+     * @var string
+     */
+    protected $evaluationIdentifier = 'refine';
+
+    /**
      * The default namespace where refiners reside.
      *
      * @var string
@@ -45,6 +52,8 @@ class Refine extends Primitive implements NullsAsUndefined, RefinesData
 
     /**
      * Create a new refine instance.
+     *
+     * @param  \Illuminate\Http\Request  $request
      */
     public function __construct(Request $request)
     {
@@ -211,7 +220,6 @@ class Refine extends Primitive implements NullsAsUndefined, RefinesData
     protected function resolveDefaultClosureDependencyForEvaluationByName($parameterName)
     {
         return match ($parameterName) {
-            'refine' => [$this],
             'request' => [$this->getRequest()],
             'builder', 'query', 'q' => [$this->getBuilder()],
             default => parent::resolveDefaultClosureDependencyForEvaluationByName($parameterName),
