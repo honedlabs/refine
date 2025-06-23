@@ -52,8 +52,6 @@ class Refine extends Primitive implements NullsAsUndefined, RefinesData
 
     /**
      * Create a new refine instance.
-     *
-     * @param  \Illuminate\Http\Request  $request
      */
     public function __construct(Request $request)
     {
