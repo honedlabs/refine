@@ -50,6 +50,13 @@ class Filter extends Refiner
     public const TRASHED = 'trashed';
 
     /**
+     * The identifier to use for evaluation.
+     *
+     * @var string
+     */
+    protected $evaluationIdentifier = 'filter';
+
+    /**
      * Whether the filter only responds to presence values.
      *
      * @var bool

@@ -74,6 +74,19 @@ trait HasSorts
     }
 
     /**
+     * Insert a sort.
+     *
+     * @param  Sort  $sort
+     * @return $this
+     */
+    public function sort($sort)
+    {
+        $this->sorts[] = $sort;
+
+        return $this;
+    }
+
+    /**
      * Retrieve the sorts.
      *
      * @return array<int,Sort>

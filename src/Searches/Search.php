@@ -15,6 +15,13 @@ use Honed\Refine\Refiner;
 class Search extends Refiner
 {
     /**
+     * The identifier to use for evaluation.
+     *
+     * @var string
+     */
+    protected $evaluationIdentifier = 'search';
+
+    /**
      * Whether to use a full-text, recall search.
      *
      * @var bool

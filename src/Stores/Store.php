@@ -18,9 +18,9 @@ abstract class Store
     /**
      * The resolved data from the store.
      *
-     * @var array<string,mixed>
+     * @var array<string,mixed>|null
      */
-    protected $resolved = [];
+    protected $resolved;
 
     /**
      * The key to be used for the instance.
@@ -77,7 +77,11 @@ abstract class Store
      */
     public function get($key = null)
     {
-        return $key ? Arr::get($this->resolved, $key) : $this->resolved;
+        if (! $this->resolved) {
+            $this->resolve();
+        }
+
+        return $key ? Arr::get($this->resolved ?? [], $key, null) : $this->resolved;
     }
 
     /**

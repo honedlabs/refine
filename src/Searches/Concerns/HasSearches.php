@@ -154,6 +154,19 @@ trait HasSearches
     }
 
     /**
+     * Insert a search.
+     *
+     * @param  Search  $search
+     * @return $this
+     */
+    public function search($search)
+    {
+        $this->searches[] = $search;
+
+        return $this;
+    }
+
+    /**
      * Retrieve the columns to be used for searching.
      *
      * @return array<int,Search>

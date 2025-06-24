@@ -22,6 +22,13 @@ class Sort extends Refiner
     use IsDefault;
 
     /**
+     * The identifier to use for evaluation.
+     *
+     * @var string
+     */
+    protected $evaluationIdentifier = 'sort';
+
+    /**
      * Provide the instance with any necessary setup.
      *
      * @return void

@@ -7,26 +7,32 @@ use Honed\Refine\Refine;
 use Workbench\App\Models\User;
 
 beforeEach(function () {
-    $this->test = Refine::make(User::class);
+    $this->refine = Refine::make(User::class);
 });
 
 it('is filterable', function () {
-    expect($this->test)
+    expect($this->refine)
         ->isFilterable()->toBeTrue()
-        ->filterable(false)->toBe($this->test)
+        ->filterable(false)->toBe($this->refine)
         ->isFilterable()->toBeFalse();
 });
 
 it('adds filters', function () {
-    expect($this->test)
-        ->filters([Filter::make('name')])->toBe($this->test)
-        ->filters([Filter::make('price')])->toBe($this->test)
+    expect($this->refine)
+        ->filters([Filter::make('name')])->toBe($this->refine)
+        ->filters([Filter::make('price')])->toBe($this->refine)
         ->getFilters()->toHaveCount(2);
 });
 
+it('inserts filter', function () {
+    expect($this->refine)
+        ->filter(Filter::make('name'))->toBe($this->refine)
+        ->getFilters()->toHaveCount(1);
+});
+
 it('filters to array', function () {
-    expect($this->test)
-        ->filters([Filter::make('name'), Filter::make('price')])->toBe($this->test)
+    expect($this->refine)
+        ->filters([Filter::make('name'), Filter::make('price')])->toBe($this->refine)
         ->filtersToArray()->toHaveCount(2)
         ->each
         ->scoped(fn ($filter) => $filter
@@ -43,9 +49,9 @@ it('filters to array', function () {
 });
 
 it('hides filters from serialization', function () {
-    expect($this->test)
-        ->filters([Filter::make('name')])->toBe($this->test)
+    expect($this->refine)
+        ->filters([Filter::make('name')])->toBe($this->refine)
         ->filtersToArray()->toHaveCount(1)
-        ->filterable(false)->toBe($this->test)
+        ->filterable(false)->toBe($this->refine)
         ->filtersToArray()->toBeEmpty();
 });

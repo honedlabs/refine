@@ -67,6 +67,19 @@ trait HasFilters
     }
 
     /**
+     * Insert a filter.
+     *
+     * @param  Filter  $filter
+     * @return $this
+     */
+    public function filter($filter)
+    {
+        $this->filters[] = $filter;
+
+        return $this;
+    }
+
+    /**
      * Retrieve the filters.
      *
      * @return array<int,Filter>
