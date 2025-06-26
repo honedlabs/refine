@@ -125,17 +125,6 @@ class Sort extends Refiner
     }
 
     /**
-     * {@inheritDoc}
-     */
-    public function toArray()
-    {
-        return array_merge(parent::toArray(), [
-            'direction' => $this->getDirection(),
-            'next' => $this->getNextDirection(),
-        ]);
-    }
-
-    /**
      * Define the sort instance.
      *
      * @param  $this  $sort
@@ -144,6 +133,19 @@ class Sort extends Refiner
     protected function definition(self $sort): self
     {
         return $sort;
+    }
+
+    /**
+     * Get the representation of the instance.
+     *
+     * @return array<string, mixed>
+     */
+    protected function representation(): array
+    {
+        return array_merge(parent::representation(), [
+            'direction' => $this->getDirection(),
+            'next' => $this->getNextDirection(),
+        ]);
     }
 
     /**

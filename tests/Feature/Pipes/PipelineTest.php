@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Session;
 use Workbench\App\Enums\Status;
 use Workbench\App\Refiners\RefineProduct;
 
@@ -19,9 +18,9 @@ beforeEach(function () {
         'favourite' => '1',
         'oldest' => '2000-01-01',
         'newest' => '2001-01-01',
-        'sort' => '-price',
-        'search' => 'term',
-        'match' => 'name,description',
+        $this->refine->getSortKey() => '-price',
+        $this->refine->getSearchKey() => 'term',
+        $this->refine->getMatchKey() => 'name,description',
     ];
 
     $this->wheres = [
@@ -83,8 +82,16 @@ beforeEach(function () {
     ];
 });
 
+it('has no request', function () {
+    expect($this->refine->build())
+        ->isNotSorting()->toBeTrue()
+        ->isNotSearching()->toBeTrue()
+        ->isNotFiltering()->toBeTrue();
+});
+
 it('has base pipeline', function () {
     $this->refine
+        ->matchable()
         ->request(Request::create('/', Request::METHOD_GET, $this->parameters));
 
     expect($this->refine->build()->getBuilder()->getQuery())
@@ -94,6 +101,28 @@ it('has base pipeline', function () {
             ->toHaveCount(\count($this->wheres))
             ->toEqualCanonicalizing($this->wheres)
         )->orders->toBeOnlyOrder('price', 'desc');
+
+    expect($this->refine)
+        ->isFiltering()->toBeTrue()
+        ->isSorting()->toBeTrue()
+        ->isSearching()->toBeTrue()
+        ->toArray()
+        ->scoped(fn ($array) => $array
+            ->toHaveKeys([
+                'sort',
+                'search',
+                'match',
+                'term',
+                'delimiter',
+                'placeholder',
+                'sorts',
+                'filters',
+                'searches',
+            ])
+            ->{'sorts'}->toBeArray()->toHaveCount(4) // 1 active
+            ->{'filters'}->toBeArray()->toHaveCount(7) // 7 active
+            ->{'searches'}->toBeArray()->toHaveCount(2) // both active
+        );
 });
 
 it('has scoped pipeline', function () {
@@ -139,13 +168,4 @@ it('has custom keys pipeline', function () {
             ->toHaveCount(\count($this->wheres))
             ->toEqualCanonicalizing($this->wheres)
         )->orders->toBeOnlyOrder('price', 'desc');
-});
-
-it('persists data in pipeline', function () {
-    Session::put($this->refine->getPersistKey(), [
-        'search' => [
-            'term' => 'test',
-            'cols' => ['name', 'description'],
-        ],
-    ]);
 });

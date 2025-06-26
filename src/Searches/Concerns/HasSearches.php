@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Honed\Refine\Searches\Concerns;
 
+use Closure;
 use Honed\Refine\Searches\Search;
 
 use function array_filter;
@@ -29,7 +30,7 @@ trait HasSearches
     /**
      * Indicate whether to use Laravel Scout for searching.
      *
-     * @var bool
+     * @var bool|Closure(mixed...):bool
      */
     protected $scout = false;
 
@@ -71,14 +72,25 @@ trait HasSearches
     /**
      * Set whether the searches should be applied.
      *
-     * @param  bool  $enable
+     * @param  bool  $value
      * @return $this
      */
-    public function searchable($enable = true)
+    public function searchable($value = true)
     {
-        $this->searchable = $enable;
+        $this->searchable = $value;
 
         return $this;
+    }
+
+    /**
+     * Set whether the searches should not be applied.
+     *
+     * @param  bool  $value
+     * @return $this
+     */
+    public function notSearchable($value = true)
+    {
+        return $this->searchable(! $value);
     }
 
     /**
@@ -92,16 +104,37 @@ trait HasSearches
     }
 
     /**
+     * Determine if the searches should not be applied.
+     *
+     * @return bool
+     */
+    public function isNotSearchable()
+    {
+        return ! $this->isSearchable();
+    }
+
+    /**
      * Set whether the search columns can be toggled.
      *
-     * @param  bool  $enable
+     * @param  bool  $value
      * @return $this
      */
-    public function matchable($enable = true)
+    public function matchable($value = true)
     {
-        $this->match = $enable;
+        $this->match = $value;
 
         return $this;
+    }
+
+    /**
+     * Set whether the search columns can not be toggled.
+     *
+     * @param  bool  $value
+     * @return $this
+     */
+    public function notMatchable($value = true)
+    {
+        return $this->matchable(! $value);
     }
 
     /**
@@ -111,20 +144,41 @@ trait HasSearches
      */
     public function isMatchable()
     {
-        return $this->match && ! $this->isScout();
+        return $this->match && $this->isNotScout();
+    }
+
+    /**
+     * Determine if matching is not enabled.
+     *
+     * @return bool
+     */
+    public function isNotMatchable()
+    {
+        return ! $this->isMatchable();
     }
 
     /**
      * Set whether to use Laravel Scout for searching.
      *
-     * @param  bool  $scout
+     * @param  bool  $value
      * @return $this
      */
-    public function scout($scout = true)
+    public function scout($value = true)
     {
-        $this->scout = $scout;
+        $this->scout = $value;
 
         return $this;
+    }
+
+    /**
+     * Set whether to not use Laravel Scout for searching.
+     *
+     * @param  bool  $value
+     * @return $this
+     */
+    public function notScout($value = true)
+    {
+        return $this->scout(! $value);
     }
 
     /**
@@ -134,7 +188,17 @@ trait HasSearches
      */
     public function isScout()
     {
-        return $this->scout;
+        return (bool) $this->evaluate($this->scout);
+    }
+
+    /**
+     * Determine if Laravel Scout is not being used for searching.
+     *
+     * @return bool
+     */
+    public function isNotScout()
+    {
+        return ! $this->isScout();
     }
 
     /**
@@ -173,7 +237,7 @@ trait HasSearches
      */
     public function getSearches()
     {
-        if (! $this->isSearchable()) {
+        if ($this->isNotSearchable()) {
             return [];
         }
 
@@ -286,13 +350,23 @@ trait HasSearches
     }
 
     /**
+     * Determine if there is no search being applied.
+     *
+     * @return bool
+     */
+    public function isNotSearching()
+    {
+        return ! $this->isSearching();
+    }
+
+    /**
      * Get the searches as an array.
      *
      * @return array<int,array<string,mixed>>
      */
     public function searchesToArray()
     {
-        if (! $this->isMatchable()) {
+        if ($this->isNotMatchable()) {
             return [];
         }
 

@@ -128,17 +128,29 @@ class SortQuery extends Pipe
      */
     public function persist($instance, $parameter, $direction)
     {
-        $store = $instance->getSortStore();
-
-        if (! $store) {
-            return;
-        }
-
-        $store->put([
-            'sort' => [
+        $instance->getSortStore()?->put([
+            $instance->getSortKey() => [
                 'col' => $parameter,
                 'dir' => $direction,
             ],
         ]);
+    }
+
+    /**
+     * Get the sort data from the store.
+     *
+     * @param  TClass  $instance
+     * @return array{col: string, dir: 'asc'|'desc'}|null
+     */
+    protected function persisted($instance)
+    {
+        $data = $instance->getSortStore()?->get($instance->getSortKey());
+
+        if (! is_array($data) || ! isset($data['col'], $data['dir'])) {
+            return null;
+        }
+
+        /** @var array{col: string, dir: 'asc'|'desc'} $data */
+        return $data;
     }
 }

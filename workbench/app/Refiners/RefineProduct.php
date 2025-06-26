@@ -29,7 +29,9 @@ class RefineProduct extends Refine
      */
     protected function definition(Refine $refine): Refine
     {
-        return $refine->for(Product::class)
+        return $refine
+            ->for(Product::class)
+            ->searchPlaceholder('Search for a product...')
             ->searches([
                 Search::make('name'),
                 Search::make('description'),

@@ -13,8 +13,8 @@ beforeEach(function () {
 it('is filterable', function () {
     expect($this->refine)
         ->isFilterable()->toBeTrue()
-        ->filterable(false)->toBe($this->refine)
-        ->isFilterable()->toBeFalse();
+        ->notFilterable()->toBe($this->refine)
+        ->isNotFilterable()->toBeTrue();
 });
 
 it('adds filters', function () {

@@ -45,11 +45,11 @@ class Option extends Primitive
     }
 
     /**
-     * Get the instance as an array.
+     * Get the representation of the instance.
      *
      * @return array<string, mixed>
      */
-    public function toArray()
+    protected function representation(): array
     {
         return [
             'value' => $this->getValue(),

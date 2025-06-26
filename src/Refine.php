@@ -58,8 +58,6 @@ class Refine extends Primitive implements NullsAsUndefined, RefinesData
         parent::__construct();
 
         $this->request($request);
-
-        $this->definition($this);
     }
 
     /**
@@ -159,16 +157,6 @@ class Refine extends Primitive implements NullsAsUndefined, RefinesData
     }
 
     /**
-     * Get the instance as an array.
-     *
-     * @return array<string, mixed>
-     */
-    public function toArray()
-    {
-        return $this->refineToArray();
-    }
-
-    /**
      * Get the application namespace for the application.
      *
      * @return string
@@ -182,6 +170,16 @@ class Refine extends Primitive implements NullsAsUndefined, RefinesData
         } catch (Throwable) {
             return 'App\\';
         }
+    }
+
+    /**
+     * Get the representation of the instance.
+     *
+     * @return array<string, mixed>
+     */
+    protected function representation(): array
+    {
+        return $this->refineToArray();
     }
 
     /**

@@ -62,11 +62,11 @@ abstract class Refiner extends Primitive
     }
 
     /**
-     * Get the refiner as an array.
+     * Get the representation of the instance.
      *
-     * @return array<string,mixed>
+     * @return array<string, mixed>
      */
-    public function toArray()
+    protected function representation(): array
     {
         return [
             'name' => $this->getParameter(),

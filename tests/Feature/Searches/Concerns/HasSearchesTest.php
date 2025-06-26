@@ -13,20 +13,22 @@ beforeEach(function () {
 it('is searchable', function () {
     expect($this->refine)
         ->isSearchable()->toBeTrue()
-        ->searchable(false)->toBe($this->refine)
-        ->isSearchable()->toBeFalse();
+        ->notSearchable()->toBe($this->refine)
+        ->isNotSearchable()->toBeTrue();
 });
 
 it('is matchable', function () {
     expect($this->refine)
-        ->isMatchable()->toBeFalse()
+        ->isNotMatchable()->toBeTrue()
         ->matchable()->toBe($this->refine)
-        ->isMatchable()->toBeTrue();
+        ->isMatchable()->toBeTrue()
+        ->notMatchable()->toBe($this->refine)
+        ->isNotMatchable()->toBeTrue();
 });
 
 it('can use scout', function () {
     expect($this->refine)
-        ->isScout()->toBeFalse()
+        ->isNotScout()->toBeTrue()
         ->scout()->toBe($this->refine)
         ->isScout()->toBeTrue();
 });

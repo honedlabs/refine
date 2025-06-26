@@ -59,27 +59,30 @@ it('has array representation', function () {
         ->toHaveKeys([
             'sort',
             'search',
-            'match',
-            'term',
             'delimiter',
-            'placeholder',
             'filters',
             'sorts',
             'searches',
+        ])->not->toHaveKeys([
+            'term',
+            'placeholder',
+            'match',
         ]);
 });
 
-it('serializes to json', function () {
-    expect($this->test->jsonSerialize())
-        ->toHaveKeys([
-            'sort',
-            'search',
-            'match',
-            'delimiter',
-            'sorts',
-            'filters',
-            'searches',
-        ]);
+it('has array representation when not searchable', function () {
+    expect($this->test->notSearchable()->toArray())
+        ->not->toHaveKey('search');
+});
+
+it('has array representation when not sortable', function () {
+    expect($this->test->notSortable()->toArray())
+        ->not->toHaveKey('sort');
+});
+
+it('has array representation when matchable', function () {
+    expect($this->test->matchable()->toArray())
+        ->toHaveKey('match');
 });
 
 it('evaluates closure dependencies', function ($callback, $type) {

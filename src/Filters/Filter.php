@@ -320,9 +320,11 @@ class Filter extends Refiner
     }
 
     /**
-     * {@inheritdoc}
+     * Get the representation of the instance.
+     *
+     * @return array<string, mixed>
      */
-    public function toArray()
+    protected function representation(): array
     {
         $value = $this->getValue();
 
@@ -330,7 +332,7 @@ class Filter extends Refiner
             $value = $value->format('Y-m-d\TH:i:s');
         }
 
-        return array_merge(parent::toArray(), [
+        return array_merge(parent::representation(), [
             'value' => $value,
             'options' => $this->optionsToArray(),
         ]);

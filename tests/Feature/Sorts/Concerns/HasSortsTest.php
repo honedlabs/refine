@@ -13,8 +13,8 @@ beforeEach(function () {
 it('is sortable', function () {
     expect($this->refine)
         ->isSortable()->toBeTrue()
-        ->sortable(false)->toBe($this->refine)
-        ->isSortable()->toBeFalse();
+        ->notSortable()->toBe($this->refine)
+        ->isNotSortable()->toBeTrue();
 });
 
 it('adds sorts', function () {

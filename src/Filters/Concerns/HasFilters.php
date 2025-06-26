@@ -30,14 +30,25 @@ trait HasFilters
     /**
      * Set whether the filters should be applied.
      *
-     * @param  bool  $enable
+     * @param  bool  $value
      * @return $this
      */
-    public function filterable($enable = true)
+    public function filterable($value = true)
     {
-        $this->filterable = $enable;
+        $this->filterable = $value;
 
         return $this;
+    }
+
+    /**
+     * Set whether the filters should not be applied.
+     *
+     * @param  bool  $value
+     * @return $this
+     */
+    public function notFilterable($value = true)
+    {
+        return $this->filterable(! $value);
     }
 
     /**
@@ -48,6 +59,16 @@ trait HasFilters
     public function isFilterable()
     {
         return $this->filterable;
+    }
+
+    /**
+     * Determine if the filters should not be applied.
+     *
+     * @return bool
+     */
+    public function isNotFilterable()
+    {
+        return ! $this->isFilterable();
     }
 
     /**
@@ -86,7 +107,7 @@ trait HasFilters
      */
     public function getFilters()
     {
-        if (! $this->isFilterable()) {
+        if ($this->isNotFilterable()) {
             return [];
         }
 
@@ -109,6 +130,16 @@ trait HasFilters
             $this->getFilters(),
             static fn (Filter $filter) => $filter->isActive()
         );
+    }
+
+    /**
+     * Determine if there is no filter being applied.
+     *
+     * @return bool
+     */
+    public function isNotFiltering()
+    {
+        return ! $this->isFiltering();
     }
 
     /**

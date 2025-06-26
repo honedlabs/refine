@@ -37,14 +37,25 @@ trait HasSorts
     /**
      * Set whether the sorts should be applied.
      *
-     * @param  bool  $enable
+     * @param  bool  $value
      * @return $this
      */
-    public function sortable($enable = true)
+    public function sortable($value = true)
     {
-        $this->sortable = $enable;
+        $this->sortable = $value;
 
         return $this;
+    }
+
+    /**
+     * Set whether the sorts should not be applied.
+     *
+     * @param  bool  $value
+     * @return $this
+     */
+    public function notSortable($value = true)
+    {
+        return $this->sortable(! $value);
     }
 
     /**
@@ -55,6 +66,16 @@ trait HasSorts
     public function isSortable()
     {
         return $this->sortable;
+    }
+
+    /**
+     * Determine if the sorts should not be applied.
+     *
+     * @return bool
+     */
+    public function isNotSortable()
+    {
+        return ! $this->isSortable();
     }
 
     /**
@@ -93,7 +114,7 @@ trait HasSorts
      */
     public function getSorts()
     {
-        if (! $this->isSortable()) {
+        if ($this->isNotSortable()) {
             return [];
         }
 
@@ -152,6 +173,16 @@ trait HasSorts
             $this->getSorts(),
             static fn (Sort $sort) => $sort->isActive()
         );
+    }
+
+    /**
+     * Determine if there is no sort being applied.
+     *
+     * @return bool
+     */
+    public function isNotSorting()
+    {
+        return ! $this->isSorting();
     }
 
     /**

@@ -140,17 +140,29 @@ class SearchQuery extends Pipe
      */
     public function persist($instance, $term, $columns)
     {
-        $store = $instance->getSearchStore();
-
-        if (! $store) {
-            return;
-        }
-
-        $store->put([
-            'search' => [
+        $instance->getSearchStore()?->put([
+            $instance->getSearchKey() => [
                 'term' => $term,
-                ...($instance->isMatchable() && $columns ? ['cols' => $columns] : []),
+                'cols' => $columns ?? [],
             ],
         ]);
+    }
+
+    /**
+     * Get the search data from the store.
+     *
+     * @param  TClass  $instance
+     * @return array{term: string, cols: array<int, string>}|null
+     */
+    protected function persisted($instance)
+    {
+        $data = $instance->getSearchStore()?->get($instance->getSearchKey());
+
+        if (! is_array($data) || ! isset($data['term'], $data['cols'])) {
+            return null;
+        }
+
+        /** @var array{term: string, cols: array<int, string>} $data */
+        return $data;
     }
 }

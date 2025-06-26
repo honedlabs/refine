@@ -283,12 +283,12 @@ trait CanBeRefined
     public function refineToArray()
     {
         return [
-            'sort' => $this->getSortKey(),
-            'search' => $this->getSearchKey(),
-            'match' => $this->getMatchKey(),
+            'sort' => $this->isSortable() ? $this->getSortKey() : null,
+            'search' => $this->isSearchable() ? $this->getSearchKey() : null,
+            'match' => $this->isMatchable() ? $this->getMatchKey() : null,
             'term' => $this->getTerm(),
-            'delimiter' => $this->getDelimiter(),
             'placeholder' => $this->getSearchPlaceholder(),
+            'delimiter' => $this->getDelimiter(),
             'sorts' => $this->sortsToArray(),
             'filters' => $this->filtersToArray(),
             'searches' => $this->searchesToArray(),
