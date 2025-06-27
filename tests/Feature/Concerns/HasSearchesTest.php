@@ -13,13 +13,17 @@ beforeEach(function () {
 it('is searchable', function () {
     expect($this->refine)
         ->isSearchable()->toBeTrue()
+        ->isNotSearchable()->toBeFalse()
         ->notSearchable()->toBe($this->refine)
-        ->isNotSearchable()->toBeTrue();
+        ->isNotSearchable()->toBeTrue()
+        ->searchable()->toBe($this->refine)
+        ->isSearchable()->toBeTrue();
 });
 
 it('is matchable', function () {
     expect($this->refine)
         ->isNotMatchable()->toBeTrue()
+        ->isMatchable()->toBeFalse()
         ->matchable()->toBe($this->refine)
         ->isMatchable()->toBeTrue()
         ->notMatchable()->toBe($this->refine)
@@ -29,8 +33,11 @@ it('is matchable', function () {
 it('can use scout', function () {
     expect($this->refine)
         ->isNotScout()->toBeTrue()
+        ->isScout()->toBeFalse()
         ->scout()->toBe($this->refine)
-        ->isScout()->toBeTrue();
+        ->isScout()->toBeTrue()
+        ->notScout()->toBe($this->refine)
+        ->isNotScout()->toBeTrue();
 });
 
 it('adds searches', function () {
@@ -67,6 +74,29 @@ it('has search placeholder', function () {
         ->getSearchPlaceholder()->toBe('test');
 });
 
+it('checks if it is searching', function () {
+    expect($this->refine)
+        ->setTerm('test')->toBeNull()
+        ->isSearching()->toBeTrue()
+        ->isNotSearching()->toBeFalse();
+});
+
+it('checks if it is not searching', function () {
+    expect($this->refine)
+        ->isNotSearching()->toBeTrue()
+        ->isSearching()->toBeFalse();
+});
+
+it('gets active searches', function () {
+    expect($this->refine)
+        ->searches([
+            Search::make('name')->active(true),
+            Search::make('price')->active(false),
+        ])
+        ->toBe($this->refine)
+        ->getActiveSearches()->toHaveCount(1);
+});
+
 it('searches to array', function () {
     expect($this->refine)
         ->searches([Search::make('name'), Search::make('price')])->toBe($this->refine)
@@ -79,7 +109,6 @@ it('searches to array', function () {
             ->toHaveKeys([
                 'name',
                 'label',
-                'type',
                 'active',
                 'meta',
             ])

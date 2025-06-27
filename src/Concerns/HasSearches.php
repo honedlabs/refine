@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Honed\Refine\Searches\Concerns;
+namespace Honed\Refine\Concerns;
 
 use Closure;
 use Honed\Refine\Searches\Search;
@@ -269,7 +269,7 @@ trait HasSearches
      */
     public function getSearchKey()
     {
-        return $this->formatScope($this->searchKey);
+        return $this->scoped($this->searchKey);
     }
 
     /**
@@ -292,7 +292,7 @@ trait HasSearches
      */
     public function getMatchKey()
     {
-        return $this->formatScope($this->matchKey);
+        return $this->scoped($this->matchKey);
     }
 
     /**
@@ -357,6 +357,21 @@ trait HasSearches
     public function isNotSearching()
     {
         return ! $this->isSearching();
+    }
+
+    /**
+     * Get the searches being applied.
+     *
+     * @return array<int,Search>
+     */
+    public function getActiveSearches()
+    {
+        return array_values(
+            array_filter(
+                $this->getSearches(),
+                static fn (Search $search) => $search->isActive()
+            )
+        );
     }
 
     /**

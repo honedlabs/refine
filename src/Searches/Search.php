@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Honed\Refine\Searches;
 
 use Honed\Refine\Refiner;
+use Honed\Refine\Searches\Concerns\CanBeFullText;
 
 /**
  * @template TModel of \Illuminate\Database\Eloquent\Model = \Illuminate\Database\Eloquent\Model
@@ -14,31 +15,14 @@ use Honed\Refine\Refiner;
  */
 class Search extends Refiner
 {
+    use CanBeFullText;
+
     /**
      * The identifier to use for evaluation.
      *
      * @var string
      */
     protected $evaluationIdentifier = 'search';
-
-    /**
-     * Whether to use a full-text, recall search.
-     *
-     * @var bool
-     */
-    protected $fullText = false;
-
-    /**
-     * Provide the instance with any necessary setup.
-     *
-     * @return void
-     */
-    protected function setUp()
-    {
-        parent::setUp();
-
-        $this->definition($this);
-    }
 
     /**
      * Perform a wildcard search on the query.
@@ -69,29 +53,6 @@ class Search extends Refiner
     }
 
     /**
-     * Set whether to use a full-text search.
-     *
-     * @param  bool  $fullText
-     * @return $this
-     */
-    public function fullText($fullText = true)
-    {
-        $this->fullText = $fullText;
-
-        return $this;
-    }
-
-    /**
-     * Determine if the search is a full-text search.
-     *
-     * @return bool
-     */
-    public function isFullText()
-    {
-        return $this->fullText;
-    }
-
-    /**
      * Handle the searching of the query.
      *
      * @param  TBuilder  $query
@@ -104,7 +65,7 @@ class Search extends Refiner
     {
         $this->checkIfActive($columns);
 
-        if (! $this->isActive() || ! $term) {
+        if ($this->isNotActive() || ! $term) {
             return false;
         }
 

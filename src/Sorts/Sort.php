@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace Honed\Refine\Sorts;
 
-use Honed\Core\Concerns\IsDefault;
+use Honed\Core\Concerns\CanBeDefault;
 use Honed\Refine\Refiner;
+use Honed\Refine\Sorts\Concerns\HasDirection;
 
 use function array_merge;
 use function sprintf;
@@ -18,8 +19,8 @@ use function sprintf;
  */
 class Sort extends Refiner
 {
-    use Concerns\HasDirection;
-    use IsDefault;
+    use CanBeDefault;
+    use HasDirection;
 
     /**
      * The identifier to use for evaluation.
@@ -27,20 +28,6 @@ class Sort extends Refiner
      * @var string
      */
     protected $evaluationIdentifier = 'sort';
-
-    /**
-     * Provide the instance with any necessary setup.
-     *
-     * @return void
-     */
-    protected function setUp()
-    {
-        parent::setUp();
-
-        $this->type('sort');
-
-        $this->definition($this);
-    }
 
     /**
      * Get the value for the sort indicating an ascending direction.

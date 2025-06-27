@@ -11,7 +11,7 @@ beforeEach(function () {
 
 it('creates', function () {
     expect($this->filter)
-        ->getType()->toBe('filter')
+        ->getType()->toBeNull()
         ->interpretsAs()->toBeNull();
 });
 

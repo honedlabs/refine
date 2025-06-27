@@ -21,8 +21,6 @@ class DescSort extends Sort
     {
         parent::setUp();
 
-        $this->type(Sort::DESCENDING);
-
         $this->descending();
     }
 }

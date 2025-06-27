@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Honed\Refine\Sorts\Concerns;
+namespace Honed\Refine\Concerns;
 
 use Honed\Refine\Sorts\Sort;
 use Illuminate\Support\Arr;
@@ -159,7 +159,20 @@ trait HasSorts
      */
     public function getSortKey()
     {
-        return $this->formatScope($this->sortKey);
+        return $this->scoped($this->sortKey);
+    }
+
+    /**
+     * Get the sort being applied.
+     *
+     * @return Sort|null
+     */
+    public function getActiveSort()
+    {
+        return Arr::first(
+            $this->getSorts(),
+            static fn (Sort $sort) => $sort->isActive()
+        );
     }
 
     /**
@@ -169,10 +182,7 @@ trait HasSorts
      */
     public function isSorting()
     {
-        return (bool) Arr::first(
-            $this->getSorts(),
-            static fn (Sort $sort) => $sort->isActive()
-        );
+        return (bool) $this->getActiveSort();
     }
 
     /**

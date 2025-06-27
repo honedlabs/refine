@@ -6,9 +6,11 @@ namespace Honed\Refine\Pipes;
 
 use Honed\Core\Interpret;
 use Honed\Core\Pipe;
+use Honed\Refine\Stores\Data\SortData;
+use InvalidArgumentException;
 
 /**
- * @template TClass of \Honed\Refine\Contracts\RefinesData
+ * @template TClass of \Honed\Refine\Refine
  *
  * @extends Pipe<TClass>
  */
@@ -16,40 +18,35 @@ class SortQuery extends Pipe
 {
     /**
      * Run the sort query logic.
-     *
-     * @param  TClass  $instance
-     * @return void
      */
-    public function run($instance)
+    public function run(): void
     {
-        [$parameter, $direction] = $this->getValues($instance);
+        $builder = $this->instance->getBuilder();
 
-        $this->persist($instance, $parameter, $direction);
+        [$parameter, $direction] = $this->getValues();
 
-        if ($this->sort($instance, $parameter, $direction)) {
-            $this->persist($instance, $parameter, $direction);
+        if ($this->sort($builder, $parameter, $direction)) {
+            $this->persist($parameter, $direction);
 
             return;
         }
 
-        $this->defaultSort($instance);
+        $this->defaultSort($builder);
     }
 
     /**
      * Apply the sort to the resource.
      *
-     * @param  TClass  $instance
+     * @param  \Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model>  $builder
      * @param  string|null  $parameter
      * @param  'asc'|'desc'|null  $direction
      * @return bool
      */
-    public function sort($instance, $parameter, $direction)
+    protected function sort($builder, $parameter, $direction)
     {
-        $builder = $instance->getBuilder();
-
         $applied = false;
 
-        foreach ($instance->getSorts() as $sort) {
+        foreach ($this->instance->getSorts() as $sort) {
             if ($sort->handle($builder, $parameter, $direction)) {
                 $applied = true;
             }
@@ -61,14 +58,12 @@ class SortQuery extends Pipe
     /**
      * Apply the default sort to the resource.
      *
-     * @param  TClass  $instance
+     * @param  \Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model>  $builder
      * @return void
      */
-    public function defaultSort($instance)
+    protected function defaultSort($builder)
     {
-        $builder = $instance->getBuilder();
-
-        if ($sort = $instance->getDefaultSort()) {
+        if ($sort = $this->instance->getDefaultSort()) {
             $parameter = $sort->getParameter();
 
             $sort->handle($builder, $parameter, null);
@@ -79,23 +74,19 @@ class SortQuery extends Pipe
      * Get the sort name and direction from the request, or from a persisted
      * value.
      *
-     * @param  TClass  $instance
      * @return array{string|null, 'asc'|'desc'|null}
      */
-    public function getValues($instance)
+    protected function getValues()
     {
-        $request = $instance->getRequest();
+        $request = $this->instance->getRequest();
 
-        $key = $instance->getSortKey();
+        $key = $this->instance->getSortKey();
 
-        [$parameter, $direction] = $this->getOrder(
-            $request, $key
-        );
+        [$parameter, $direction] = $this->getOrder($request, $key);
 
         return match (true) {
             (bool) $parameter => [$parameter, $direction],
-            $instance->shouldPersistSort()
-                && ! $request->has($key) => [null, null],
+            $request->missing($key) => $this->persisted($key),
             default => [null, null]
         };
     }
@@ -107,7 +98,7 @@ class SortQuery extends Pipe
      * @param  string  $key
      * @return array{string|null, 'asc'|'desc'|null}
      */
-    public function getOrder($request, $key)
+    protected function getOrder($request, $key)
     {
         $sort = Interpret::string($request, $key);
 
@@ -121,36 +112,41 @@ class SortQuery extends Pipe
     /**
      * Persist the sort value to the internal data store.
      *
-     * @param  TClass  $instance
      * @param  string|null  $parameter
      * @param  'asc'|'desc'|null  $direction
      * @return void
      */
-    public function persist($instance, $parameter, $direction)
+    protected function persist($parameter, $direction)
     {
-        $instance->getSortStore()?->put([
-            $instance->getSortKey() => [
+        try {
+            $data = SortData::from([
                 'col' => $parameter,
                 'dir' => $direction,
-            ],
-        ]);
+            ]);
+
+            $this->instance->getSortStore()?->put([
+                $this->instance->getSortKey() => $data->toArray(),
+            ]);
+        } catch (InvalidArgumentException $e) {
+        }
     }
 
     /**
      * Get the sort data from the store.
      *
-     * @param  TClass  $instance
-     * @return array{col: string, dir: 'asc'|'desc'}|null
+     * @param  string  $key
+     * @return array{string|null, 'asc'|'desc'|null}
      */
-    protected function persisted($instance)
+    protected function persisted($key)
     {
-        $data = $instance->getSortStore()?->get($instance->getSortKey());
+        try {
+            $data = SortData::from(
+                $this->instance->getSortStore()?->get($key)
+            );
 
-        if (! is_array($data) || ! isset($data['col'], $data['dir'])) {
-            return null;
+            return [$data->column, $data->direction];
+        } catch (InvalidArgumentException) {
+            return [null, null];
         }
-
-        /** @var array{col: string, dir: 'asc'|'desc'} $data */
-        return $data;
     }
 }

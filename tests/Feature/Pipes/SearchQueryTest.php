@@ -5,7 +5,9 @@ declare(strict_types=1);
 use Honed\Refine\Pipes\SearchQuery;
 use Honed\Refine\Refine;
 use Honed\Refine\Searches\Search;
+use Honed\Refine\Stores\Data\SearchData;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
 use Workbench\App\Models\Product;
 
@@ -19,6 +21,8 @@ beforeEach(function () {
         ->trim()
         ->toString();
 
+    $this->match = 'name';
+
     $this->refine = Refine::make(Product::class)
         ->searches([
             Search::make('name'),
@@ -26,132 +30,185 @@ beforeEach(function () {
         ]);
 });
 
-it('needs a search term', function () {
-    $request = Request::create('/', 'GET', [
-        'invalid' => $this->query,
-    ]);
+it('fails', function ($refine) {
+    $this->pipe->instance($refine);
 
-    $this->pipe->run(
-        $this->refine->request($request)
-    );
+    $this->pipe->run();
 
-    expect($this->refine->getBuilder()->getQuery()->wheres)
+    expect($refine->getBuilder()->getQuery()->wheres)
         ->toBeEmpty();
+})->with([
+    'no search key' => function () {
+        $request = Request::create('/', 'GET', [
+            'invalid' => $this->query,
+        ]);
 
-    expect($this->refine->getTerm())
-        ->toBeNull();
-});
+        return $this->refine->request($request);
+    },
 
-it('applies search', function () {
-    $request = Request::create('/', 'GET', [
-        $this->refine->getSearchKey() => $this->query,
-    ]);
+    'disabled' => function () {
+        $request = Request::create('/', 'GET', [
+            $this->refine->getSearchKey() => $this->query,
+        ]);
 
-    $this->pipe->run(
-        $this->refine->request($request)
-    );
+        return $this->refine->notSearchable()->request($request);
+    },
 
-    expect($this->refine->getBuilder()->getQuery()->wheres)
+    'scope' => function () {
+        $request = Request::create('/', 'GET', [
+            $this->refine->getSearchKey() => $this->query,
+        ]);
+
+        return $this->refine->scope('scope')->request($request);
+    },
+
+    'session' => function () {
+        $data = new SearchData($this->term, [$this->match]);
+
+        Session::put($this->refine->getPersistKey(), [
+            $this->refine->getSearchKey() => $data->toArray(),
+        ]);
+
+        return $this->refine;
+    },
+
+    'cookie' => function () {
+        $data = new SearchData($this->term, [$this->match]);
+
+        $request = Request::create('/', 'GET', cookies: [
+            $this->refine->getPersistKey() => json_encode([
+                $this->refine->getSearchKey() => $data->toArray(),
+            ]),
+        ]);
+
+        return $this->refine->request($request);
+    },
+]);
+
+it('passes non-matchable', function ($refine) {
+    $this->pipe->instance($refine);
+
+    $this->pipe->run();
+
+    expect($refine->getBuilder()->getQuery()->wheres)
+        ->toBeArray()
+        ->toHaveCount(2)
         ->{0}->toBeSearch('name', 'and')
         ->{1}->toBeSearch('description', 'or');
 
-    expect($this->refine->getTerm())
-        ->toBe($this->term);
-});
+    expect($this->refine)
+        ->getTerm()->toBe('search value')
+        ->isSearching()->toBeTrue();
+})->with([
+    'request' => function () {
+        $request = Request::create('/', 'GET', [
+            $this->refine->getSearchKey() => $this->query,
+        ]);
 
-it('applies search without matching', function () {
+        return $this->refine->request($request);
+    },
+
+    'scope' => function () {
+        $this->refine->scope('scope');
+
+        $request = Request::create('/', 'GET', [
+            $this->refine->getSearchKey() => $this->query,
+        ]);
+
+        return $this->refine->request($request);
+    },
+
+    'session' => function () {
+        $data = new SearchData($this->term, [$this->match]);
+
+        Session::put($this->refine->getPersistKey(), [
+            $this->refine->getSearchKey() => $data->toArray(),
+        ]);
+
+        return $this->refine->persistSearchInSession();
+    },
+
+    'cookie' => function () {
+        $data = new SearchData($this->term, [$this->match]);
+
+        $request = Request::create('/', 'GET', cookies: [
+            $this->refine->getPersistKey() => json_encode([
+                $this->refine->getSearchKey() => $data->toArray(),
+            ]),
+        ]);
+
+        return $this->refine->request($request)->persistSearchInCookie();
+    },
+]);
+
+it('passes matchable', function ($refine) {
+    $this->pipe->instance($refine->matchable());
+
+    $this->pipe->run();
+
+    expect($refine->getBuilder()->getQuery()->wheres)
+        ->toBeOnlySearch($this->match);
+
+    expect($refine)
+        ->getTerm()->toBe($this->term)
+        ->isSearching()->toBeTrue();
+})->with([
+    'request' => function () {
+        $request = Request::create('/', 'GET', [
+            $this->refine->getSearchKey() => $this->query,
+            $this->refine->getMatchKey() => $this->match,
+        ]);
+
+        return $this->refine->request($request);
+    },
+
+    'scope' => function () {
+        $this->refine->scope('scope');
+
+        $request = Request::create('/', 'GET', [
+            $this->refine->getSearchKey() => $this->query,
+            $this->refine->getMatchKey() => $this->match,
+        ]);
+
+        return $this->refine->request($request);
+    },
+
+    'session' => function () {
+        $data = new SearchData($this->term, [$this->match]);
+
+        Session::put($this->refine->getPersistKey(), [
+            $this->refine->getSearchKey() => $data->toArray(),
+        ]);
+
+        return $this->refine->persistSearchInSession();
+    },
+
+    'cookie' => function () {
+        $data = new SearchData($this->term, [$this->match]);
+
+        $request = Request::create('/', 'GET', cookies: [
+            $this->refine->getPersistKey() => json_encode([
+                $this->refine->getSearchKey() => $data->toArray(),
+            ]),
+        ]);
+
+        return $this->refine->request($request)->persistSearchInCookie();
+    },
+]);
+
+it('scouts', function () {
     $request = Request::create('/', 'GET', [
         $this->refine->getSearchKey() => $this->query,
-        $this->refine->getMatchKey() => 'name',
     ]);
 
-    $this->pipe->run(
-        $this->refine->request($request)
-    );
+    $this->pipe->instance($this->refine->scout()->request($request));
+
+    $this->pipe->run();
 
     expect($this->refine->getBuilder()->getQuery()->wheres)
-        ->{0}->toBeSearch('name', 'and')
-        ->{1}->toBeSearch('description', 'or');
+        ->toBeOnlyWhereIn('products.id', []);
 
-    expect($this->refine->getTerm())
-        ->toBe($this->term);
+    expect($this->refine)
+        ->getTerm()->toBe($this->term)
+        ->isSearching()->toBeTrue();
 });
-
-it('applies search with matching', function () {
-    $this->refine->matchable();
-
-    $request = Request::create('/', 'GET', [
-        $this->refine->getSearchKey() => $this->query,
-        $this->refine->getMatchKey() => 'name',
-    ]);
-
-    $this->pipe->run(
-        $this->refine->request($request)
-    );
-
-    expect($this->refine->getBuilder()->getQuery()->wheres)
-        ->toBeOnlySearch('name');
-
-    expect($this->refine->getTerm())
-        ->toBe($this->term);
-});
-
-it('disables search', function () {
-    $request = Request::create('/', 'GET', [
-        $this->refine->getSearchKey() => $this->query,
-    ]);
-
-    $this->pipe->run(
-        $this->refine
-            ->searchable(false)
-            ->request($request)
-    );
-
-    expect($this->refine->getBuilder()->getQuery()->wheres)
-        ->toBeEmpty();
-
-    expect($this->refine->getTerm())
-        ->toBe($this->term);
-});
-
-it('does not apply search if key is not scoped', function () {
-    $request = Request::create('/', 'GET', [
-        $this->refine->getSearchKey() => $this->query,
-        $this->refine->getMatchKey() => 'name',
-    ]);
-
-    $this->pipe->run(
-        $this->refine
-            ->scope('scope')
-            ->request($request)
-    );
-
-    expect($this->refine->getBuilder()->getQuery()->orders)
-        ->toBeEmpty();
-
-    expect($this->refine->getTerm())
-        ->toBeNull();
-});
-
-it('applies search with scoped key', function () {
-    $this->refine->matchable()->scope('scope');
-
-    $request = Request::create('/', 'GET', [
-        $this->refine->getSearchKey() => $this->query,
-        $this->refine->getMatchKey() => 'description',
-    ]);
-
-    $this->pipe->run(
-        $this->refine->request($request)
-    );
-
-    expect($this->refine->getBuilder()->getQuery()->wheres)
-        ->toBeOnlySearch('description');
-
-    expect($this->refine->getTerm())
-        ->toBe($this->term);
-});
-
-it('uses cookie persisted search', function () {})->todo();
-
-it('uses session persisted search', function () {})->todo();

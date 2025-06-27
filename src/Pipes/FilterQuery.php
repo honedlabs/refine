@@ -7,48 +7,46 @@ namespace Honed\Refine\Pipes;
 use Honed\Core\Pipe;
 
 /**
- * @template TClass of \Honed\Refine\Contracts\RefinesData
+ * @template TClass of \Honed\Refine\Refine
  *
  * @extends Pipe<TClass>
  */
 class FilterQuery extends Pipe
 {
     /**
-     * Run the after refining logic.
-     *
-     * @param  TClass  $instance
-     * @return void
+     * Run the filter query logic.
      */
-    public function run($instance)
+    public function run(): void
     {
-        if ($this->filter($instance)) {
+        $builder = $this->instance->getBuilder();
+
+        if ($this->filter($builder, $this->getFilterValue(...))) {
             return;
         }
 
-        // $this->persistedFilter($instance);
+        $this->filter($builder, $this->persisted(...));
     }
 
     /**
      * Apply the filters using the request values.
      *
-     * @param  TClass  $instance
+     * @param  \Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model>  $builder
+     * @param  callable(string, \Honed\Refine\Filters\Filter):mixed  $callback
      * @return bool
      */
-    public function filter($instance)
+    protected function filter($builder, $callback)
     {
-        $builder = $instance->getBuilder();
-
-        $request = $instance->getRequest();
-
         $applied = false;
 
-        foreach ($instance->getFilters() as $filter) {
-            $value = $this->getRequestValue($instance, $request, $filter);
+        foreach ($this->instance->getFilters() as $filter) {
+            $key = $this->getParameter($filter);
+
+            $value = $callback($key, $filter);
 
             if ($filter->handle($builder, $value)) {
                 $applied = true;
 
-                // $this->persist($instance, $filter, $value);
+                $this->persist($key, $value);
             }
         }
 
@@ -56,38 +54,53 @@ class FilterQuery extends Pipe
     }
 
     /**
-     * Apply the filters using the persisted values.
-     *
-     * @param  TClass  $instance
-     * @return void
-     */
-    public function persistedFilter($instance)
-    {
-        // $builder = $instance->getBuilder();
-
-        foreach ($instance->getFilters() as $filter) {
-            // $value = $instance->getPersistedFilterValue($filter);
-
-            // if ($filter->handle($builder, $value)) {
-            //     $instance->persistFilter($filter, $value);
-            // }
-        }
-    }
-
-    /**
      * Get the filter value from the request.
      *
-     * @param  TClass  $instance
-     * @param  \Illuminate\Http\Request  $request
+     * @param  string  $key
      * @param  \Honed\Refine\Filters\Filter  $filter
      * @return mixed
      */
-    protected function getRequestValue($instance, $request, $filter)
+    protected function getFilterValue($key, $filter)
     {
-        $key = $instance->formatScope($filter->getParameter());
 
-        $delimiter = $instance->getDelimiter();
+        return $filter->interpret(
+            $this->instance->getRequest(),
+            $key,
+            $this->instance->getDelimiter()
+        );
+    }
 
-        return $filter->interpret($request, $key, $delimiter);
+    /**
+     * Get the parameter of the filter.
+     *
+     * @param  \Honed\Refine\Filters\Filter  $filter
+     * @return string
+     */
+    protected function getParameter($filter)
+    {
+        return $this->instance->scoped($filter->getParameter());
+    }
+
+    /**
+     * Persist the filter value to the internal data store.
+     *
+     * @param  string  $key
+     * @param  mixed  $value
+     * @return void
+     */
+    protected function persist($key, $value)
+    {
+        $this->instance->getFilterStore()?->put([$key => $value]);
+    }
+
+    /**
+     * Get the sort data from the store.
+     *
+     * @param  string  $key
+     * @return mixed
+     */
+    protected function persisted($key)
+    {
+        return $this->instance->getFilterStore()?->get($key);
     }
 }

@@ -6,12 +6,12 @@ namespace Honed\Refine;
 
 use Closure;
 use Honed\Core\Concerns\Allowable;
+use Honed\Core\Concerns\CanBeActive;
+use Honed\Core\Concerns\CanHaveAlias;
+use Honed\Core\Concerns\CanQuery;
 use Honed\Core\Concerns\HasLabel;
 use Honed\Core\Concerns\HasMeta;
 use Honed\Core\Concerns\HasName;
-use Honed\Core\Concerns\HasQuery;
-use Honed\Core\Concerns\HasType;
-use Honed\Core\Concerns\IsActive;
 use Honed\Core\Primitive;
 use Honed\Refine\Concerns\CanBeHidden;
 use Honed\Refine\Concerns\HasQualifier;
@@ -26,18 +26,17 @@ use Illuminate\Support\Str;
 abstract class Refiner extends Primitive
 {
     use Allowable;
+    use CanBeActive;
     use CanBeHidden;
-    use Concerns\CanHaveAlias;
+    use CanHaveAlias;
+
+    /** @use CanQuery<TModel, TBuilder> */
+    use CanQuery;
+
     use HasLabel;
     use HasMeta;
     use HasName;
     use HasQualifier;
-
-    /** @use HasQuery<TModel, TBuilder> */
-    use HasQuery;
-
-    use HasType;
-    use IsActive;
 
     /**
      * Create a new refiner instance.
@@ -71,7 +70,6 @@ abstract class Refiner extends Primitive
         return [
             'name' => $this->getParameter(),
             'label' => $this->getLabel(),
-            'type' => $this->getType(),
             'active' => $this->isActive(),
             'meta' => $this->getMeta(),
         ];
@@ -86,11 +84,11 @@ abstract class Refiner extends Primitive
      */
     protected function refine($query, $bindings)
     {
-        if (! $this->hasQuery()) {
+        if (! $this->queryCallback()) {
             $this->query(Closure::fromCallable([$this, 'apply']));
         }
 
-        $this->modifyQuery($query, $bindings);
+        $this->callQuery($bindings);
 
         return true;
     }

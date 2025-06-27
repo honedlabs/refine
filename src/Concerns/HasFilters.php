@@ -2,10 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Honed\Refine\Filters\Concerns;
+namespace Honed\Refine\Concerns;
 
 use Honed\Refine\Filters\Filter;
-use Illuminate\Support\Arr;
 
 use function array_filter;
 use function array_map;
@@ -126,10 +125,7 @@ trait HasFilters
      */
     public function isFiltering()
     {
-        return (bool) Arr::first(
-            $this->getFilters(),
-            static fn (Filter $filter) => $filter->isActive()
-        );
+        return (bool) $this->getActiveFilters();
     }
 
     /**
@@ -140,6 +136,21 @@ trait HasFilters
     public function isNotFiltering()
     {
         return ! $this->isFiltering();
+    }
+
+    /**
+     * Get the filters being applied.
+     *
+     * @return array<int,Filter>
+     */
+    public function getActiveFilters()
+    {
+        return array_values(
+            array_filter(
+                $this->getFilters(),
+                static fn (Filter $filter) => $filter->isActive()
+            )
+        );
     }
 
     /**

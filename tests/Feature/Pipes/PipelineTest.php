@@ -131,7 +131,7 @@ it('has scoped pipeline', function () {
     $parameters = [];
 
     foreach ($this->parameters as $key => $value) {
-        Arr::set($parameters, $this->refine->formatScope($key), $value);
+        Arr::set($parameters, $this->refine->scoped($key), $value);
     }
 
     $this->refine

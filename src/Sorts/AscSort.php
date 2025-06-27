@@ -21,8 +21,6 @@ class AscSort extends Sort
     {
         parent::setUp();
 
-        $this->type(Sort::ASCENDING);
-
         $this->ascending();
     }
 }

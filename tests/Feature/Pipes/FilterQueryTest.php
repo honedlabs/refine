@@ -6,102 +6,131 @@ use Honed\Refine\Filters\Filter;
 use Honed\Refine\Pipes\FilterQuery;
 use Honed\Refine\Refine;
 use Illuminate\Support\Facades\Request;
-use Workbench\App\Models\User;
+use Illuminate\Support\Facades\Session;
+use Workbench\App\Models\Product;
 
 beforeEach(function () {
     $this->pipe = new FilterQuery();
 
-    $this->name = 'price';
-
-    $this->value = 100;
-
-    $this->refine = Refine::make(User::class)
-        ->filters(Filter::make($this->name)->int());
+    $this->refine = Refine::make(Product::class)
+        ->filters([
+            Filter::make('price')->int(),
+            Filter::make('best_seller')->boolean(),
+        ]);
 });
 
-it('needs a filter key', function () {
-    $request = Request::create('/', 'GET', [
-        'invalid' => $this->value,
-    ]);
+it('fails', function (Refine $refine) {
+    $this->pipe->instance($refine);
 
-    $this->pipe->run(
-        $this->refine->request($request)
-    );
+    $this->pipe->run();
 
-    expect($this->refine->getBuilder()->getQuery()->wheres)
+    expect($refine->getBuilder()->getQuery()->wheres)
         ->toBeEmpty();
-});
+})->with([
+    'no filter key' => function () {
+        $request = Request::create('/', 'GET', [
+            'invalid' => 100,
+        ]);
 
-it('applies filter', function () {
-    $request = Request::create('/', 'GET', [
-        $this->name => $this->value,
-    ]);
+        return $this->refine->request($request);
+    },
 
-    $this->pipe->run(
-        $this->refine->request($request)
-    );
+    'disabled' => function () {
+        $request = Request::create('/', 'GET', [
+            'price' => 100,
+        ]);
 
-    expect($this->refine->getBuilder()->getQuery()->wheres)
-        ->toBeOnlyWhere($this->name, $this->value);
-});
+        return $this->refine->notFilterable()->request($request);
+    },
 
-it('applies filter with default', function () {
-    $name = 'name';
-    $value = 'joshua';
+    'scope' => function () {
+        $request = Request::create('/', 'GET', [
+            'price' => 100,
+        ]);
 
-    $request = Request::create('/', 'GET');
+        return $this->refine->scope('scope')->request($request);
+    },
 
-    $this->pipe->run(
-        $this->refine
-            ->request($request)
-            ->filters(Filter::make($name)->default($value))
-    );
+    'session' => function () {
+        Session::put($this->refine->getPersistKey(), [
+            'price' => 100,
+        ]);
 
-    expect($this->refine->getBuilder()->getQuery()->wheres)
+        return $this->refine;
+    },
+
+    'cookie' => function () {
+        $request = Request::create('/', 'GET', cookies: [
+            $this->refine->getPersistKey() => json_encode([
+                'price' => 100,
+            ]),
+        ]);
+
+        return $this->refine->request($request);
+    },
+]);
+
+it('passes', function (Refine $refine, string $name = 'price', mixed $value = 100) {
+    $this->pipe->instance($refine);
+
+    $this->pipe->run();
+
+    expect($refine->getBuilder()->getQuery()->wheres)
         ->toBeOnlyWhere($name, $value);
-});
+})->with([
+    'request' => function () {
+        $request = Request::create('/', 'GET', [
+            'price' => 100,
+        ]);
 
-it('disables filtering', function () {
-    $request = Request::create('/', 'GET', [
-        $this->name => $this->value,
-    ]);
+        return $this->refine->request($request);
+    },
 
-    $this->pipe->run(
-        $this->refine
-            ->filterable(false)
-            ->request($request)
-    );
+    'defaults' => function () {
+        $this->refine->filter(Filter::make('name')->default('joshua'));
 
-    expect($this->refine->getBuilder()->getQuery()->wheres)
-        ->toBeEmpty();
-});
+        return [$this->refine, 'name', 'joshua'];
+    },
 
-it('does not apply filter if key is not scoped', function () {
-    $request = Request::create('/', 'GET', [
-        $this->name => $this->value,
-    ]);
+    'scope' => function () {
+        $this->refine->scope('scope');
 
-    $this->pipe->run(
-        $this->refine
-            ->scope('scope')
-            ->request($request)
-    );
+        $request = Request::create('/', 'GET', [
+            $this->refine->scoped('price') => 100,
+        ]);
 
-    expect($this->refine->getBuilder()->getQuery()->orders)
-        ->toBeEmpty();
-});
+        return $this->refine->request($request);
+    },
 
-it('sorts with scoped key', function () {
-    $this->refine->scope('scope');
+    'session' => function () {
+        Session::put($this->refine->getPersistKey(), [
+            'price' => 100,
+        ]);
 
-    $request = Request::create('/', 'GET', [
-        $this->refine->formatScope($this->name) => $this->value,
-    ]);
+        return $this->refine->persistFilterInSession();
+    },
 
-    $this->pipe->run(
-        $this->refine->request($request)
-    );
+    'cookie' => function () {
+        $request = Request::create('/', 'GET', cookies: [
+            $this->refine->getPersistKey() => json_encode([
+                'price' => 100,
+            ]),
+        ]);
 
-    expect($this->refine->getBuilder()->getQuery()->wheres)
-        ->toBeOnlyWhere($this->name, $this->value);
-});
+        return $this->refine->request($request)->persistFilterInCookie();
+    },
+
+    'uses request over store' => function () {
+        Session::put($this->refine->getPersistKey(), [
+            'price' => 100,
+        ]);
+
+        $request = Request::create('/', 'GET', [
+            'best_seller' => true,
+        ]);
+
+        $this->refine->request($request)->persistFilterInSession();
+
+        return [$this->refine, 'best_seller', true];
+    },
+]);

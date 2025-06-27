@@ -7,7 +7,7 @@ namespace Honed\Refine\Pipes;
 use Honed\Core\Pipe;
 
 /**
- * @template TClass of \Honed\Refine\Contracts\RefinesData
+ * @template TClass of \Honed\Refine\Refine
  *
  * @extends Pipe<TClass>
  */
@@ -15,13 +15,10 @@ class PersistData extends Pipe
 {
     /**
      * Run the after refining logic.
-     *
-     * @param  TClass  $instance
-     * @return void
      */
-    public function run($instance)
+    public function run(): void
     {
-        foreach ($instance->getStores() as $store) {
+        foreach ($this->instance->getStores() as $store) {
             $store->persist();
         }
     }

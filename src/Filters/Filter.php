@@ -6,9 +6,13 @@ namespace Honed\Refine\Filters;
 
 use BackedEnum;
 use Carbon\CarbonInterface;
+use Honed\Core\Concerns\CanHaveDefault;
+use Honed\Core\Concerns\HasType;
 use Honed\Core\Concerns\HasValue;
 use Honed\Core\Concerns\InterpretsRequest;
 use Honed\Core\Concerns\Validatable;
+use Honed\Refine\Filters\Concerns\HasOperator;
+use Honed\Refine\Filters\Concerns\HasOptions;
 use Honed\Refine\Refiner;
 use Honed\Refine\Searches\Search;
 use ReflectionEnum;
@@ -25,10 +29,12 @@ use function is_string;
  */
 class Filter extends Refiner
 {
-    use Concerns\HasOperator;
-    use Concerns\HasOptions {
+    use CanHaveDefault;
+    use HasOperator;
+    use HasOptions {
         multiple as protected setMultiple;
     }
+    use HasType;
     use HasValue;
     use InterpretsRequest;
     use Validatable;
@@ -62,27 +68,6 @@ class Filter extends Refiner
      * @var bool
      */
     protected $presence = false;
-
-    /**
-     * The default value to use for the filter even if it is not active.
-     *
-     * @var mixed
-     */
-    protected $default;
-
-    /**
-     * Provide the instance with any necessary setup.
-     *
-     * @return void
-     */
-    protected function setUp()
-    {
-        parent::setUp();
-
-        $this->type('filter');
-
-        $this->definition($this);
-    }
 
     /**
      * Set the filter to be for boolean values.
@@ -236,29 +221,6 @@ class Filter extends Refiner
     }
 
     /**
-     * Set a default value to use for the filter if the filter is not active.
-     *
-     * @param  mixed  $default
-     * @return $this
-     */
-    public function default($default)
-    {
-        $this->default = $default;
-
-        return $this;
-    }
-
-    /**
-     * Get the default value to use for the filter if the filter is not active.
-     *
-     * @return mixed
-     */
-    public function getDefault()
-    {
-        return $this->default;
-    }
-
-    /**
      * Handle refining the query.
      *
      * @param  TBuilder  $query
@@ -320,6 +282,20 @@ class Filter extends Refiner
     }
 
     /**
+     * Get the value of the instance as a normalized date.
+     *
+     * @return mixed
+     */
+    protected function getNormalizedValue()
+    {
+        $value = $this->getValue();
+
+        return $value instanceof CarbonInterface
+            ? $value->format('Y-m-d\TH:i:s')
+            : $value;
+    }
+
+    /**
      * Get the representation of the instance.
      *
      * @return array<string, mixed>
@@ -333,7 +309,8 @@ class Filter extends Refiner
         }
 
         return array_merge(parent::representation(), [
-            'value' => $value,
+            'type' => $this->getType(),
+            'value' => $this->getNormalizedValue(),
             'options' => $this->optionsToArray(),
         ]);
     }

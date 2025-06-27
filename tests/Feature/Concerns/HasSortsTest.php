@@ -53,6 +53,34 @@ it('has default sort', function () {
         );
 });
 
+it('checks if it is sorting', function () {
+    expect($this->refine)
+        ->sort(Sort::make('name')->active(true))
+        ->isSorting()->toBeTrue()
+        ->isNotSorting()->toBeFalse();
+});
+
+it('checks if it is not sorting', function () {
+    expect($this->refine)
+        ->sort(Sort::make('name')->active(false))
+        ->isNotSorting()->toBeTrue()
+        ->isSorting()->toBeFalse();
+});
+
+it('gets active sort', function () {
+    expect($this->refine)
+        ->sorts([
+            Sort::make('name')->active(true),
+            Sort::make('price')->active(false),
+        ])
+        ->toBe($this->refine)
+        ->getActiveSort()
+        ->scoped(fn ($sort) => $sort
+            ->toBeInstanceOf(Sort::class)
+            ->getName()->toBe('name')
+        );
+});
+
 it('sorts to array', function () {
     expect($this->refine)
         ->sorts([Sort::make('name'), Sort::make('price')])->toBe($this->refine)
@@ -62,7 +90,6 @@ it('sorts to array', function () {
             ->toHaveKeys([
                 'name',
                 'label',
-                'type',
                 'active',
                 'meta',
                 'direction',

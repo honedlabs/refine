@@ -4,18 +4,18 @@ declare(strict_types=1);
 
 namespace Honed\Refine;
 
+use Honed\Core\Concerns\CanBeActive;
 use Honed\Core\Concerns\HasLabel;
 use Honed\Core\Concerns\HasValue;
-use Honed\Core\Concerns\IsActive;
 use Honed\Core\Primitive;
 
 use function in_array;
 
 class Option extends Primitive
 {
+    use CanBeActive;
     use HasLabel;
     use HasValue;
-    use IsActive;
 
     /**
      * Create a new option.

@@ -4,50 +4,35 @@ declare(strict_types=1);
 
 namespace Honed\Refine\Concerns;
 
-use Closure;
+use Honed\Core\Concerns\CanScope;
+use Honed\Core\Concerns\HasLifecycleHooks;
 use Honed\Core\Concerns\HasPipeline;
 use Honed\Core\Concerns\HasRequest;
-use Honed\Core\Concerns\HasScope;
-use Honed\Refine\Filters\Concerns\HasFilters;
-use Honed\Refine\Pipes\AfterRefining;
-use Honed\Refine\Pipes\BeforeRefining;
+use Honed\Core\Concerns\HasResource;
+use Honed\Core\Pipes\CallsAfter;
+use Honed\Core\Pipes\CallsBefore;
 use Honed\Refine\Pipes\FilterQuery;
 use Honed\Refine\Pipes\PersistData;
 use Honed\Refine\Pipes\SearchQuery;
 use Honed\Refine\Pipes\SortQuery;
-use Honed\Refine\Searches\Concerns\HasSearches;
-use Honed\Refine\Sorts\Concerns\HasSorts;
 use Honed\Refine\Stores\CookieStore;
 use Honed\Refine\Stores\SessionStore;
 
 /**
- * @phpstan-require-implements \Honed\Refine\Contracts\RefinesData
+ * @phpstan-require-implements \Honed\Core\Contracts\HooksIntoLifecycle
  */
-trait CanBeRefined
+trait CanRefine
 {
-    use CanBePersisted;
+    use CanScope;
     use HasDelimiter;
     use HasFilters;
+    use HasLifecycleHooks;
     use HasPipeline;
     use HasRequest;
     use HasResource;
-    use HasScope;
     use HasSearches;
     use HasSorts;
-
-    /**
-     * The callback to be processed before the refiners.
-     *
-     * @var Closure|null
-     */
-    protected $before = null;
-
-    /**
-     * The callback to be processed after refinement.
-     *
-     * @var Closure|null
-     */
-    protected $after = null;
+    use Persistent;
 
     /**
      * The store to use for persisting search data.
@@ -69,52 +54,6 @@ trait CanBeRefined
      * @var bool|string|null
      */
     protected $persistSort = null;
-
-    /**
-     * Register the callback to be executed before the refiners.
-     *
-     * @param  Closure|null  $callback
-     * @return $this
-     */
-    public function before($callback)
-    {
-        $this->before = $callback;
-
-        return $this;
-    }
-
-    /**
-     * Get the callback to be executed before refinement.
-     *
-     * @return Closure|null
-     */
-    public function getBeforeCallback()
-    {
-        return $this->before;
-    }
-
-    /**
-     * Register the callback to be executed after refinement.
-     *
-     * @param  Closure|null  $callback
-     * @return $this
-     */
-    public function after($callback)
-    {
-        $this->after = $callback;
-
-        return $this;
-    }
-
-    /**
-     * Get the callback to be executed after refinement.
-     *
-     * @return Closure|null
-     */
-    public function getAfterCallback()
-    {
-        return $this->after;
-    }
 
     /**
      * Set the store to use for persisting searches.
@@ -298,16 +237,16 @@ trait CanBeRefined
     /**
      * Get the pipes to be used for refining.
      *
-     * @return array<int,class-string<\Honed\Core\Pipe<\Honed\Refine\Contracts\RefinesData>>>
+     * @return array<int, class-string<\Honed\Core\Pipe>>
      */
     protected function pipes()
     {
         return [
-            BeforeRefining::class,
+            CallsBefore::class,
             SearchQuery::class,
             FilterQuery::class,
             SortQuery::class,
-            AfterRefining::class,
+            CallsAfter::class,
             PersistData::class,
         ];
     }

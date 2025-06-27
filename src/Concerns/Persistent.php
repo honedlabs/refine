@@ -9,7 +9,7 @@ use Honed\Refine\Stores\SessionStore;
 use Honed\Refine\Stores\Store;
 use Illuminate\Support\Str;
 
-trait CanBePersisted
+trait Persistent
 {
     /**
      * The name of the key when persisting data.

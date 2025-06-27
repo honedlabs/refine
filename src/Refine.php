@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Honed\Refine;
 
 use Closure;
+use Honed\Core\Contracts\HooksIntoLifecycle;
 use Honed\Core\Contracts\NullsAsUndefined;
 use Honed\Core\Primitive;
-use Honed\Refine\Concerns\CanBeRefined;
-use Honed\Refine\Contracts\RefinesData;
+use Honed\Refine\Concerns\CanRefine;
 use Illuminate\Container\Container;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 use Illuminate\Contracts\Foundation\Application;
@@ -24,9 +24,9 @@ use Throwable;
  *
  * @mixin TBuilder
  */
-class Refine extends Primitive implements NullsAsUndefined, RefinesData
+class Refine extends Primitive implements HooksIntoLifecycle, NullsAsUndefined
 {
-    use CanBeRefined;
+    use CanRefine;
     use ForwardsCalls;
 
     /**
