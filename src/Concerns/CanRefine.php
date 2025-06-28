@@ -31,9 +31,9 @@ trait CanRefine
     use HasRequest;
     use HasResource;
     use HasSearches;
+    use HasSearchTerm;
     use HasSorts;
     use Persistent;
-    use HasSearchTerm;
     // use CanHaveSearchPlaceholder;
 
     /**
