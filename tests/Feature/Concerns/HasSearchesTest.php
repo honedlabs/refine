@@ -76,7 +76,7 @@ it('has search placeholder', function () {
 
 it('checks if it is searching', function () {
     expect($this->refine)
-        ->setTerm('test')->toBeNull()
+        ->setSearchTerm('test')->toBeNull()
         ->isSearching()->toBeTrue()
         ->isNotSearching()->toBeFalse();
 });

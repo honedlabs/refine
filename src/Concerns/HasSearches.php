@@ -56,13 +56,6 @@ trait HasSearches
     protected $matchKey = 'match';
 
     /**
-     * The search term as a string without replacements.
-     *
-     * @var string|null
-     */
-    protected $term = null;
-
-    /**
      * The placeholder to use for the search bar.
      *
      * @var string|null
@@ -296,27 +289,6 @@ trait HasSearches
     }
 
     /**
-     * Set the search term.
-     *
-     * @param  string|null  $term
-     * @return void
-     */
-    public function setTerm($term)
-    {
-        $this->term = $term;
-    }
-
-    /**
-     * Retrieve the search term.
-     *
-     * @return string|null
-     */
-    public function getTerm()
-    {
-        return $this->term;
-    }
-
-    /**
      * Set the placeholder text to use for the search bar.
      *
      * @param  string|null  $placeholder
@@ -346,7 +318,7 @@ trait HasSearches
      */
     public function isSearching()
     {
-        return filled($this->getTerm());
+        return filled($this->getSearchTerm());
     }
 
     /**

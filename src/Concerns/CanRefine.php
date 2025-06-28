@@ -33,6 +33,8 @@ trait CanRefine
     use HasSearches;
     use HasSorts;
     use Persistent;
+    use HasSearchTerm;
+    // use CanHaveSearchPlaceholder;
 
     /**
      * The store to use for persisting search data.
@@ -225,7 +227,7 @@ trait CanRefine
             'sort' => $this->isSortable() ? $this->getSortKey() : null,
             'search' => $this->isSearchable() ? $this->getSearchKey() : null,
             'match' => $this->isMatchable() ? $this->getMatchKey() : null,
-            'term' => $this->getTerm(),
+            'term' => $this->getSearchTerm(),
             'placeholder' => $this->getSearchPlaceholder(),
             'delimiter' => $this->getDelimiter(),
             'sorts' => $this->sortsToArray(),

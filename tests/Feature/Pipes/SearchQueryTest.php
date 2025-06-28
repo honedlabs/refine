@@ -97,7 +97,7 @@ it('passes non-matchable', function ($refine) {
         ->{1}->toBeSearch('description', 'or');
 
     expect($this->refine)
-        ->getTerm()->toBe('search value')
+        ->getSearchTerm()->toBe('search value')
         ->isSearching()->toBeTrue();
 })->with([
     'request' => function () {
@@ -150,7 +150,7 @@ it('passes matchable', function ($refine) {
         ->toBeOnlySearch($this->match);
 
     expect($refine)
-        ->getTerm()->toBe($this->term)
+        ->getSearchTerm()->toBe($this->term)
         ->isSearching()->toBeTrue();
 })->with([
     'request' => function () {
@@ -209,6 +209,6 @@ it('scouts', function () {
         ->toBeOnlyWhereIn('products.id', []);
 
     expect($this->refine)
-        ->getTerm()->toBe($this->term)
+        ->getSearchTerm()->toBe($this->term)
         ->isSearching()->toBeTrue();
 });

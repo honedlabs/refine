@@ -9,6 +9,9 @@ use Honed\Refine\Stores\SessionStore;
 use Honed\Refine\Stores\Store;
 use Illuminate\Support\Str;
 
+/**
+ * @implements \Honed\Refine\Contracts\CanPersistData
+ */
 trait Persistent
 {
     /**
@@ -38,6 +41,10 @@ trait Persistent
      * @return \Illuminate\Http\Request
      */
     abstract public function getRequest();
+
+    /**
+     * Get the 
+     */
 
     /**
      * Set the name of the key to use when persisting data to a store.
@@ -112,9 +119,9 @@ trait Persistent
     }
 
     /**
-     * Persist the data to the stores.
+     * Get the stores to use for persisting data.
      *
-     * @return array<string,Store>
+     * @return array<string,\Honed\Refine\Stores\Store>
      */
     public function getStores()
     {
@@ -177,4 +184,6 @@ trait Persistent
         return $this->stores[SessionStore::NAME]
             ??= SessionStore::make($this->getPersistKey());
     }
+
+    // public function __call()
 }

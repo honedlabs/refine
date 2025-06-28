@@ -27,7 +27,7 @@ class SearchQuery extends Pipe
 
         [$term, $columns] = $this->getValues();
 
-        $this->instance->setTerm($term);
+        $this->instance->setSearchTerm($term);
 
         $builder = $this->instance->getBuilder();
 
@@ -92,7 +92,7 @@ class SearchQuery extends Pipe
     {
         $model = $this->instance->getModel();
 
-        if (! $term = $this->instance->getTerm()) {
+        if (! $term = $this->instance->getSearchTerm()) {
             return;
         }
 
@@ -114,7 +114,7 @@ class SearchQuery extends Pipe
      */
     protected function search($builder, $columns)
     {
-        $term = $this->instance->getTerm();
+        $term = $this->instance->getSearchTerm();
 
         $applied = false;
 
