@@ -25,7 +25,7 @@ use Throwable;
  *
  * @mixin TBuilder
  */
-class Refine extends Primitive implements HooksIntoLifecycle, NullsAsUndefined, CanPersistData
+class Refine extends Primitive implements CanPersistData, HooksIntoLifecycle, NullsAsUndefined
 {
     use CanRefine;
     use ForwardsCalls;
