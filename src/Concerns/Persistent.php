@@ -9,9 +9,6 @@ use Honed\Refine\Stores\SessionStore;
 use Honed\Refine\Stores\Store;
 use Illuminate\Support\Str;
 
-/**
- * @implements \Honed\Refine\Contracts\CanPersistData
- */
 trait Persistent
 {
     /**

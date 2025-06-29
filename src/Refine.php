@@ -9,7 +9,6 @@ use Honed\Core\Contracts\HooksIntoLifecycle;
 use Honed\Core\Contracts\NullsAsUndefined;
 use Honed\Core\Primitive;
 use Honed\Refine\Concerns\CanRefine;
-use Honed\Refine\Contracts\CanPersistData;
 use Illuminate\Container\Container;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 use Illuminate\Contracts\Foundation\Application;
@@ -25,7 +24,7 @@ use Throwable;
  *
  * @mixin TBuilder
  */
-class Refine extends Primitive implements CanPersistData, HooksIntoLifecycle, NullsAsUndefined
+class Refine extends Primitive implements HooksIntoLifecycle, NullsAsUndefined
 {
     use CanRefine;
     use ForwardsCalls;
