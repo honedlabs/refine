@@ -282,20 +282,6 @@ class Filter extends Refiner
     }
 
     /**
-     * Get the value of the instance as a normalized date.
-     *
-     * @return mixed
-     */
-    protected function getNormalizedValue()
-    {
-        $value = $this->getValue();
-
-        return $value instanceof CarbonInterface
-            ? $value->format('Y-m-d\TH:i:s')
-            : $value;
-    }
-
-    /**
      * Get the representation of the instance.
      *
      * @return array<string, mixed>

@@ -54,7 +54,7 @@ class SearchQuery extends Pipe
 
         return match (true) {
             (bool) $term => [
-                str_replace('+', ' ', trim($term)),
+                $this->instance->encodeSearchTerm($term),
                 $this->getColumns($request),
             ],
             $request->missing($key) => $this->persisted($key),
