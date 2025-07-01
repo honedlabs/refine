@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
+use Honed\Refine\Data\SearchData;
 use Honed\Refine\Pipes\SearchQuery;
 use Honed\Refine\Refine;
 use Honed\Refine\Searches\Search;
-use Honed\Refine\Stores\Data\SearchData;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
@@ -139,8 +139,6 @@ it('passes non-matchable', function ($refine) {
 
         $this->refine->request($request)->persistSearchInCookie();
 
-        $this->refine->getSearchDriver()->request($request);
-
         return $this->refine;
     },
 ]);
@@ -197,8 +195,6 @@ it('passes matchable', function ($refine) {
         ]);
 
         $this->refine->request($request)->persistSearchInCookie();
-
-        $this->refine->getSearchDriver()->request($request);
 
         return $this->refine;
     },

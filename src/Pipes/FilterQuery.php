@@ -90,7 +90,7 @@ class FilterQuery extends Pipe
      */
     protected function persist($key, $value)
     {
-        $this->instance->getFilterDriver()?->put([$key => $value]);
+        $this->instance->getFilterDriver()?->put($key, $value);
     }
 
     /**

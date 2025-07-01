@@ -2,9 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Honed\Refine\Stores\Data;
+namespace Honed\Refine\Data;
 
-class SortData extends StoreData
+use Honed\Persist\PersistData;
+
+class SortData extends PersistData
 {
     /**
      * Create a new sort structure.
@@ -18,12 +20,10 @@ class SortData extends StoreData
 
     /**
      * Attempt to create the structure from a given value.
-     *
-     * @param  mixed  $value
-     * @return self|null
      */
-    public static function try($value)
+    public static function from(mixed $value): ?static
     {
+        /** @var static|null */
         return match (true) {
             ! is_array($value),
             ! array_key_exists('col', $value),

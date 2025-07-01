@@ -12,10 +12,12 @@ use Honed\Core\Concerns\HasResource;
 use Honed\Core\Pipes\CallsAfter;
 use Honed\Core\Pipes\CallsBefore;
 use Honed\Persist\Concerns\Persistable;
+use Honed\Persist\Facades\Persist;
 use Honed\Refine\Pipes\FilterQuery;
 use Honed\Refine\Pipes\PersistData;
 use Honed\Refine\Pipes\SearchQuery;
 use Honed\Refine\Pipes\SortQuery;
+use Illuminate\Http\Request;
 
 /**
  * @phpstan-require-implements \Honed\Core\Contracts\HooksIntoLifecycle
@@ -44,7 +46,9 @@ trait CanRefine
     use HasFilters;
     use HasLifecycleHooks;
     use HasPipeline;
-    use HasRequest;
+    use HasRequest {
+        request as setRequest;
+    }
     use HasResource;
     use HasSearches;
     use HasSearchTerm;
@@ -66,6 +70,18 @@ trait CanRefine
             'search',
             'filter',
         ];
+    }
+
+    /**
+     * Set the request instance.
+     *
+     * @return $this
+     */
+    public function request(Request $request): static
+    {
+        Persist::request($request);
+
+        return $this->setRequest($request);
     }
 
     /**

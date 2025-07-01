@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
+use Honed\Refine\Data\SortData;
 use Honed\Refine\Pipes\SortQuery;
 use Honed\Refine\Refine;
 use Honed\Refine\Sorts\Sort;
-use Honed\Refine\Stores\Data\SortData;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Session;
 use Workbench\App\Models\User;
@@ -145,8 +145,6 @@ it('passes', function (Refine $refine, string $name = 'name', string $direction 
         ]);
 
         $this->refine->request($request)->persistSortInCookie();
-
-        $this->refine->getSortDriver()->request($request);
 
         return $this->refine;
     },

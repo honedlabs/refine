@@ -6,8 +6,8 @@ namespace Honed\Refine\Pipes;
 
 use Honed\Core\Interpret;
 use Honed\Core\Pipe;
-use Honed\Refine\Stores\Data\SortData;
-use InvalidArgumentException;
+use Honed\Persist\Exceptions\DriverDataIntegrityException;
+use Honed\Refine\Data\SortData;
 
 /**
  * @template TClass of \Honed\Refine\Refine
@@ -119,15 +119,15 @@ class SortQuery extends Pipe
     protected function persist($parameter, $direction)
     {
         try {
-            $data = SortData::from([
+            $data = SortData::make([
                 'col' => $parameter,
                 'dir' => $direction,
             ]);
 
-            $this->instance->getSortDriver()?->put([
-                $this->instance->getSortKey() => $data->toArray(),
-            ]);
-        } catch (InvalidArgumentException $e) {
+            $this->instance->getSortDriver()?->put(
+                $this->instance->getSortKey(), $data->toArray()
+            );
+        } catch (DriverDataIntegrityException $e) {
         }
     }
 
@@ -140,12 +140,12 @@ class SortQuery extends Pipe
     protected function persisted($key)
     {
         try {
-            $data = SortData::from(
+            $data = SortData::make(
                 $this->instance->getSortDriver()?->get($key)
             );
 
             return [$data->column, $data->direction];
-        } catch (InvalidArgumentException) {
+        } catch (DriverDataIntegrityException) {
             return [null, null];
         }
     }

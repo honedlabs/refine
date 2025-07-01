@@ -121,8 +121,6 @@ it('passes', function (Refine $refine, string $name = 'price', mixed $value = 10
 
         $this->refine->request($request)->persistFilterInCookie();
 
-        $this->refine->getFilterDriver()->request($request);
-
         return $this->refine;
     },
 

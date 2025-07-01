@@ -6,8 +6,8 @@ namespace Honed\Refine\Pipes;
 
 use Honed\Core\Interpret;
 use Honed\Core\Pipe;
-use Honed\Refine\Stores\Data\SearchData;
-use InvalidArgumentException;
+use Honed\Persist\Exceptions\DriverDataIntegrityException;
+use Honed\Refine\Data\SearchData;
 
 /**
  * @template TClass of \Honed\Refine\Refine
@@ -136,12 +136,17 @@ class SearchQuery extends Pipe
      */
     protected function persist($term, $columns)
     {
-        $this->instance->getSearchDriver()?->put([
-            $this->instance->getSearchKey() => [
+        try {
+            $data = SearchData::make([
                 'term' => $term,
                 'cols' => $columns ?? [],
-            ],
-        ]);
+            ]);
+
+            $this->instance->getSearchDriver()?->put(
+                $this->instance->getSearchKey(), $data->toArray()
+            );
+        } catch (DriverDataIntegrityException $e) {
+        }
     }
 
     /**
@@ -153,14 +158,14 @@ class SearchQuery extends Pipe
     protected function persisted($key)
     {
         try {
-            $data = SearchData::from(
+            $data = SearchData::make(
                 $this->instance->getSearchDriver()?->get($key)
             );
 
-            $columns = $this->instance->isMatchable() ? $data->columns : null;
+            $columns = $this->instance->isMatchable() ? $data->columns : [];
 
             return [$data->term, $columns];
-        } catch (InvalidArgumentException) {
+        } catch (DriverDataIntegrityException $e) {
             return [null, null];
         }
     }
