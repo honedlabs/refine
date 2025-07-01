@@ -52,10 +52,12 @@ class SearchQuery extends Pipe
 
         $term = Interpret::string($request, $key);
 
+        $columns = $this->getColumns($request);
+
         return match (true) {
-            (bool) $term => [
+            $term || $columns => [
                 $this->instance->encodeSearchTerm($term),
-                $this->getColumns($request),
+                $columns,
             ],
             $request->missing($key) => $this->persisted($key),
             default => [null, null]
