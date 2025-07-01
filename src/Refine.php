@@ -38,8 +38,6 @@ class Refine extends Primitive implements HooksIntoLifecycle, NullsAsUndefined
 
     /**
      * The default namespace where refiners reside.
-     *
-     * @var string
      */
     protected static string $namespace = 'App\\Refiners\\';
 
