@@ -15,32 +15,27 @@ trait HasSorts
 {
     /**
      * Whether the sorts should be applied.
-     *
-     * @var bool
      */
-    protected $sortable = true;
+    protected bool $sortable = true;
 
     /**
      * List of the sorts.
      *
      * @var array<int,Sort>
      */
-    protected $sorts = [];
+    protected array $sorts = [];
 
     /**
      * The query parameter to identify the sort to apply.
-     *
-     * @var string
      */
-    protected $sortKey = 'sort';
+    protected string $sortKey = 'sort';
 
     /**
      * Set whether the sorts should be applied.
      *
-     * @param  bool  $value
      * @return $this
      */
-    public function sortable($value = true)
+    public function sortable(bool $value = true): static
     {
         $this->sortable = $value;
 
@@ -50,30 +45,25 @@ trait HasSorts
     /**
      * Set whether the sorts should not be applied.
      *
-     * @param  bool  $value
      * @return $this
      */
-    public function notSortable($value = true)
+    public function notSortable(bool $value = true): static
     {
         return $this->sortable(! $value);
     }
 
     /**
      * Determine if the sorts should be applied.
-     *
-     * @return bool
      */
-    public function isSortable()
+    public function isSortable(): bool
     {
         return $this->sortable;
     }
 
     /**
      * Determine if the sorts should not be applied.
-     *
-     * @return bool
      */
-    public function isNotSortable()
+    public function isNotSortable(): bool
     {
         return ! $this->isSortable();
     }
@@ -84,7 +74,7 @@ trait HasSorts
      * @param  Sort|array<int, Sort>  $sorts
      * @return $this
      */
-    public function sorts($sorts)
+    public function sorts(Sort|array $sorts): static
     {
         /** @var array<int, Sort> $sorts */
         $sorts = is_array($sorts) ? $sorts : func_get_args();
@@ -97,10 +87,9 @@ trait HasSorts
     /**
      * Insert a sort.
      *
-     * @param  Sort  $sort
      * @return $this
      */
-    public function sort($sort)
+    public function sort(Sort $sort): static
     {
         $this->sorts[] = $sort;
 
@@ -112,7 +101,7 @@ trait HasSorts
      *
      * @return array<int,Sort>
      */
-    public function getSorts()
+    public function getSorts(): array
     {
         if ($this->isNotSortable()) {
             return [];
@@ -128,10 +117,8 @@ trait HasSorts
 
     /**
      * Get the default sort.
-     *
-     * @return Sort|null
      */
-    public function getDefaultSort()
+    public function getDefaultSort(): ?Sort
     {
         return Arr::first(
             $this->getSorts(),
@@ -142,10 +129,9 @@ trait HasSorts
     /**
      * Set the query parameter to identify the sort to apply.
      *
-     * @param  string  $sortKey
      * @return $this
      */
-    public function sortKey($sortKey)
+    public function sortKey(string $sortKey): static
     {
         $this->sortKey = $sortKey;
 
@@ -154,20 +140,16 @@ trait HasSorts
 
     /**
      * Get the query parameter to identify the sort to apply.
-     *
-     * @return string
      */
-    public function getSortKey()
+    public function getSortKey(): string
     {
         return $this->scoped($this->sortKey);
     }
 
     /**
      * Get the sort being applied.
-     *
-     * @return Sort|null
      */
-    public function getActiveSort()
+    public function getActiveSort(): ?Sort
     {
         return Arr::first(
             $this->getSorts(),
@@ -177,20 +159,16 @@ trait HasSorts
 
     /**
      * Determine if there is a sort being applied.
-     *
-     * @return bool
      */
-    public function isSorting()
+    public function isSorting(): bool
     {
         return (bool) $this->getActiveSort();
     }
 
     /**
      * Determine if there is no sort being applied.
-     *
-     * @return bool
      */
-    public function isNotSorting()
+    public function isNotSorting(): bool
     {
         return ! $this->isSorting();
     }
@@ -200,14 +178,14 @@ trait HasSorts
      *
      * @return array<int,array<string,mixed>>
      */
-    public function sortsToArray()
+    public function sortsToArray(): array
     {
         return array_values(
             array_map(
                 static fn (Sort $sort) => $sort->toArray(),
                 array_filter(
                     $this->getSorts(),
-                    static fn (Sort $sort) => $sort->isVisible()
+                    static fn (Sort $sort) => $sort->isNotHidden()
                 )
             )
         );

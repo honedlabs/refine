@@ -21,10 +21,8 @@ class Option extends Primitive
      * Create a new option.
      *
      * @param  scalar|null  $value
-     * @param  string|null  $label
-     * @return static
      */
-    public static function make($value, $label = null)
+    public static function make(mixed $value, ?string $label = null): static
     {
         return resolve(static::class)
             ->value($value)
@@ -33,11 +31,8 @@ class Option extends Primitive
 
     /**
      * Activate the option.
-     *
-     * @param  mixed  $value
-     * @return bool
      */
-    public function activate($value)
+    public function activate(mixed $value): bool
     {
         return $this->active = in_array(
             $this->getValue(), (array) $value, true

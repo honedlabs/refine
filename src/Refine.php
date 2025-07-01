@@ -41,7 +41,7 @@ class Refine extends Primitive implements HooksIntoLifecycle, NullsAsUndefined
      *
      * @var string
      */
-    protected static $namespace = 'App\\Refiners\\';
+    protected static string $namespace = 'App\\Refiners\\';
 
     /**
      * How to resolve the refiner for the given model name.
@@ -94,7 +94,7 @@ class Refine extends Primitive implements HooksIntoLifecycle, NullsAsUndefined
      * @param  class-string<TClass>  $modelName
      * @return Refine<TClass>
      */
-    public static function refinerForModel($modelName)
+    public static function refinerForModel(string $modelName): self
     {
         $refiner = static::resolveRefinerName($modelName);
 
@@ -107,7 +107,7 @@ class Refine extends Primitive implements HooksIntoLifecycle, NullsAsUndefined
      * @param  class-string<\Illuminate\Database\Eloquent\Model>  $className
      * @return class-string<Refine>
      */
-    public static function resolveRefinerName($className)
+    public static function resolveRefinerName(string $className): string
     {
         $resolver = static::$refinerResolver ?? function (string $className) {
             $appNamespace = static::appNamespace();
@@ -125,11 +125,8 @@ class Refine extends Primitive implements HooksIntoLifecycle, NullsAsUndefined
 
     /**
      * Specify the default namespace that contains the application's refiners.
-     *
-     * @param  string  $namespace
-     * @return void
      */
-    public static function useNamespace($namespace)
+    public static function useNamespace(string $namespace): void
     {
         static::$namespace = $namespace;
     }
@@ -138,19 +135,16 @@ class Refine extends Primitive implements HooksIntoLifecycle, NullsAsUndefined
      * Specify the callback that should be invoked to guess the name of a refiner for a model.
      *
      * @param  Closure(class-string<\Illuminate\Database\Eloquent\Model>):class-string<Refine>  $callback
-     * @return void
      */
-    public static function guessRefinersUsing($callback)
+    public static function guessRefinersUsing(Closure $callback): void
     {
         static::$refinerResolver = $callback;
     }
 
     /**
      * Flush the global configuration state.
-     *
-     * @return void
      */
-    public static function flushState()
+    public static function flushState(): void
     {
         static::$namespace = 'App\\Refiners\\';
         static::$refinerResolver = null;
@@ -158,10 +152,8 @@ class Refine extends Primitive implements HooksIntoLifecycle, NullsAsUndefined
 
     /**
      * Get the application namespace for the application.
-     *
-     * @return string
      */
-    protected static function appNamespace()
+    protected static function appNamespace(): string
     {
         try {
             return Container::getInstance()
@@ -210,10 +202,9 @@ class Refine extends Primitive implements HooksIntoLifecycle, NullsAsUndefined
     /**
      * Provide a selection of default dependencies for evaluation by name.
      *
-     * @param  string  $parameterName
      * @return array<int, mixed>
      */
-    protected function resolveDefaultClosureDependencyForEvaluationByName($parameterName)
+    protected function resolveDefaultClosureDependencyForEvaluationByName(string $parameterName): array
     {
         return match ($parameterName) {
             'request' => [$this->getRequest()],
@@ -225,10 +216,9 @@ class Refine extends Primitive implements HooksIntoLifecycle, NullsAsUndefined
     /**
      * Provide a selection of default dependencies for evaluation by type.
      *
-     * @param  string  $parameterType
      * @return array<int, mixed>
      */
-    protected function resolveDefaultClosureDependencyForEvaluationByType($parameterType)
+    protected function resolveDefaultClosureDependencyForEvaluationByType(string $parameterType): array
     {
         $builder = $this->getBuilder();
 

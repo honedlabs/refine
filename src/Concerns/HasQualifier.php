@@ -13,18 +13,15 @@ trait HasQualifier
 {
     /**
      * Whether to qualify against the builder.
-     *
-     * @var bool|string
      */
-    protected $qualify = false;
+    protected bool|string $qualify = false;
 
     /**
      * Set whether to qualify against the builder.
      *
-     * @param  bool|string  $qualify
      * @return $this
      */
-    public function qualify($qualify = true)
+    public function qualify(bool|string $qualify = true): static
     {
         $this->qualify = $qualify;
 
@@ -33,20 +30,16 @@ trait HasQualifier
 
     /**
      * Get the qualifier.
-     *
-     * @return bool|string
      */
-    public function getQualifier()
+    public function getQualifier(): bool|string
     {
         return $this->qualify;
     }
 
     /**
      * Determine if the instance should qualify against the builder.
-     *
-     * @return bool
      */
-    public function isQualifying()
+    public function isQualifying(): bool
     {
         return (bool) $this->getQualifier();
     }
@@ -54,11 +47,9 @@ trait HasQualifier
     /**
      * Get the qualified name.
      *
-     * @param  string  $column
      * @param  Builder<\Illuminate\Database\Eloquent\Model>|null  $builder
-     * @return string
      */
-    public function qualifyColumn($column, $builder = null)
+    public function qualifyColumn(string $column, ?Builder $builder = null): string
     {
         $qualifier = $this->getQualifier();
 

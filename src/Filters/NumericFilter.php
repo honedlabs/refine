@@ -10,14 +10,12 @@ namespace Honed\Refine\Filters;
  *
  * @extends \Honed\Refine\Filters\Filter<TModel, TBuilder>
  */
-class NumberFilter extends Filter
+class NumericFilter extends Filter
 {
     /**
      * Provide the instance with any necessary setup.
-     *
-     * @return void
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 

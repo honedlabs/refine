@@ -221,7 +221,7 @@ trait CanRefine
      *
      * @return array<string, mixed>
      */
-    public function refineToArray()
+    public function refineToArray(): array
     {
         return [
             'sort' => $this->isSortable() ? $this->getSortKey() : null,
@@ -239,10 +239,11 @@ trait CanRefine
     /**
      * Get the pipes to be used for refining.
      *
-     * @return array<int, class-string<\Honed\Core\Pipe>>
+     * @return array<int, class-string<\Honed\Core\Pipe<self>>>
      */
-    protected function pipes()
+    protected function pipes(): array
     {
+        // @phpstan-ignore-next-line
         return [
             CallsBefore::class,
             SearchQuery::class,

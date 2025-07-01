@@ -64,17 +64,15 @@ class Filter extends Refiner
 
     /**
      * Whether the filter only responds to presence values.
-     *
-     * @var bool
      */
-    protected $presence = false;
+    protected bool $presence = false;
 
     /**
      * Set the filter to be for boolean values.
      *
      * @return $this
      */
-    public function boolean()
+    public function boolean(): static
     {
         $this->type(self::BOOLEAN);
         $this->asBoolean();
@@ -87,7 +85,7 @@ class Filter extends Refiner
      *
      * @return $this
      */
-    public function date()
+    public function date(): static
     {
         $this->type(self::DATE);
         $this->asDate();
@@ -100,7 +98,7 @@ class Filter extends Refiner
      *
      * @return $this
      */
-    public function datetime()
+    public function datetime(): static
     {
         $this->type(self::DATETIME);
         $this->asDatetime();
@@ -135,7 +133,7 @@ class Filter extends Refiner
      *
      * @return $this
      */
-    public function float()
+    public function float(): static
     {
         $this->type(self::NUMBER);
         $this->asFloat();
@@ -148,7 +146,7 @@ class Filter extends Refiner
      *
      * @return $this
      */
-    public function int()
+    public function int(): static
     {
         $this->type(self::NUMBER);
         $this->asInt();
@@ -159,14 +157,13 @@ class Filter extends Refiner
     /**
      * Set the filter to be for multiple values.
      *
-     * @param  bool  $multiple
      * @return $this
      */
-    public function multiple($multiple = true)
+    public function multiple(bool $value = true): static
     {
         $this->type(self::SELECT);
         $this->asArray();
-        $this->setMultiple($multiple);
+        $this->setMultiple($value);
 
         return $this;
     }
@@ -176,7 +173,7 @@ class Filter extends Refiner
      *
      * @return $this
      */
-    public function text()
+    public function text(): static
     {
         $this->type(self::TEXT);
         $this->asString();
@@ -189,7 +186,7 @@ class Filter extends Refiner
      *
      * @return $this
      */
-    public function time()
+    public function time(): static
     {
         $this->type(self::TIME);
         $this->asTime();
@@ -202,7 +199,7 @@ class Filter extends Refiner
      *
      * @return $this
      */
-    public function presence()
+    public function presence(): static
     {
         $this->asBoolean();
         $this->presence = true;
@@ -212,10 +209,8 @@ class Filter extends Refiner
 
     /**
      * Determine if the filter only responds to presence values.
-     *
-     * @return bool
      */
-    public function isPresence()
+    public function isPresence(): bool
     {
         return $this->presence;
     }
@@ -314,11 +309,8 @@ class Filter extends Refiner
 
     /**
      * Transform the value for the filter.
-     *
-     * @param  mixed  $value
-     * @return mixed
      */
-    protected function transformParameter($value)
+    protected function transformParameter(mixed $value): mixed
     {
         $transformed = match (true) {
             filled($this->getOptions()) => $this->activateOptions($value),
@@ -331,11 +323,8 @@ class Filter extends Refiner
 
     /**
      * Determine if the filter is active.
-     *
-     * @param  mixed  $value
-     * @return void
      */
-    protected function checkIfActive($value)
+    protected function checkIfActive(mixed $value): void
     {
         $this->active(filled($value));
     }

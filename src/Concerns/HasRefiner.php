@@ -20,7 +20,7 @@ trait HasRefiner
      *
      * @return TRefine
      */
-    public static function refiner()
+    public static function refiner(): Refine
     {
         return static::newRefiner()
             ?? Refine::refinerForModel(static::class);
@@ -31,7 +31,7 @@ trait HasRefiner
      *
      * @return TRefine|null
      */
-    protected static function newRefiner()
+    protected static function newRefiner(): ?Refine
     {
         if (isset(static::$refiner)) {
             return static::$refiner::make(static::class);
@@ -49,7 +49,7 @@ trait HasRefiner
      *
      * @return class-string<Refine>|null
      */
-    protected static function getUseRefineAttribute()
+    protected static function getUseRefineAttribute(): ?string
     {
         $attributes = (new ReflectionClass(static::class))
             ->getAttributes(UseRefine::class);

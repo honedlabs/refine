@@ -65,10 +65,9 @@ trait HasSearches
     /**
      * Set whether the searches should be applied.
      *
-     * @param  bool  $value
      * @return $this
      */
-    public function searchable($value = true)
+    public function searchable(bool $value = true): static
     {
         $this->searchable = $value;
 
@@ -78,30 +77,25 @@ trait HasSearches
     /**
      * Set whether the searches should not be applied.
      *
-     * @param  bool  $value
      * @return $this
      */
-    public function notSearchable($value = true)
+    public function notSearchable(bool $value = true): static
     {
         return $this->searchable(! $value);
     }
 
     /**
      * Determine if the searches should be applied.
-     *
-     * @return bool
      */
-    public function isSearchable()
+    public function isSearchable(): bool
     {
         return $this->searchable;
     }
 
     /**
      * Determine if the searches should not be applied.
-     *
-     * @return bool
      */
-    public function isNotSearchable()
+    public function isNotSearchable(): bool
     {
         return ! $this->isSearchable();
     }
@@ -109,10 +103,9 @@ trait HasSearches
     /**
      * Set whether the search columns can be toggled.
      *
-     * @param  bool  $value
      * @return $this
      */
-    public function matchable($value = true)
+    public function matchable(bool $value = true): static
     {
         $this->match = $value;
 
@@ -122,30 +115,25 @@ trait HasSearches
     /**
      * Set whether the search columns can not be toggled.
      *
-     * @param  bool  $value
      * @return $this
      */
-    public function notMatchable($value = true)
+    public function notMatchable(bool $value = true): static
     {
         return $this->matchable(! $value);
     }
 
     /**
      * Determine if matching is enabled
-     *
-     * @return bool
      */
-    public function isMatchable()
+    public function isMatchable(): bool
     {
         return $this->match && $this->isNotScout();
     }
 
     /**
      * Determine if matching is not enabled.
-     *
-     * @return bool
      */
-    public function isNotMatchable()
+    public function isNotMatchable(): bool
     {
         return ! $this->isMatchable();
     }
@@ -153,10 +141,9 @@ trait HasSearches
     /**
      * Set whether to use Laravel Scout for searching.
      *
-     * @param  bool  $value
      * @return $this
      */
-    public function scout($value = true)
+    public function scout(bool $value = true): static
     {
         $this->scout = $value;
 
@@ -166,30 +153,25 @@ trait HasSearches
     /**
      * Set whether to not use Laravel Scout for searching.
      *
-     * @param  bool  $value
      * @return $this
      */
-    public function notScout($value = true)
+    public function notScout(bool $value = true): static
     {
         return $this->scout(! $value);
     }
 
     /**
      * Determine if Laravel Scout is being used for searching.
-     *
-     * @return bool
      */
-    public function isScout()
+    public function isScout(): bool
     {
         return (bool) $this->evaluate($this->scout);
     }
 
     /**
      * Determine if Laravel Scout is not being used for searching.
-     *
-     * @return bool
      */
-    public function isNotScout()
+    public function isNotScout(): bool
     {
         return ! $this->isScout();
     }
@@ -200,7 +182,7 @@ trait HasSearches
      * @param  Search|array<int, Search>  $searches
      * @return $this
      */
-    public function searches($searches)
+    public function searches(Search|array $searches): static
     {
         /** @var array<int, Search> $searches */
         $searches = is_array($searches) ? $searches : func_get_args();
@@ -213,10 +195,9 @@ trait HasSearches
     /**
      * Insert a search.
      *
-     * @param  Search  $search
      * @return $this
      */
-    public function search($search)
+    public function search(Search $search): static
     {
         $this->searches[] = $search;
 
@@ -228,7 +209,7 @@ trait HasSearches
      *
      * @return array<int,Search>
      */
-    public function getSearches()
+    public function getSearches(): array
     {
         if ($this->isNotSearchable()) {
             return [];
@@ -245,10 +226,9 @@ trait HasSearches
     /**
      * Set the query parameter to identify the search string.
      *
-     * @param  string  $searchKey
      * @return $this
      */
-    public function searchKey($searchKey)
+    public function searchKey(string $searchKey): static
     {
         $this->searchKey = $searchKey;
 
@@ -257,10 +237,8 @@ trait HasSearches
 
     /**
      * Get the query parameter to identify the search.
-     *
-     * @return string
      */
-    public function getSearchKey()
+    public function getSearchKey(): string
     {
         return $this->scoped($this->searchKey);
     }
@@ -268,10 +246,9 @@ trait HasSearches
     /**
      * Set the query parameter to identify the columns to search.
      *
-     * @param  string  $matchKey
      * @return $this
      */
-    public function matchKey($matchKey)
+    public function matchKey(string $matchKey): static
     {
         $this->matchKey = $matchKey;
 
@@ -280,10 +257,8 @@ trait HasSearches
 
     /**
      * Get the query parameter to identify the columns to search.
-     *
-     * @return string
      */
-    public function getMatchKey()
+    public function getMatchKey(): string
     {
         return $this->scoped($this->matchKey);
     }
@@ -313,20 +288,16 @@ trait HasSearches
 
     /**
      * Determine if there is a search being applied.
-     *
-     * @return bool
      */
-    public function isSearching()
+    public function isSearching(): bool
     {
         return filled($this->getSearchTerm());
     }
 
     /**
      * Determine if there is no search being applied.
-     *
-     * @return bool
      */
-    public function isNotSearching()
+    public function isNotSearching(): bool
     {
         return ! $this->isSearching();
     }
@@ -336,7 +307,7 @@ trait HasSearches
      *
      * @return array<int,Search>
      */
-    public function getActiveSearches()
+    public function getActiveSearches(): array
     {
         return array_values(
             array_filter(
@@ -351,7 +322,7 @@ trait HasSearches
      *
      * @return array<int,array<string,mixed>>
      */
-    public function searchesToArray()
+    public function searchesToArray(): array
     {
         if ($this->isNotMatchable()) {
             return [];
@@ -362,7 +333,7 @@ trait HasSearches
                 static fn (Search $search) => $search->toArray(),
                 array_filter(
                     $this->getSearches(),
-                    static fn (Search $search) => $search->isVisible()
+                    static fn (Search $search) => $search->isNotHidden()
                 )
             )
         );

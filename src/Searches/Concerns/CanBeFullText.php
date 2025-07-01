@@ -8,18 +8,15 @@ trait CanBeFullText
 {
     /**
      * Whether to use a full-text, recall search.
-     *
-     * @var bool
      */
-    protected $fullText = false;
+    protected bool $fullText = false;
 
     /**
      * Set whether to use a full-text search.
      *
-     * @param  bool  $value
      * @return $this
      */
-    public function fullText($value = true)
+    public function fullText(bool $value = true): static
     {
         $this->fullText = $value;
 
@@ -29,30 +26,25 @@ trait CanBeFullText
     /**
      * Set whether to not use a full-text search.
      *
-     * @param  bool  $value
      * @return $this
      */
-    public function notFullText($value = true)
+    public function notFullText(bool $value = true): static
     {
         return $this->fullText(! $value);
     }
 
     /**
      * Determine if the search is a full-text search.
-     *
-     * @return bool
      */
-    public function isFullText()
+    public function isFullText(): bool
     {
         return $this->fullText;
     }
 
     /**
      * Determine if the search is not a full-text search.
-     *
-     * @return bool
      */
-    public function isNotFullText()
+    public function isNotFullText(): bool
     {
         return ! $this->fullText;
     }

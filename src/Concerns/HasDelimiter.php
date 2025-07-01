@@ -6,20 +6,19 @@ namespace Honed\Refine\Concerns;
 
 trait HasDelimiter
 {
+    public const DELIMITER = ',';
+
     /**
      * The delimiter to use for parsing array values.
-     *
-     * @var string
      */
-    protected $delimiter = ',';
+    protected string $delimiter = self::DELIMITER;
 
     /**
      * Set the delimiter.
      *
-     * @param  string  $delimiter
      * @return $this
      */
-    public function delimiter($delimiter)
+    public function delimiter(string $delimiter): static
     {
         $this->delimiter = $delimiter;
 
@@ -28,10 +27,8 @@ trait HasDelimiter
 
     /**
      * Get the delimiter.
-     *
-     * @return string
      */
-    public function getDelimiter()
+    public function getDelimiter(): string
     {
         return $this->delimiter;
     }

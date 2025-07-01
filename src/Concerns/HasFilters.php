@@ -24,15 +24,14 @@ trait HasFilters
      *
      * @var array<int,Filter>
      */
-    protected $filters = [];
+    protected array $filters = [];
 
     /**
      * Set whether the filters should be applied.
      *
-     * @param  bool  $value
      * @return $this
      */
-    public function filterable($value = true)
+    public function filterable(bool $value = true): static
     {
         $this->filterable = $value;
 
@@ -42,30 +41,25 @@ trait HasFilters
     /**
      * Set whether the filters should not be applied.
      *
-     * @param  bool  $value
      * @return $this
      */
-    public function notFilterable($value = true)
+    public function notFilterable(bool $value = true): static
     {
         return $this->filterable(! $value);
     }
 
     /**
      * Determine if the filters should be applied.
-     *
-     * @return bool
      */
-    public function isFilterable()
+    public function isFilterable(): bool
     {
         return $this->filterable;
     }
 
     /**
      * Determine if the filters should not be applied.
-     *
-     * @return bool
      */
-    public function isNotFilterable()
+    public function isNotFilterable(): bool
     {
         return ! $this->isFilterable();
     }
@@ -76,7 +70,7 @@ trait HasFilters
      * @param  Filter|array<int, Filter>  $filters
      * @return $this
      */
-    public function filters($filters)
+    public function filters(Filter|array $filters): static
     {
         /** @var array<int, Filter> $filters */
         $filters = is_array($filters) ? $filters : func_get_args();
@@ -89,10 +83,9 @@ trait HasFilters
     /**
      * Insert a filter.
      *
-     * @param  Filter  $filter
      * @return $this
      */
-    public function filter($filter)
+    public function filter(Filter $filter): static
     {
         $this->filters[] = $filter;
 
@@ -104,7 +97,7 @@ trait HasFilters
      *
      * @return array<int,Filter>
      */
-    public function getFilters()
+    public function getFilters(): array
     {
         if ($this->isNotFilterable()) {
             return [];
@@ -120,20 +113,16 @@ trait HasFilters
 
     /**
      * Determine if there is a filter being applied.
-     *
-     * @return bool
      */
-    public function isFiltering()
+    public function isFiltering(): bool
     {
         return (bool) $this->getActiveFilters();
     }
 
     /**
      * Determine if there is no filter being applied.
-     *
-     * @return bool
      */
-    public function isNotFiltering()
+    public function isNotFiltering(): bool
     {
         return ! $this->isFiltering();
     }
@@ -143,7 +132,7 @@ trait HasFilters
      *
      * @return array<int,Filter>
      */
-    public function getActiveFilters()
+    public function getActiveFilters(): array
     {
         return array_values(
             array_filter(
@@ -158,14 +147,14 @@ trait HasFilters
      *
      * @return array<int,array<string,mixed>>
      */
-    public function filtersToArray()
+    public function filtersToArray(): array
     {
         return array_values(
             array_map(
                 static fn (Filter $filter) => $filter->toArray(),
                 array_filter(
                     $this->getFilters(),
-                    static fn (Filter $filter) => $filter->isVisible()
+                    static fn (Filter $filter) => $filter->isNotHidden()
                 )
             )
         );

@@ -8,20 +8,17 @@ trait CanBeHidden
 {
     /**
      * Whether the instance should be serialized.
-     *
-     * @var bool
      */
-    protected $hidden = false;
+    protected bool $hidden = false;
 
     /**
      * Set whether the instance should be hidden from serialization
      *
-     * @param  bool  $hidden
      * @return $this
      */
-    public function hidden($hidden = true)
+    public function hidden(bool $value = true): static
     {
-        $this->hidden = $hidden;
+        $this->hidden = $value;
 
         return $this;
     }
@@ -29,73 +26,26 @@ trait CanBeHidden
     /**
      * Set whether the instance should not be hidden from serialization.
      *
-     * @param  bool  $visible
      * @return $this
      */
-    public function notHidden($visible = true)
+    public function notHidden(bool $value = true): static
     {
-        return $this->hidden(! $visible);
-    }
-
-    /**
-     * Set whether the instance should be visible when serializing.
-     *
-     * @param  bool  $visible
-     * @return $this
-     */
-    public function visible($visible = true)
-    {
-        return $this->hidden(! $visible);
-    }
-
-    /**
-     * Set whether the instance should not be visible when serializing.
-     *
-     * @param  bool  $hidden
-     * @return $this
-     */
-    public function notVisible($hidden = true)
-    {
-        return $this->hidden($hidden);
+        return $this->hidden(! $value);
     }
 
     /**
      * Get whether the instance is hidden from serialization.
-     *
-     * @return bool
      */
-    public function isHidden()
+    public function isHidden(): bool
     {
         return $this->hidden;
     }
 
     /**
      * Get whether the instance is not hidden from serialization.
-     *
-     * @return bool
      */
-    public function isNotHidden()
+    public function isNotHidden(): bool
     {
         return ! $this->isHidden();
-    }
-
-    /**
-     * Get whether the instance is visible when serializing.
-     *
-     * @return bool
-     */
-    public function isVisible()
-    {
-        return ! $this->isHidden();
-    }
-
-    /**
-     * Get whether the instance is not visible when serializing.
-     *
-     * @return bool
-     */
-    public function isNotVisible()
-    {
-        return $this->isHidden();
     }
 }

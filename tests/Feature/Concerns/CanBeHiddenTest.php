@@ -10,16 +10,10 @@ beforeEach(function () {
 
 it('can be hidden', function () {
     expect($this->filter)
+        ->isNotHidden()->toBeTrue()
+        ->isHidden()->toBeFalse()
         ->hidden()->toBe($this->filter)
         ->isHidden()->toBeTrue()
         ->notHidden()->toBe($this->filter)
         ->isNotHidden()->toBeTrue();
-});
-
-it('can be visible', function () {
-    expect($this->filter)
-        ->visible()->toBe($this->filter)
-        ->isVisible()->toBeTrue()
-        ->notVisible()->toBe($this->filter)
-        ->isNotVisible()->toBeTrue();
 });

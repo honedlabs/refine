@@ -10,39 +10,29 @@ trait HasSearchTerm
 
     /**
      * The search term as a string without replacements.
-     *
-     * @var string|null
      */
-    protected $searchTerm = null;
+    protected ?string $searchTerm = null;
 
     /**
      * Set the search term.
-     *
-     * @param  string|null  $term
-     * @return void
      */
-    public function setSearchTerm($term)
+    public function setSearchTerm(?string $term): void
     {
         $this->searchTerm = $this->decodeSearchTerm($term);
     }
 
     /**
      * Retrieve the search term.
-     *
-     * @return string|null
      */
-    public function getSearchTerm()
+    public function getSearchTerm(): ?string
     {
         return $this->searchTerm;
     }
 
     /**
      * Decode the search term to a string without replacements.
-     *
-     * @param  string|null  $term
-     * @return string|null
      */
-    public function decodeSearchTerm($term)
+    public function decodeSearchTerm(?string $term): ?string
     {
         if (! $term) {
             return null;
@@ -53,11 +43,8 @@ trait HasSearchTerm
 
     /**
      * Encode the search term to a string with replacements.
-     *
-     * @param  string|null  $term
-     * @return string|null
      */
-    public function encodeSearchTerm($term)
+    public function encodeSearchTerm(?string $term): ?string
     {
         if (! $term) {
             return null;
