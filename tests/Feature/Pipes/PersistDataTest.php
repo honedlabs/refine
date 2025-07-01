@@ -24,7 +24,7 @@ it('does not persist data to the stores if no data', function () {
 });
 
 it('persists data to stores', function () {
-    $this->refine->getSearchStore()
+    $this->refine->getSearchDriver()
         ->put([
             'search' => [
                 'term' => 'test',

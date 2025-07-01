@@ -66,7 +66,9 @@ it('fails', function (Refine $refine) {
             ]),
         ]);
 
-        return $this->refine->request($request);
+        $this->refine->request($request);
+
+        return $this->refine;
     },
 ]);
 
@@ -117,7 +119,11 @@ it('passes', function (Refine $refine, string $name = 'price', mixed $value = 10
             ]),
         ]);
 
-        return $this->refine->request($request)->persistFilterInCookie();
+        $this->refine->request($request)->persistFilterInCookie();
+
+        $this->refine->getFilterDriver()->request($request);
+
+        return $this->refine;
     },
 
     'uses request over store' => function () {

@@ -11,15 +11,31 @@ use Honed\Core\Concerns\HasRequest;
 use Honed\Core\Concerns\HasResource;
 use Honed\Core\Pipes\CallsAfter;
 use Honed\Core\Pipes\CallsBefore;
+use Honed\Persist\Concerns\Persistable;
 use Honed\Refine\Pipes\FilterQuery;
 use Honed\Refine\Pipes\PersistData;
 use Honed\Refine\Pipes\SearchQuery;
 use Honed\Refine\Pipes\SortQuery;
-use Honed\Refine\Stores\CookieStore;
-use Honed\Refine\Stores\SessionStore;
 
 /**
  * @phpstan-require-implements \Honed\Core\Contracts\HooksIntoLifecycle
+ * @phpstan-require-implements \Honed\Persist\Contracts\CanPersistData
+ *
+ * @method self persistSort(string|bool $driver = true)
+ * @method self persistSortInSession()
+ * @method self persistSortInCookie()
+ * @method bool isPersistingSort()
+ * @method \Honed\Persist\Drivers\Decorator|null getSortDriver()
+ * @method self persistSearch(string|bool $driver = true)
+ * @method self persistSearchInSession()
+ * @method self persistSearchInCookie()
+ * @method bool isPersistingSearch()
+ * @method \Honed\Persist\Drivers\Decorator|null getSearchDriver()
+ * @method self persistFilter(string|bool $driver = true)
+ * @method self persistFilterInSession()
+ * @method self persistFilterInCookie()
+ * @method bool isPersistingFilter()
+ * @method \Honed\Persist\Drivers\Decorator|null getFilterDriver()
  */
 trait CanRefine
 {
@@ -33,187 +49,23 @@ trait CanRefine
     use HasSearches;
     use HasSearchTerm;
     use HasSorts;
-    use Persistent;
+    use Persistable {
+        __call as persistCall;
+    }
     // use CanHaveSearchPlaceholder;
 
     /**
-     * The store to use for persisting search data.
+     * Define the names of persistable properties.
      *
-     * @var bool|string|null
+     * @return array<int, string>
      */
-    protected $persistSearch = null;
-
-    /**
-     * The store to use for persisting filter data.
-     *
-     * @var bool|string|null
-     */
-    protected $persistFilter = null;
-
-    /**
-     * The store to use for persisting sort data.
-     *
-     * @var bool|string|null
-     */
-    protected $persistSort = null;
-
-    /**
-     * Set the store to use for persisting searches.
-     *
-     * @param  bool|string|null  $store
-     * @return $this
-     */
-    public function persistSearch($store = true)
+    public function persist(): array
     {
-        $this->persistSearch = $store;
-
-        return $this;
-    }
-
-    /**
-     * Set the session store to be used for persisting searches.
-     *
-     * @return $this
-     */
-    public function persistSearchInSession()
-    {
-        return $this->persistSearch(SessionStore::NAME);
-    }
-
-    /**
-     * Set the cookie store to be used for persisting searches.
-     *
-     * @return $this
-     */
-    public function persistSearchInCookie()
-    {
-        return $this->persistSearch(CookieStore::NAME);
-    }
-
-    /**
-     * Determine if the search should be persisted.
-     *
-     * @return bool
-     */
-    public function shouldPersistSearch()
-    {
-        return (bool) $this->persistSearch;
-    }
-
-    /**
-     * Get the store to use for persisting searches.
-     *
-     * @return \Honed\Refine\Stores\Store|null
-     */
-    public function getSearchStore()
-    {
-        return $this->getStore($this->persistSearch);
-    }
-
-    /**
-     * Set the store to use for persisting filters.
-     *
-     * @param  bool|string|null  $store
-     * @return $this
-     */
-    public function persistFilter($store = true)
-    {
-        $this->persistFilter = $store;
-
-        return $this;
-    }
-
-    /**
-     * Set the session store to be used for persisting filters.
-     *
-     * @return $this
-     */
-    public function persistFilterInSession()
-    {
-        return $this->persistFilter(SessionStore::NAME);
-    }
-
-    /**
-     * Set the cookie store to be used for persisting filters.
-     *
-     * @return $this
-     */
-    public function persistFilterInCookie()
-    {
-        return $this->persistFilter(CookieStore::NAME);
-    }
-
-    /**
-     * Determine if the filter should be persisted.
-     *
-     * @return bool
-     */
-    public function shouldPersistFilter()
-    {
-        return (bool) $this->persistFilter;
-    }
-
-    /**
-     * Get the store to use for persisting filters.
-     *
-     * @return \Honed\Refine\Stores\Store|null
-     */
-    public function getFilterStore()
-    {
-        return $this->getStore($this->persistFilter);
-    }
-
-    /**
-     * Set the store to use for persisting sorts.
-     *
-     * @param  bool|string|null  $store
-     * @return $this
-     */
-    public function persistSort($store = true)
-    {
-        $this->persistSort = $store;
-
-        return $this;
-    }
-
-    /**
-     * Set the session store to be used for persisting sorts.
-     *
-     * @return $this
-     */
-    public function persistSortInSession()
-    {
-        return $this->persistSort(SessionStore::NAME);
-    }
-
-    /**
-     * Set the cookie store to be used for persisting sorts.
-     *
-     * @return $this
-     */
-    public function persistSortInCookie()
-    {
-        return $this->persistSort(CookieStore::NAME);
-    }
-
-    /**
-     * Determine if the sort should be persisted.
-     *
-     * @return bool
-     */
-    public function shouldPersistSort()
-    {
-        return (bool) $this->persistSort;
-    }
-
-    /**
-     * Get the store to use for persisting sorts.
-     *
-     * @return \Honed\Refine\Stores\Store|null
-     */
-    public function getSortStore()
-    {
-        return $this->getStore($this->persistSort);
+        return [
+            'sort',
+            'search',
+            'filter',
+        ];
     }
 
     /**

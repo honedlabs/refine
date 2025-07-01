@@ -124,7 +124,7 @@ class SortQuery extends Pipe
                 'dir' => $direction,
             ]);
 
-            $this->instance->getSortStore()?->put([
+            $this->instance->getSortDriver()?->put([
                 $this->instance->getSortKey() => $data->toArray(),
             ]);
         } catch (InvalidArgumentException $e) {
@@ -141,7 +141,7 @@ class SortQuery extends Pipe
     {
         try {
             $data = SortData::from(
-                $this->instance->getSortStore()?->get($key)
+                $this->instance->getSortDriver()?->get($key)
             );
 
             return [$data->column, $data->direction];

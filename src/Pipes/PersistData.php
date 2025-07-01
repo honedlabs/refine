@@ -18,8 +18,8 @@ class PersistData extends Pipe
      */
     public function run(): void
     {
-        foreach ($this->instance->getStores() as $store) {
-            $store->persist();
+        foreach ($this->instance->getDrivers() as $driver) {
+            $driver->persist();
         }
     }
 }

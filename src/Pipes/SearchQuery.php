@@ -136,7 +136,7 @@ class SearchQuery extends Pipe
      */
     protected function persist($term, $columns)
     {
-        $this->instance->getSearchStore()?->put([
+        $this->instance->getSearchDriver()?->put([
             $this->instance->getSearchKey() => [
                 'term' => $term,
                 'cols' => $columns ?? [],
@@ -154,7 +154,7 @@ class SearchQuery extends Pipe
     {
         try {
             $data = SearchData::from(
-                $this->instance->getSearchStore()?->get($key)
+                $this->instance->getSearchDriver()?->get($key)
             );
 
             $columns = $this->instance->isMatchable() ? $data->columns : null;

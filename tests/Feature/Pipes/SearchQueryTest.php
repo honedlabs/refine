@@ -137,7 +137,11 @@ it('passes non-matchable', function ($refine) {
             ]),
         ]);
 
-        return $this->refine->request($request)->persistSearchInCookie();
+        $this->refine->request($request)->persistSearchInCookie();
+
+        $this->refine->getSearchDriver()->request($request);
+
+        return $this->refine;
     },
 ]);
 
@@ -192,7 +196,11 @@ it('passes matchable', function ($refine) {
             ]),
         ]);
 
-        return $this->refine->request($request)->persistSearchInCookie();
+        $this->refine->request($request)->persistSearchInCookie();
+
+        $this->refine->getSearchDriver()->request($request);
+
+        return $this->refine;
     },
 ]);
 

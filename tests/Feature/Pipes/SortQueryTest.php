@@ -75,7 +75,9 @@ it('fails', function ($refine) {
             ]),
         ]);
 
-        return $this->refine->request($request);
+        $this->refine->request($request);
+
+        return $this->refine;
     },
 ]);
 
@@ -142,6 +144,10 @@ it('passes', function (Refine $refine, string $name = 'name', string $direction 
             ]),
         ]);
 
-        return $this->refine->request($request)->persistSortInCookie();
+        $this->refine->request($request)->persistSortInCookie();
+
+        $this->refine->getSortDriver()->request($request);
+
+        return $this->refine;
     },
 ]);

@@ -8,6 +8,7 @@ use Closure;
 use Honed\Core\Contracts\HooksIntoLifecycle;
 use Honed\Core\Contracts\NullsAsUndefined;
 use Honed\Core\Primitive;
+use Honed\Persist\Contracts\CanPersistData;
 use Honed\Refine\Concerns\CanRefine;
 use Illuminate\Container\Container;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
@@ -24,7 +25,7 @@ use Throwable;
  *
  * @mixin TBuilder
  */
-class Refine extends Primitive implements HooksIntoLifecycle, NullsAsUndefined
+class Refine extends Primitive implements CanPersistData, HooksIntoLifecycle, NullsAsUndefined
 {
     use CanRefine;
     use ForwardsCalls;
@@ -67,6 +68,10 @@ class Refine extends Primitive implements HooksIntoLifecycle, NullsAsUndefined
     {
         if (static::hasMacro($method)) {
             return parent::macroCall($method, $parameters);
+        }
+
+        if ($call = $this->getPersistableCall($method)) {
+            return $this->callPersistable($call, $parameters);
         }
 
         return $this->forwardBuilderCall($method, $parameters);
