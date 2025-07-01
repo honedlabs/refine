@@ -57,32 +57,32 @@ it('can use a custom namespace', function () {
 it('has array representation', function () {
     expect($this->test->toArray())->toBeArray()
         ->toHaveKeys([
-            'sort',
-            'search',
-            'delimiter',
+            '_sort_key',
+            '_search_key',
+            '_delimiter',
             'filters',
             'sorts',
             'searches',
         ])->not->toHaveKeys([
+            '_match_key',
             'term',
             'placeholder',
-            'match',
         ]);
 });
 
 it('has array representation when not searchable', function () {
     expect($this->test->notSearchable()->toArray())
-        ->not->toHaveKey('search');
+        ->not->toHaveKey('_search_key');
 });
 
 it('has array representation when not sortable', function () {
     expect($this->test->notSortable()->toArray())
-        ->not->toHaveKey('sort');
+        ->not->toHaveKey('_sort_key');
 });
 
 it('has array representation when matchable', function () {
     expect($this->test->matchable()->toArray())
-        ->toHaveKey('match');
+        ->toHaveKey('_match_key');
 });
 
 it('evaluates closure dependencies', function ($callback, $type) {

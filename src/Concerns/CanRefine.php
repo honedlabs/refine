@@ -92,12 +92,12 @@ trait CanRefine
     public function refineToArray(): array
     {
         return [
-            'sort' => $this->isSortable() ? $this->getSortKey() : null,
-            'search' => $this->isSearchable() ? $this->getSearchKey() : null,
-            'match' => $this->isMatchable() ? $this->getMatchKey() : null,
+            '_sort_key' => $this->isSortable() ? $this->getSortKey() : null,
+            '_search_key' => $this->isSearchable() ? $this->getSearchKey() : null,
+            '_match_key' => $this->isMatchable() ? $this->getMatchKey() : null,
+            '_delimiter' => $this->getDelimiter(),
             'term' => $this->getSearchTerm(),
             'placeholder' => $this->getSearchPlaceholder(),
-            'delimiter' => $this->getDelimiter(),
             'sorts' => $this->sortsToArray(),
             'filters' => $this->filtersToArray(),
             'searches' => $this->searchesToArray(),

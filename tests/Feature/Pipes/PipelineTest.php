@@ -109,11 +109,11 @@ it('has base pipeline', function () {
         ->toArray()
         ->scoped(fn ($array) => $array
             ->toHaveKeys([
-                'sort',
-                'search',
-                'match',
+                '_sort_key',
+                '_search_key',
+                '_match_key',
+                '_delimiter',
                 'term',
-                'delimiter',
                 'placeholder',
                 'sorts',
                 'filters',
