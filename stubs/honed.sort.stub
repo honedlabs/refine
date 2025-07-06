@@ -15,16 +15,6 @@ class {{ class }} extends Sort
     {
         return resolve(static::class);
     }
-    
-    /**
-     * Define the type of the sort.
-     * 
-     * @return string
-     */
-    public function type()
-    {
-        return 'sort';
-    }
 
     /**
      * Define the sort instance.

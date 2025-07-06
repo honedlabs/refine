@@ -15,16 +15,6 @@ class {{ class }} extends Filter
     {
         return resolve(static::class);
     }
-    
-    /**
-     * Define the type of the filter.
-     * 
-     * @return string
-     */
-    public function type()
-    {
-        return 'filter';
-    }
 
     /**
      * Define the filter instance.
