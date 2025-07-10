@@ -297,17 +297,6 @@ class Filter extends Refiner
     }
 
     /**
-     * Define the filter instance.
-     *
-     * @param  $this  $filter
-     * @return $this
-     */
-    protected function definition(self $filter): self
-    {
-        return $filter;
-    }
-
-    /**
      * Transform the value for the filter.
      */
     protected function transformParameter(mixed $value): mixed

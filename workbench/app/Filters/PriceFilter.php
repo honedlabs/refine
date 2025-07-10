@@ -18,9 +18,15 @@ class PriceFilter extends Filter
         return new self();
     }
 
-    protected function definition(Filter $filter): Filter
+    /**
+     * Define the filter instance.
+     *
+     * @param  $filter  $filter
+     * @return $this
+     */
+    protected function definition(): static
     {
-        return $filter
+        return $this
             ->name('price')
             ->type('price')
             ->label('Price')

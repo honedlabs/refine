@@ -19,14 +19,14 @@ use Workbench\App\Models\User;
 class RefineUser extends Refine
 {
     /**
-     * Define the refine instance.
+     * Define the refine.
      *
-     * @param  $this  $refine
      * @return $this
      */
-    protected function definition(Refine $refine): Refine
+    protected function definition(): static
     {
-        return $refine->for(User::class)
+        return $this
+            ->for(User::class)
             ->searchPlaceholder('Search users...')
             ->sortKey('order')
             ->searchKey('q')

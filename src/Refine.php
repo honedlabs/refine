@@ -15,6 +15,7 @@ use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Str;
 use Illuminate\Support\Traits\ForwardsCalls;
 use Throwable;
@@ -153,6 +154,11 @@ class Refine extends Primitive implements CanPersistData, HooksIntoLifecycle, Nu
         static::$refinerResolver = null;
     }
 
+    public function resolve(): void
+    {
+        $this->request(App::make(Request::class));
+    }
+
     /**
      * Get the application namespace for the application.
      */
@@ -175,14 +181,6 @@ class Refine extends Primitive implements CanPersistData, HooksIntoLifecycle, Nu
     protected function representation(): array
     {
         return $this->refineToArray();
-    }
-
-    /**
-     * Define the refine instance.
-     */
-    protected function definition(self $refine): self
-    {
-        return $refine;
     }
 
     /**

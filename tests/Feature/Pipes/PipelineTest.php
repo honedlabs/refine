@@ -83,6 +83,8 @@ beforeEach(function () {
 });
 
 it('has no request', function () {
+    $this->refine->define(); // @TODO
+
     expect($this->refine->build())
         ->isNotSorting()->toBeTrue()
         ->isNotSearching()->toBeTrue()
@@ -93,6 +95,8 @@ it('has base pipeline', function () {
     $this->refine
         ->matchable()
         ->request(Request::create('/', Request::METHOD_GET, $this->parameters));
+
+    $this->refine->define(); // @TODO
 
     expect($this->refine->build()->getBuilder()->getQuery())
         ->wheres
@@ -137,6 +141,8 @@ it('has scoped pipeline', function () {
     $this->refine
         ->request(Request::create('/', Request::METHOD_GET, $parameters));
 
+    $this->refine->define(); // @TODO
+
     expect($this->refine->build()->getBuilder()->getQuery())
         ->wheres
         ->scoped(fn ($wheres) => $wheres
@@ -160,6 +166,8 @@ it('has custom keys pipeline', function () {
         ->searchKey('s')
         ->matchKey('on')
         ->request(Request::create('/', Request::METHOD_GET, $this->parameters));
+
+    $this->refine->define(); // @TODO
 
     expect($this->refine->build()->getBuilder()->getQuery())
         ->wheres

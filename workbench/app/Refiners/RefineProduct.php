@@ -22,14 +22,13 @@ use Workbench\App\Models\Product;
 class RefineProduct extends Refine
 {
     /**
-     * Define the refine instance.
+     * Define the refine.
      *
-     * @param  $this  $refine
      * @return $this
      */
-    protected function definition(Refine $refine): Refine
+    protected function definition(): static
     {
-        return $refine
+        return $this
             ->for(Product::class)
             ->searchPlaceholder('Search for a product...')
             ->searches([

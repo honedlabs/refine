@@ -45,6 +45,8 @@ it('has scout pipeline', function () {
     $this->refine
         ->request(Request::create('/', Request::METHOD_GET, $this->parameters));
 
+    $this->refine->define(); // @TODO
+
     expect($this->refine->build()->getBuilder()->getQuery())
         ->wheres
         ->scoped(fn ($wheres) => $wheres

@@ -112,17 +112,6 @@ class Sort extends Refiner
     }
 
     /**
-     * Define the sort instance.
-     *
-     * @param  $this  $sort
-     * @return $this
-     */
-    protected function definition(self $sort): self
-    {
-        return $sort;
-    }
-
-    /**
      * Get the representation of the instance.
      *
      * @return array<string, mixed>

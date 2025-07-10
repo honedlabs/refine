@@ -95,17 +95,6 @@ class Search extends Refiner
     }
 
     /**
-     * Define the search instance.
-     *
-     * @param  $this  $search
-     * @return $this
-     */
-    protected function definition(self $search): self
-    {
-        return $search;
-    }
-
-    /**
      * Determine if the search is active.
      *
      * @param  array<int, string>|null  $columns

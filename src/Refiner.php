@@ -47,9 +47,13 @@ abstract class Refiner extends Primitive
      */
     public static function make($name, $label = null)
     {
-        return resolve(static::class)
+        $refiner = resolve(static::class)
             ->name($name)
             ->label($label ?? static::makeLabel($name));
+
+        $refiner->define();
+
+        return $refiner;
     }
 
     /**

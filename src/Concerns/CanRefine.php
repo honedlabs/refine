@@ -56,7 +56,6 @@ trait CanRefine
     use Persistable {
         __call as persistCall;
     }
-    // use CanHaveSearchPlaceholder;
 
     /**
      * Define the names of persistable properties.
