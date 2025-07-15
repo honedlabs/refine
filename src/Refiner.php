@@ -39,6 +39,16 @@ abstract class Refiner extends Primitive
     use HasQualifier;
 
     /**
+     * Provide the instance with any necessary setup.
+     */
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->define();
+    }
+
+    /**
      * Create a new refiner instance.
      *
      * @param  string  $name
@@ -47,13 +57,9 @@ abstract class Refiner extends Primitive
      */
     public static function make($name, $label = null)
     {
-        $refiner = resolve(static::class)
+        return resolve(static::class)
             ->name($name)
             ->label($label ?? static::makeLabel($name));
-
-        $refiner->define();
-
-        return $refiner;
     }
 
     /**

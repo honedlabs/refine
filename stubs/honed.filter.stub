@@ -8,22 +8,19 @@ class {{ class }} extends Filter
 {
     /**
      *  Create a new filter instance.
-     *
-     *  @return static
      */
-    public static function new()
+    public static function new(): static
     {
         return resolve(static::class);
     }
 
     /**
-     * Define the filter instance.
+     * Define the filter.
      *
-     * @param  $this  $filter
      * @return $this
      */
-    protected function definition(Filter $filter)
+    protected function definition(): static
     {
-        return $filter;
+        return $this;
     }
 }

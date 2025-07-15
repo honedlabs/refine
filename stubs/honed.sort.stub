@@ -8,22 +8,19 @@ class {{ class }} extends Sort
 {
     /**
      * Create a new sort instance.
-     *
-     * @return static
      */
-    public static function new()
+    public static function new(): static
     {
         return resolve(static::class);
     }
 
     /**
-     * Define the sort instance.
+     * Define the sort.
      *
-     * @param  $this  $sort
      * @return $this
      */
-    protected function definition(Sort $sort): Sort
+    protected function definition(): static
     {
-        return $sort;
+        return $this;
     }
 }

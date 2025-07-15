@@ -8,22 +8,19 @@ class {{ class }} extends Search
 {
     /**
      * Create a new search instance.
-     *
-     * @return static
      */
-    public static function new()
+    public static function new(): static
     {
         return resolve(static::class);
     }
 
     /**
-     * Define the search instance.
+     * Define the search.
      *
-     * @param  $this  $search
      * @return $this
      */
-    protected function definition(Search $search): Search
+    protected function definition(): static
     {
-        return $search;
+        return $this;
     }
 }

@@ -67,6 +67,8 @@ class SortQuery extends Pipe
             $parameter = $sort->getParameter();
 
             $sort->handle($builder, $parameter, null);
+
+            $sort->active();
         }
     }
 
