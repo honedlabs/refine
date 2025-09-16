@@ -14,6 +14,8 @@ class RefineServiceProvider extends ServiceProvider
 {
     /**
      * Bootstrap the application services.
+     *
+     * @return void
      */
     public function boot(): void
     {
@@ -31,6 +33,8 @@ class RefineServiceProvider extends ServiceProvider
 
     /**
      * Register the publishing for the package.
+     *
+     * @return void
      */
     protected function offerPublishing(): void
     {
