@@ -95,22 +95,22 @@ it('passes non-matchable', function ($refine) {
         ->toBeArray()
         ->toHaveCount(1)
         ->{0}->scoped(fn ($where) => $where
-            ->toBeArray()
-            ->toHaveKeys(['type', 'query', 'boolean'])
-            ->{'type'}->toBe('Nested')
-            ->{'boolean'}->toBe('and')
-            ->{'query'}
-            ->scoped(fn ($query) => $query
-                ->toBeInstanceOf(Builder::class)
-                ->wheres
-                ->scoped(fn ($wheres) => $wheres
-                    ->toBeArray()
-                    ->toHaveCount(2)
-                    ->{0}->toBeSearch('name', 'and')
-                    ->{1}->toBeSearch('description', 'or')
-                )
+        ->toBeArray()
+        ->toHaveKeys(['type', 'query', 'boolean'])
+        ->{'type'}->toBe('Nested')
+        ->{'boolean'}->toBe('and')
+        ->{'query'}
+        ->scoped(fn ($query) => $query
+            ->toBeInstanceOf(Builder::class)
+            ->wheres
+            ->scoped(fn ($wheres) => $wheres
+                ->toBeArray()
+                ->toHaveCount(2)
+                ->{0}->toBeSearch('name', 'and')
+                ->{1}->toBeSearch('description', 'or')
             )
-    );
+        )
+        );
 
     expect($this->refine)
         ->getSearchTerm()->toBe('search value')
@@ -168,20 +168,20 @@ it('passes matchable', function ($refine) {
         ->toBeArray()
         ->toHaveCount(1)
         ->{0}->scoped(fn ($where) => $where
-            ->toBeArray()
-            ->toHaveKeys(['type', 'query', 'boolean'])
-            ->{'type'}->toBe('Nested')
-            ->{'boolean'}->toBe('and')
-            ->{'query'}
-            ->scoped(fn ($query) => $query
-                ->toBeInstanceOf(Builder::class)
-                ->wheres
-                ->scoped(fn ($wheres) => $wheres
-                    ->toBeArray()
-                    ->toBeOnlySearch($this->match)
-                )
+        ->toBeArray()
+        ->toHaveKeys(['type', 'query', 'boolean'])
+        ->{'type'}->toBe('Nested')
+        ->{'boolean'}->toBe('and')
+        ->{'query'}
+        ->scoped(fn ($query) => $query
+            ->toBeInstanceOf(Builder::class)
+            ->wheres
+            ->scoped(fn ($wheres) => $wheres
+                ->toBeArray()
+                ->toBeOnlySearch($this->match)
             )
-    );
+        )
+        );
 
     expect($refine)
         ->getSearchTerm()->toBe($this->term)
