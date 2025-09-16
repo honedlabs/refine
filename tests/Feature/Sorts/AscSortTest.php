@@ -19,12 +19,12 @@ it('has asc sort', function () {
         ->getDirection()->toBe(Sort::ASCENDING);
 });
 
-it('does not apply', function () {
+it('applies when opposite direction is provided', function () {
     expect($this->sort)
-        ->handle($this->builder, $this->alias, Sort::DESCENDING)->toBeFalse();
+        ->handle($this->builder, $this->alias, Sort::DESCENDING)->toBeTrue();
 
     expect($this->builder->getQuery()->orders)
-        ->toBeEmpty();
+        ->toBeOnlyOrder($this->name, Sort::ASCENDING);
 });
 
 it('applies', function () {

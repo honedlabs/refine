@@ -6,6 +6,7 @@ use Honed\Refine\Data\SearchData;
 use Honed\Refine\Pipes\SearchQuery;
 use Honed\Refine\Refine;
 use Honed\Refine\Searches\Search;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
@@ -92,9 +93,24 @@ it('passes non-matchable', function ($refine) {
 
     expect($refine->getBuilder()->getQuery()->wheres)
         ->toBeArray()
-        ->toHaveCount(2)
-        ->{0}->toBeSearch('name', 'and')
-        ->{1}->toBeSearch('description', 'or');
+        ->toHaveCount(1)
+        ->{0}->scoped(fn ($where) => $where
+            ->toBeArray()
+            ->toHaveKeys(['type', 'query', 'boolean'])
+            ->{'type'}->toBe('Nested')
+            ->{'boolean'}->toBe('and')
+            ->{'query'}
+            ->scoped(fn ($query) => $query
+                ->toBeInstanceOf(Builder::class)
+                ->wheres
+                ->scoped(fn ($wheres) => $wheres
+                    ->toBeArray()
+                    ->toHaveCount(2)
+                    ->{0}->toBeSearch('name', 'and')
+                    ->{1}->toBeSearch('description', 'or')
+                )
+            )
+    );
 
     expect($this->refine)
         ->getSearchTerm()->toBe('search value')
@@ -149,7 +165,23 @@ it('passes matchable', function ($refine) {
     $this->pipe->run();
 
     expect($refine->getBuilder()->getQuery()->wheres)
-        ->toBeOnlySearch($this->match);
+        ->toBeArray()
+        ->toHaveCount(1)
+        ->{0}->scoped(fn ($where) => $where
+            ->toBeArray()
+            ->toHaveKeys(['type', 'query', 'boolean'])
+            ->{'type'}->toBe('Nested')
+            ->{'boolean'}->toBe('and')
+            ->{'query'}
+            ->scoped(fn ($query) => $query
+                ->toBeInstanceOf(Builder::class)
+                ->wheres
+                ->scoped(fn ($wheres) => $wheres
+                    ->toBeArray()
+                    ->toBeOnlySearch($this->match)
+                )
+            )
+    );
 
     expect($refine)
         ->getSearchTerm()->toBe($this->term)

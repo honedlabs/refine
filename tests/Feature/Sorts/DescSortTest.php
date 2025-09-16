@@ -19,14 +19,12 @@ it('has desc sort', function () {
         ->getDirection()->toBe(Sort::DESCENDING);
 });
 
-it('does not apply', function () {
-    $builder = Product::query();
-
+it('applies when opposite direction is provided', function () {
     expect($this->sort)
-        ->handle($builder, $this->alias, Sort::ASCENDING)->toBeFalse();
+        ->handle($this->builder, $this->alias, Sort::ASCENDING)->toBeTrue();
 
-    expect($builder->getQuery()->orders)
-        ->toBeEmpty();
+    expect($this->builder->getQuery()->orders)
+        ->toBeOnlyOrder($this->name, Sort::DESCENDING);
 });
 
 it('applies', function () {

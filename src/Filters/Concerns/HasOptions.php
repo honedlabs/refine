@@ -5,15 +5,15 @@ declare(strict_types=1);
 namespace Honed\Refine\Filters\Concerns;
 
 use BackedEnum;
-use Honed\Refine\Option;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Collection;
-
-use function array_filter;
-use function array_keys;
 use function array_map;
-use function array_values;
 use function is_string;
+use function array_keys;
+use Honed\Refine\Option;
+use function array_filter;
+use function array_values;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
+use Illuminate\Support\Collection;
 
 trait HasOptions
 {
@@ -230,7 +230,10 @@ trait HasOptions
     protected function createEnumOptions($enum)
     {
         return array_map(
-            static fn ($case) => Option::make($case->value, $case->name),
+            static fn ($case) => Option::make(
+                $case->value,
+                Str::of($case->name)->snake(' ')->lower()->ucfirst()->toString()
+            ),
             $enum::cases()
         );
     }

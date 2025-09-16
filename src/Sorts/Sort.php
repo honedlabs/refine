@@ -89,11 +89,13 @@ class Sort extends Refiner
             return false;
         }
 
-        $this->direction($direction);
+        if (! $this->enforcesDirection()) {
+            $this->direction($direction);
+        }
 
         return $this->refine($query, [
             ...$this->getBindings($query),
-            'direction' => $direction,
+            'direction' => $this->getDirection(),
             'parameter' => $parameter,
         ]);
     }
@@ -178,8 +180,8 @@ class Sort extends Refiner
         $this->active(
             $parameter === $this->getParameter() && (
                 $this->enforcesDirection()
-                    ? $direction === $this->getDirection()
-                    : true
+                    ? true
+                    : $direction === $this->getDirection()
             )
         );
     }

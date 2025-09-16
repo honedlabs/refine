@@ -67,7 +67,7 @@ it('creates options from backed enum', function () {
                 fn ($test) => $test
                     ->toBeInstanceOf(Option::class)
                     ->getValue()->toBe(Status::ComingSoon->value)
-                    ->getLabel()->toBe(Status::ComingSoon->name)
+                    ->getLabel()->toBe('Coming soon')
                     ->isActive()->toBeFalse(),
             )
         );
@@ -211,7 +211,7 @@ it('activates options', function () {
             fn ($test) => $test
                 ->toBeInstanceOf(Option::class)
                 ->getValue()->toBe(Status::ComingSoon->value)
-                ->getLabel()->toBe(Status::ComingSoon->name)
+                ->getLabel()->toBe('Coming soon')
                 ->isActive()->toBeFalse(),
         )
         );
@@ -233,7 +233,7 @@ it('has array representation', function () {
             ],
             [
                 'value' => Status::ComingSoon->value,
-                'label' => Status::ComingSoon->name,
+                'label' => 'Coming soon',
                 'active' => false,
             ],
         ]);

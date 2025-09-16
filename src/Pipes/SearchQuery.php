@@ -120,11 +120,13 @@ class SearchQuery extends Pipe
 
         $applied = false;
 
-        foreach ($this->instance->getSearches() as $search) {
-            if ($search->handle($builder, $term, $columns, $applied)) {
-                $applied = true;
+        $builder->where(function ($query) use ($term, $columns, $applied) {
+            foreach ($this->instance->getSearches() as $search) {
+                if ($search->handle($query, $term, $columns, $applied)) {
+                    $applied = true;
+                }
             }
-        }
+        });
 
         return $applied;
     }
