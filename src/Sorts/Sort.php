@@ -178,11 +178,7 @@ class Sort extends Refiner
     protected function checkIfActive($parameter, $direction)
     {
         $this->active(
-            $parameter === $this->getParameter() && (
-                $this->enforcesDirection()
-                    ? true
-                    : $direction === $this->getDirection()
-            )
+            $parameter === $this->getParameter()
         );
     }
 }
