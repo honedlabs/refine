@@ -8,9 +8,9 @@ namespace Honed\Refine\Filters;
  * @template TModel of \Illuminate\Database\Eloquent\Model = \Illuminate\Database\Eloquent\Model
  * @template TBuilder of \Illuminate\Database\Eloquent\Builder<TModel> = \Illuminate\Database\Eloquent\Builder<TModel>
  *
- * @extends \Honed\Refine\Filters\Filter<TModel, TBuilder>
+ * @extends \Honed\Refine\Filters\TernaryFilter<TModel, TBuilder>
  */
-class TrashedFilter extends Filter
+class TrashedFilter extends TernaryFilter
 {
     /**
      * Provide the instance with any necessary setup.
@@ -21,21 +21,19 @@ class TrashedFilter extends Filter
 
         $this->name('trashed');
 
-        $this->type(Filter::TRASHED);
+        $this->label(__('refine::filters.trashed.label'));
 
-        $this->label('Show deleted');
+        $this->trueLabel(__('refine::filters.trashed.true'));
 
-        $this->options([
-            'with' => 'With deleted',
-            'only' => 'Only deleted',
-            'without' => 'Without deleted',
-        ]);
+        $this->falseLabel(__('refine::filters.trashed.false'));
 
-        $this->query(fn ($builder, $value) => match ($value) {
-            'with' => $builder->withTrashed(),
-            'only' => $builder->onlyTrashed(),
-            default => $builder->withoutTrashed(),
-        });
+        $this->blankLabel(__('refine::filters.trashed.blank'));
+
+        $this->queries(
+            true: fn ($builder) => $builder->withTrashed(), // @phpstan-ignore-line method.notFound
+            false: fn ($builder) => $builder->onlyTrashed(), // @phpstan-ignore-line method.notFound
+            blank: fn ($builder) => $builder->withoutTrashed(), // @phpstan-ignore-line method.notFound
+        );
     }
 
     /**

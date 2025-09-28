@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Honed\Refine\Sorts;
 
 use Honed\Core\Concerns\CanBeDefault;
+use Honed\Refine\Concerns\CanBeNullable;
 use Honed\Refine\Refiner;
 use Honed\Refine\Sorts\Concerns\HasDirection;
 
@@ -20,6 +21,7 @@ use function sprintf;
 class Sort extends Refiner
 {
     use CanBeDefault;
+    use CanBeNullable;
     use HasDirection;
 
     /**

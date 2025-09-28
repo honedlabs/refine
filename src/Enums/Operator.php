@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Honed\Refine\Enums;
 
-use Illuminate\Support\Str;
-
 enum Operator: string
 {
     case Is = 'is';
@@ -18,16 +16,6 @@ enum Operator: string
     case StartsWith = 'starts_with';
     case EndsWith = 'ends_with';
     case IsNull = 'is_null';
-
-    /**
-     * Get the enum name as a label.
-     *
-     * @return string
-     */
-    public function label()
-    {
-        return Str::title(str_replace('_', ' ', $this->name));
-    }
 
     /**
      * Get the primitive operator.

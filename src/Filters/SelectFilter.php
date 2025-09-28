@@ -21,4 +21,17 @@ class SelectFilter extends Filter
 
         $this->multiple();
     }
+
+    /**
+     * Get the representation of the instance.
+     *
+     * @return array<string, mixed>
+     */
+    protected function representation(): array
+    {
+        return [
+            ...parent::representation(),
+            'multiple' => $this->isMultiple(),
+        ];
+    }
 }

@@ -15,3 +15,17 @@ it('creates', function () {
         ->isMultiple()->toBeTrue()
         ->getType()->toBe(Filter::SELECT);
 });
+
+it('has representation', function () {
+    expect($this->filter)
+        ->toArray()->toEqual([
+            'name' => 'status',
+            'label' => 'Status',
+            'active' => false,
+            'type' => 'select',
+            'meta' => [],
+            'value' => null,
+            'options' => [],
+            'multiple' => true,
+        ]);
+});

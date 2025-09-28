@@ -14,11 +14,11 @@ class RefineServiceProvider extends ServiceProvider
 {
     /**
      * Bootstrap the application services.
-     *
-     * @return void
      */
     public function boot(): void
     {
+        $this->loadTranslationsFrom(__DIR__.'/../resources/lang', 'refine');
+
         if ($this->app->runningInConsole()) {
             $this->offerPublishing();
 
@@ -33,13 +33,15 @@ class RefineServiceProvider extends ServiceProvider
 
     /**
      * Register the publishing for the package.
-     *
-     * @return void
      */
     protected function offerPublishing(): void
     {
         $this->publishes([
             __DIR__.'/../stubs' => base_path('stubs'),
         ], 'refine-stubs');
+
+        $this->publishes([
+            __DIR__.'/../resources/lang' => resource_path('lang/vendor/refine'),
+        ], 'refine-lang');
     }
 }
