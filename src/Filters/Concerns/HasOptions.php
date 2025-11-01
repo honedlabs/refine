@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Honed\Refine\Filters\Concerns;
 
 use BackedEnum;
+use Honed\Core\Contracts\HasLabel;
 use Honed\Refine\Option;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
@@ -233,7 +234,7 @@ trait HasOptions
         return array_map(
             static fn ($case) => Option::make(
                 $case->value,
-                Str::of($case->name)->snake(' ')->lower()->ucfirst()->toString()
+                $case instanceof HasLabel ? $case->getLabel() : Str::of($case->name)->snake(' ')->lower()->ucfirst()->toString()
             ),
             $enum::cases()
         );

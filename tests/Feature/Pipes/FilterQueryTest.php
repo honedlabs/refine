@@ -3,10 +3,12 @@
 declare(strict_types=1);
 
 use Honed\Refine\Filters\Filter;
+use Honed\Refine\Filters\SelectFilter;
 use Honed\Refine\Pipes\FilterQuery;
 use Honed\Refine\Refine;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Session;
+use Workbench\App\Enums\Status;
 use Workbench\App\Models\Product;
 
 beforeEach(function () {
@@ -72,28 +74,31 @@ it('fails', function (Refine $refine) {
     },
 ]);
 
-it('passes', function (Refine $refine, string $name = 'price', mixed $value = 100) {
+it('passes', function (Refine $refine, string $name, mixed $value) {
     $this->pipe->instance($refine);
 
     $this->pipe->run();
 
     expect($refine->getBuilder()->getQuery()->wheres)
-        ->toBeOnlyWhere($name, $value);
+        ->{is_array($value) ? 'toBeOnlyWhereIn' : 'toBeOnlyWhere'}($name, $value);
 })->with([
     'request' => function () {
         $request = Request::create('/', 'GET', [
             'price' => 100,
         ]);
 
-        return $this->refine->request($request);
+        return [$this->refine->request($request), 'price', 100];
     },
-
     'defaults' => function () {
         $this->refine->filter(Filter::make('name')->default('joshua'));
 
         return [$this->refine, 'name', 'joshua'];
     },
+    'array defaults' => function () {
+        $this->refine->filter(SelectFilter::make('status')->default([Status::Available]));
 
+        return [$this->refine, 'status', [Status::Available]];
+    },
     'scope' => function () {
         $this->refine->scope('scope');
 
@@ -101,17 +106,15 @@ it('passes', function (Refine $refine, string $name = 'price', mixed $value = 10
             $this->refine->scoped('price') => 100,
         ]);
 
-        return $this->refine->request($request);
+        return [$this->refine->request($request), 'price', 100];
     },
-
     'session' => function () {
         Session::put($this->refine->getPersistKey(), [
             'price' => 100,
         ]);
 
-        return $this->refine->persistFilterInSession();
+        return [$this->refine->persistFilterInSession(), 'price', 100];
     },
-
     'cookie' => function () {
         $request = Request::create('/', 'GET', cookies: [
             $this->refine->getPersistKey() => json_encode([
@@ -121,9 +124,8 @@ it('passes', function (Refine $refine, string $name = 'price', mixed $value = 10
 
         $this->refine->request($request)->persistFilterInCookie();
 
-        return $this->refine;
+        return [$this->refine, 'price', 100];
     },
-
     'uses request over store' => function () {
         Session::put($this->refine->getPersistKey(), [
             'price' => 100,

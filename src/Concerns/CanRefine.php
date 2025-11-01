@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Honed\Refine\Concerns;
 
-use Honed\Core\Concerns\CanScope;
 use Honed\Core\Concerns\HasLifecycleHooks;
 use Honed\Core\Concerns\HasPipeline;
 use Honed\Core\Concerns\HasRequest;
 use Honed\Core\Concerns\HasResource;
+use Honed\Core\Concerns\HasScope;
 use Honed\Core\Pipes\CallsAfter;
 use Honed\Core\Pipes\CallsBefore;
 use Honed\Persist\Concerns\Persistable;
@@ -41,7 +41,6 @@ use Illuminate\Http\Request;
  */
 trait CanRefine
 {
-    use CanScope;
     use HasDelimiter;
     use HasFilters;
     use HasLifecycleHooks;
@@ -50,6 +49,7 @@ trait CanRefine
         request as setRequest;
     }
     use HasResource;
+    use HasScope;
     use HasSearches;
     use HasSearchTerm;
     use HasSorts;

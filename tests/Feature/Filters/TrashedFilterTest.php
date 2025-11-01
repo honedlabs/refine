@@ -29,7 +29,7 @@ it('has options', function () {
         ->sequence(
             fn ($option) => $option
                 ->toBeInstanceOf(Option::class)
-                ->getValue()->toBe('all')
+                ->getValue()->toBe('blank')
                 ->getLabel()->toBe(__('refine::filters.trashed.blank')),
             fn ($option) => $option
                 ->toBeInstanceOf(Option::class)

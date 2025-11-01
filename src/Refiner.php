@@ -7,11 +7,11 @@ namespace Honed\Refine;
 use Closure;
 use Honed\Core\Concerns\Allowable;
 use Honed\Core\Concerns\CanBeActive;
-use Honed\Core\Concerns\CanHaveAlias;
-use Honed\Core\Concerns\CanQuery;
+use Honed\Core\Concerns\HasAlias;
 use Honed\Core\Concerns\HasLabel;
 use Honed\Core\Concerns\HasMeta;
 use Honed\Core\Concerns\HasName;
+use Honed\Core\Concerns\HasQuery;
 use Honed\Core\Primitive;
 use Honed\Refine\Concerns\CanBeHidden;
 use Honed\Refine\Concerns\HasQualifier;
@@ -29,15 +29,15 @@ abstract class Refiner extends Primitive
     use Allowable;
     use CanBeActive;
     use CanBeHidden;
-    use CanHaveAlias;
-
-    /** @use CanQuery<TModel, TBuilder> */
-    use CanQuery;
+    use HasAlias;
 
     use HasLabel;
+
     use HasMeta;
     use HasName;
     use HasQualifier;
+    /** @use HasQuery<TModel, TBuilder> */
+    use HasQuery;
 
     /**
      * Provide the instance with any necessary setup.
@@ -76,7 +76,7 @@ abstract class Refiner extends Primitive
      *
      * @param  TBuilder  $query
      */
-    public function getQualifiedAttribute(Builder $query): string
+    public function getQualifiedName(Builder $query): string
     {
         return $this->qualifyColumn($this->getName(), $query);
     }
@@ -121,12 +121,7 @@ abstract class Refiner extends Primitive
      */
     protected function guessParameter()
     {
-        /** @var string */
-        $name = $this->getName();
-
-        return Str::of($name)
-            ->afterLast('.')
-            ->value();
+        return Str::afterLast($this->getName(), '.');
     }
 
     /**

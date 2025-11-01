@@ -38,10 +38,8 @@ class TrashedFilter extends TernaryFilter
 
     /**
      * Create a new trashed filter instance.
-     *
-     * @return static
      */
-    public static function new()
+    public static function new(): static
     {
         return resolve(static::class);
     }

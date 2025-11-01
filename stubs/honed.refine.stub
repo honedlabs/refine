@@ -23,7 +23,7 @@ class {{ class }} extends Refine
     protected function definition(): static
     {
         return $this
-            ->for()
+            ->for(Model::class)
             ->searches([
 
             ])

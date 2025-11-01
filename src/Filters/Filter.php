@@ -6,7 +6,7 @@ namespace Honed\Refine\Filters;
 
 use BackedEnum;
 use Carbon\CarbonInterface;
-use Honed\Core\Concerns\CanHaveDefault;
+use Honed\Core\Concerns\HasDefault;
 use Honed\Core\Concerns\HasType;
 use Honed\Core\Concerns\HasValue;
 use Honed\Core\Concerns\InterpretsRequest;
@@ -29,7 +29,7 @@ use function is_string;
  */
 class Filter extends Refiner
 {
-    use CanHaveDefault;
+    use HasDefault;
     use HasOperator;
     use HasOptions {
         multiple as protected setMultiple;
@@ -162,7 +162,7 @@ class Filter extends Refiner
     public function multiple(bool $value = true): static
     {
         $this->type(self::SELECT);
-        $this->asArray();
+        $this->asArray($this->subtype);
         $this->setMultiple($value);
 
         return $this;

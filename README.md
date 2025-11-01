@@ -11,6 +11,7 @@
 
 <p>
     <a href="https://github.com/honedlabs/refine/actions"><img src="https://github.com/honedlabs/refine/actions/workflows/tests.yml/badge.svg" alt="Build Status"></a>
+    <a href="https://github.com/honedlabs/refine"><img src="https://raw.githubusercontent.com/honedlabs/refine/main/badge-coverage.svg" alt="Code Coverage"></a>
     <a href="https://packagist.org/packages/honed/refine"><img src="https://img.shields.io/packagist/dt/honed/refine" alt="Total Downloads"></a>
     <a href="https://packagist.org/packages/honed/refine"><img src="https://img.shields.io/packagist/v/honed/refine" alt="Latest Stable Version"></a>
 </p>
