@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1761970171">
-  <project timestamp="1761970171" name="Clover Coverage">
+<coverage generated="1762176901">
+  <project timestamp="1762176901" name="Clover Coverage">
     <package name="Honed\Refine\Attributes">
       <file name="/home/runner/work/refine/refine/src/Attributes/UseRefine.php">
         <class name="Honed\Refine\Attributes\UseRefine" namespace="Honed\Refine\Attributes">
