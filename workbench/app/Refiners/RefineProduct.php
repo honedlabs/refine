@@ -14,10 +14,7 @@ use Workbench\App\Enums\Status;
 use Workbench\App\Models\Product;
 
 /**
- * @template TModel of \App\Models\Product = \App\Models\Product
- * @template TBuilder of \Illuminate\Database\Eloquent\Builder<TModel> = \Illuminate\Database\Eloquent\Builder<TModel>
- *
- * @extends Refine<TModel, TBuilder>
+ * @extends Refine<\App\Models\Product, \Illuminate\Database\Eloquent\Builder<\App\Models\Product>>
  */
 class RefineProduct extends Refine
 {

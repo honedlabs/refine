@@ -11,7 +11,7 @@ class {{ class }} extends Filter
      */
     public static function new(): static
     {
-        return resolve(static::class);
+        return app(static::class);
     }
 
     /**

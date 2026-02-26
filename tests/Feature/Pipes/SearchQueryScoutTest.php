@@ -58,7 +58,7 @@ it('has scout pipeline', function () {
                 ],
                 [
                     'type' => 'raw',
-                    'sql' => 'LOWER(name) LIKE ?',
+                    'sql' => 'name LIKE ?',
                     'boolean' => 'and',
                 ],
                 [

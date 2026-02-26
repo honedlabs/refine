@@ -7,7 +7,9 @@ namespace Honed\Refine\Pipes;
 use Honed\Core\Interpret;
 use Honed\Core\Pipe;
 use Honed\Persist\Exceptions\DriverDataIntegrityException;
+use Honed\Refine\Contracts\UnionSearch;
 use Honed\Refine\Data\SearchData;
+use Illuminate\Database\Eloquent\Builder;
 
 /**
  * @template TClass of \Honed\Refine\Refine
@@ -33,6 +35,7 @@ class SearchQuery extends Pipe
 
         match (true) {
             $this->instance->isScout() => $this->scout($builder),
+            $this->instance instanceof UnionSearch => $this->union($builder, $columns),
             default => $this->search($builder, $columns)
         };
 
@@ -87,7 +90,7 @@ class SearchQuery extends Pipe
     /**
      * Perform the search using Scout.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model>  $builder
+     * @param  Builder<\Illuminate\Database\Eloquent\Model>  $builder
      * @return void
      */
     protected function scout($builder)
@@ -108,9 +111,60 @@ class SearchQuery extends Pipe
     }
 
     /**
+     * Perform the search using subquery searches on individual columns.
+     *
+     * @param  Builder<\Illuminate\Database\Eloquent\Model>  $builder
+     * @param  array<int,string>|null  $columns
+     */
+    protected function union(Builder $builder, ?array $columns): void
+    {
+        $term = $this->instance->getSearchTerm();
+
+        /** @var list<Builder<\Illuminate\Database\Eloquent\Model>> $unions */
+        $unions = [];
+
+        $applied = false;
+
+        foreach ($this->instance->getSearches() as $search) {
+            $query = $search->unionAs($builder);
+
+            if ($search->handle($query, $term, $columns, $applied)) {
+                $applied = true;
+
+                $unions[] = $query;
+            }
+        }
+
+        if (empty($unions)) {
+            return;
+        }
+
+        $unionQuery = array_shift($unions)->getQuery();
+
+        foreach ($unions as $union) {
+            $unionQuery->unionAll($union);
+        }
+
+        $query = $builder->getQuery();
+        $model = $builder->getModel();
+        $table = $model->getTable();
+        $keyName = $model->getKeyName();
+
+        $existingJoins = $query->joins ?? [];
+        $query->joins = [];
+
+        $query->fromSub($unionQuery, '__honed_union')
+            ->join($table, $model->qualifyColumn($keyName), '=', "__honed_union.{$keyName}");
+
+        foreach ($existingJoins as $join) {
+            $query->joins[] = $join;
+        }
+    }
+
+    /**
      * Perform the search using the default search logic.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model>  $builder
+     * @param  Builder<\Illuminate\Database\Eloquent\Model>  $builder
      * @param  array<int,string>|null  $columns
      * @return bool
      */

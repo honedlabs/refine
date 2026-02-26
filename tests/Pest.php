@@ -41,7 +41,7 @@ expect()->extend('toBeSearch', function (string $column, string $boolean = 'and'
     return $this->toBeArray()
         ->toHaveKeys(['type', 'sql', 'boolean'])
         ->{'type'}->toBe('raw')
-        ->{'sql'}->toBe(\sprintf('LOWER(%s) LIKE ?', $column))
+        ->{'sql'}->toBe(\sprintf('%s LIKE ?', $column))
         ->{'boolean'}->toBe($boolean);
 });
 
