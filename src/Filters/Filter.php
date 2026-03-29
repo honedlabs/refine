@@ -308,7 +308,7 @@ class Filter extends Refiner
             default => $value,
         };
 
-        return $transformed ?? $this->getDefault();
+        return empty($transformed) ? $this->getDefault() : $transformed;
     }
 
     /**

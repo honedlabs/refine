@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1772070978">
-  <project timestamp="1772070978">
+<coverage generated="1774824191">
+  <project timestamp="1774824191">
     <package name="Honed\Refine\Attributes">
       <file name="/home/josh/code/honed/honed/packages/laravel/refine/src/Attributes/UseRefine.php">
         <class name="Honed\Refine\Attributes\UseRefine" namespace="Honed\Refine\Attributes">
@@ -570,7 +570,7 @@
       </file>
       <file name="/home/josh/code/honed/honed/packages/laravel/refine/src/Filters/Filter.php">
         <class name="Honed\Refine\Filters\Filter" namespace="Honed\Refine\Filters">
-          <metrics complexity="30" methods="16" coveredmethods="16" conditionals="0" coveredconditionals="0" statements="77" coveredstatements="77" elements="93" coveredelements="93"/>
+          <metrics complexity="31" methods="16" coveredmethods="16" conditionals="0" coveredconditionals="0" statements="77" coveredstatements="77" elements="93" coveredelements="93"/>
         </class>
         <line num="75" type="method" name="boolean" visibility="public" complexity="1" crap="1" count="17"/>
         <line num="77" type="stmt" count="17"/>
@@ -656,7 +656,7 @@
         <line num="295" type="stmt" count="4"/>
         <line num="296" type="stmt" count="4"/>
         <line num="297" type="stmt" count="4"/>
-        <line num="303" type="method" name="transformParameter" visibility="protected" complexity="5" crap="5" count="44"/>
+        <line num="303" type="method" name="transformParameter" visibility="protected" complexity="6" crap="6" count="44"/>
         <line num="305" type="stmt" count="44"/>
         <line num="306" type="stmt" count="44"/>
         <line num="307" type="stmt" count="29"/>
