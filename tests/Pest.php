@@ -39,9 +39,10 @@ expect()->extend('toBeOnlyWhereIn', function (string $column, array $values, str
 
 expect()->extend('toBeSearch', function (string $column, string $boolean = 'and') {
     return $this->toBeArray()
-        ->toHaveKeys(['type', 'sql', 'boolean'])
-        ->{'type'}->toBe('raw')
-        ->{'sql'}->toBe(\sprintf('%s LIKE ?', $column))
+        ->toHaveKeys(['type', 'column', 'value', 'operator', 'boolean'])
+        ->{'type'}->toBe('Basic')
+        ->{'column'}->toBe($column)
+        ->{'operator'}->toBe('LIKE')
         ->{'boolean'}->toBe($boolean);
 });
 

@@ -36,7 +36,9 @@ class Search extends Refiner
     /**
      * Perform a wildcard search on the query.
      *
-     * @param  TBuilder  $query
+     * @template T of \Illuminate\Database\Eloquent\Model
+     *
+     * @param  Builder<T>  $query
      */
     public static function searchWildcard(
         Builder $query,
@@ -46,11 +48,8 @@ class Search extends Refiner
         string $operator = 'LIKE'
     ): void {
 
-        $sql = "{$column} {$operator} ?";
-        $binding = static::binding($term);
-
         $query->getQuery()
-            ->whereRaw($sql, $binding, $boolean);
+            ->where($column, $operator, static::binding($term)[0], $boolean);
     }
 
     /**
@@ -152,18 +151,18 @@ class Search extends Refiner
     /**
      * Apply a wildcard search to the query.
      *
-     * @param  Builder<\Illuminate\Database\Eloquent\Model>  $query
+     * @param  TBuilder  $query
      */
     protected function asWildcard(Builder $query, SearchMode $mode, string $term, string $column, string $boolean): void
     {
         $query->getQuery()
-            ->whereRaw("{$column} LIKE ?", [$this->bind($term, $mode)], $boolean);
+            ->where($column, 'LIKE', $this->bind($term, $mode), $boolean);
     }
 
     /**
      * Apply a full text index search to the query.
      *
-     * @param  Builder<\Illuminate\Database\Eloquent\Model>  $query
+     * @param  TBuilder  $query
      */
     protected function asFullText(Builder $query, SearchMode $mode, string $term, string $column, string $boolean): void
     {

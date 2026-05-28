@@ -254,12 +254,13 @@ class Filter extends Refiner
     public function apply($query, $column, $operator, $value)
     {
         match (true) {
-            in_array($operator, ['LIKE', 'NOT LIKE', 'ILIKE', 'NOT ILIKE']) &&
+            is_string($operator) &&
+                in_array($operator, ['LIKE', 'NOT LIKE', 'ILIKE', 'NOT ILIKE'], true) &&
                 is_string($value) => Search::searchWildcard(
                     $query,
                     $value,
                     $column,
-                    operator: $operator // @phpstan-ignore argument.type
+                    operator: $operator
                 ),
 
             $this->isMultiple() ||

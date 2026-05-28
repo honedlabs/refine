@@ -60,7 +60,9 @@ trait HasQualifier
     /**
      * Get the qualified name.
      *
-     * @param  Builder<\Illuminate\Database\Eloquent\Model>|null  $builder
+     * @template T of \Illuminate\Database\Eloquent\Model
+     *
+     * @param  Builder<T>|null  $builder
      * @return ($column is string ? string : Expression)
      */
     public function qualifyColumn(string|Expression $column, ?Builder $builder = null): string|Expression
