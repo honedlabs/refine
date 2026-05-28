@@ -36,7 +36,7 @@
         "phpstan/extension-installer": "^1.4.3",
         "phpstan/phpstan-deprecation-rules": "^2.0.1",
         "phpstan/phpstan-phpunit": "^2.0.3",
-        "sti3bas/laravel-scout-array-driver": "^4.1"
+        "sti3bas/laravel-scout-array-driver": "^4.3.1"
     },
     "autoload": {
         "psr-4": {
