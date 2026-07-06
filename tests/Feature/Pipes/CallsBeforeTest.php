@@ -13,22 +13,18 @@ beforeEach(function () {
 });
 
 it('needs a before callback', function () {
-    $this->pipe->instance($this->refine);
-
-    $this->pipe->run();
+    $this->pipe->run($this->refine);
 
     expect($this->refine->getBuilder()->getQuery()->wheres)
         ->toBeEmpty();
 });
 
 it('applies before callback', function () {
-    $this->pipe->instance(
+    $this->pipe->run(
         $this->refine->before(fn ($builder) => $builder
             ->where('price', '>', 100)
         )
     );
-
-    $this->pipe->run();
 
     expect($this->refine->getBuilder()->getQuery()->wheres)
         ->toBeOnlyWhere('price', 100, '>', 'and');

@@ -17,9 +17,7 @@ beforeEach(function () {
 });
 
 it('fails', function ($refine) {
-    $this->pipe->instance($refine);
-
-    $this->pipe->run();
+    $this->pipe->run($refine);
 
     expect($refine->getBuilder()->getQuery()->orders)
         ->toBeEmpty();
@@ -82,9 +80,7 @@ it('fails', function ($refine) {
 ]);
 
 it('passes', function (Refine $refine, string $name = 'name', string $direction = Sort::ASCENDING) {
-    $this->pipe->instance($refine);
-
-    $this->pipe->run();
+    $this->pipe->run($refine);
 
     expect($refine->getBuilder()->getQuery()->orders)
         ->toBeOnlyOrder($name, $direction);

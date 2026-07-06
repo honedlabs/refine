@@ -106,7 +106,7 @@ trait CanRefine
     /**
      * Get the pipes to be used for refining.
      *
-     * @return array<int, class-string<\Honed\Core\Pipe<self>>>
+     * @return list<class-string<\Honed\Core\Pipe<$this>>>
      */
     protected function pipes(): array
     {

@@ -22,9 +22,7 @@ beforeEach(function () {
 });
 
 it('fails', function (Refine $refine) {
-    $this->pipe->instance($refine);
-
-    $this->pipe->run();
+    $this->pipe->run($refine);
 
     expect($refine->getBuilder()->getQuery()->wheres)
         ->toBeEmpty();
@@ -75,9 +73,7 @@ it('fails', function (Refine $refine) {
 ]);
 
 it('passes', function (Refine $refine, string $name, mixed $value) {
-    $this->pipe->instance($refine);
-
-    $this->pipe->run();
+    $this->pipe->run($refine);
 
     expect($refine->getBuilder()->getQuery()->wheres)
         ->{is_array($value) ? 'toBeOnlyWhereIn' : 'toBeOnlyWhere'}($name, $value);

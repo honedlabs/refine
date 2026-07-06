@@ -32,9 +32,7 @@ beforeEach(function () {
 });
 
 it('fails', function ($refine) {
-    $this->pipe->instance($refine);
-
-    $this->pipe->run();
+    $this->pipe->run($refine);
 
     expect($refine->getBuilder()->getQuery()->wheres)
         ->toBeEmpty();
@@ -87,9 +85,7 @@ it('fails', function ($refine) {
 ]);
 
 it('passes non-matchable', function ($refine) {
-    $this->pipe->instance($refine);
-
-    $this->pipe->run();
+    $this->pipe->run($refine);
 
     expect($refine->getBuilder()->getQuery()->wheres)
         ->toBeArray()
@@ -160,9 +156,7 @@ it('passes non-matchable', function ($refine) {
 ]);
 
 it('passes matchable', function ($refine) {
-    $this->pipe->instance($refine->matchable());
-
-    $this->pipe->run();
+    $this->pipe->run($refine->matchable());
 
     expect($refine->getBuilder()->getQuery()->wheres)
         ->toBeArray()
@@ -237,9 +231,7 @@ it('scouts', function () {
         $this->refine->getSearchKey() => $this->query,
     ]);
 
-    $this->pipe->instance($this->refine->scout()->request($request));
-
-    $this->pipe->run();
+    $this->pipe->run($this->refine->scout()->request($request));
 
     expect($this->refine->getBuilder()->getQuery()->wheres)
         ->toBeOnlyWhereIn('products.id', []);

@@ -15,9 +15,7 @@ beforeEach(function () {
 });
 
 it('does not persist data to the stores if no data', function () {
-    $this->pipe->instance($this->refine);
-
-    $this->pipe->run();
+    $this->pipe->run($this->refine);
 
     expect(Session::get($this->refine->getPersistKey()))
         ->toBeNull();
@@ -32,9 +30,7 @@ it('persists data to stores', function () {
             ],
         ]);
 
-    $this->pipe->instance($this->refine);
-
-    $this->pipe->run();
+    $this->pipe->run($this->refine);
 
     expect(Session::get($this->refine->getPersistKey()))
         ->toBeArray()

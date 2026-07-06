@@ -5,20 +5,19 @@ declare(strict_types=1);
 namespace Honed\Refine\Pipes;
 
 use Honed\Core\Pipe;
+use Honed\Refine\Refine;
 
 /**
- * @template TClass of \Honed\Refine\Refine
- *
- * @extends Pipe<TClass>
+ * @extends Pipe<\Honed\Refine\Refine>
  */
 class PersistData extends Pipe
 {
     /**
      * Run the after refining logic.
      */
-    public function run(): void
+    public function run(Refine $instance): void
     {
-        foreach ($this->instance->getDrivers() as $driver) {
+        foreach ($instance->getDrivers() as $driver) {
             $driver->persist();
         }
     }

@@ -8,45 +8,42 @@ use Honed\Core\Interpret;
 use Honed\Core\Pipe;
 use Honed\Persist\Exceptions\DriverDataIntegrityException;
 use Honed\Refine\Data\SortData;
+use Honed\Refine\Refine;
+use Illuminate\Http\Request;
 
 /**
- * @template TClass of \Honed\Refine\Refine
- *
- * @extends Pipe<TClass>
+ * @extends Pipe<\Honed\Refine\Refine>
  */
 class SortQuery extends Pipe
 {
     /**
      * Run the sort query logic.
      */
-    public function run(): void
+    public function run(Refine $instance): void
     {
-        $builder = $this->instance->getBuilder();
+        [$parameter, $direction] = $this->getValues($instance);
 
-        [$parameter, $direction] = $this->getValues();
-
-        if ($this->sort($builder, $parameter, $direction)) {
-            $this->persist($parameter, $direction);
+        if ($this->sort($instance, $parameter, $direction)) {
+            $this->persist($instance, $parameter, $direction);
 
             return;
         }
 
-        $this->defaultSort($builder);
+        $this->defaultSort($instance);
     }
 
     /**
      * Apply the sort to the resource.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model>  $builder
-     * @param  string|null  $parameter
      * @param  'asc'|'desc'|null  $direction
-     * @return bool
      */
-    protected function sort($builder, $parameter, $direction)
+    public function sort(Refine $instance, ?string $parameter, ?string $direction): bool
     {
         $applied = false;
 
-        foreach ($this->instance->getSorts() as $sort) {
+        $builder = $instance->getBuilder();
+
+        foreach ($instance->getSorts() as $sort) {
             if ($sort->handle($builder, $parameter, $direction)) {
                 $applied = true;
             }
@@ -57,16 +54,13 @@ class SortQuery extends Pipe
 
     /**
      * Apply the default sort to the resource.
-     *
-     * @param  \Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model>  $builder
-     * @return void
      */
-    protected function defaultSort($builder)
+    public function defaultSort(Refine $instance): void
     {
-        if ($sort = $this->instance->getDefaultSort()) {
+        if ($sort = $instance->getDefaultSort()) {
             $parameter = $sort->getParameter();
 
-            $sort->handle($builder, $parameter, null);
+            $sort->handle($instance->getBuilder(), $parameter, null);
 
             $sort->active();
         }
@@ -78,17 +72,16 @@ class SortQuery extends Pipe
      *
      * @return array{string|null, 'asc'|'desc'|null}
      */
-    protected function getValues()
+    public function getValues(Refine $instance): array
     {
-        $request = $this->instance->getRequest();
-
-        $key = $this->instance->getSortKey();
+        $request = $instance->getRequest();
+        $key = $instance->getSortKey();
 
         [$parameter, $direction] = $this->getOrder($request, $key);
 
         return match (true) {
             (bool) $parameter => [$parameter, $direction],
-            $request->missing($key) => $this->persisted($key),
+            $request->missing($key) => $this->persisted($instance, $key),
             default => [null, null]
         };
     }
@@ -96,11 +89,9 @@ class SortQuery extends Pipe
     /**
      * Get the sort parameter from the request.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  string  $key
      * @return array{string|null, 'asc'|'desc'|null}
      */
-    protected function getOrder($request, $key)
+    public function getOrder(Request $request, string $key): array
     {
         $sort = Interpret::string($request, $key);
 
@@ -114,11 +105,9 @@ class SortQuery extends Pipe
     /**
      * Persist the sort value to the internal data store.
      *
-     * @param  string|null  $parameter
      * @param  'asc'|'desc'|null  $direction
-     * @return void
      */
-    protected function persist($parameter, $direction)
+    public function persist(Refine $instance, ?string $parameter, ?string $direction): void
     {
         try {
             $data = SortData::make([
@@ -126,8 +115,8 @@ class SortQuery extends Pipe
                 'dir' => $direction,
             ]);
 
-            $this->instance->getSortDriver()?->put(
-                $this->instance->getSortKey(), $data->toArray()
+            $instance->getSortDriver()?->put(
+                $instance->getSortKey(), $data->toArray()
             );
         } catch (DriverDataIntegrityException $e) {
         }
@@ -136,14 +125,13 @@ class SortQuery extends Pipe
     /**
      * Get the sort data from the store.
      *
-     * @param  string  $key
      * @return array{string|null, 'asc'|'desc'|null}
      */
-    protected function persisted($key)
+    public function persisted(Refine $instance, string $key): array
     {
         try {
             $data = SortData::make(
-                $this->instance->getSortDriver()?->get($key)
+                $instance->getSortDriver()?->get($key)
             );
 
             return [$data->column, $data->direction];

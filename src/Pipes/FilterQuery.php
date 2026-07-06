@@ -4,49 +4,47 @@ declare(strict_types=1);
 
 namespace Honed\Refine\Pipes;
 
+use Closure;
 use Honed\Core\Pipe;
+use Honed\Refine\Filters\Filter;
+use Honed\Refine\Refine;
 
 /**
- * @template TClass of \Honed\Refine\Refine
- *
- * @extends Pipe<TClass>
+ * @extends \Honed\Core\Pipe<\Honed\Refine\Refine>
  */
 class FilterQuery extends Pipe
 {
     /**
      * Run the filter query logic.
      */
-    public function run(): void
+    public function run(Refine $instance): void
     {
-        $builder = $this->instance->getBuilder();
-
-        if ($this->filter($builder, $this->getFilterValue(...))) {
+        if ($this->filter($instance, $this->getFilterValue(...))) {
             return;
         }
 
-        $this->filter($builder, $this->persisted(...));
+        $this->filter($instance, $this->getPersistedValue(...));
     }
 
     /**
      * Apply the filters using the request values.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model>  $builder
-     * @param  callable(string, \Honed\Refine\Filters\Filter):mixed  $callback
-     * @return bool
+     * @param  Closure(Refine, string, Filter):mixed  $callback
      */
-    protected function filter($builder, $callback)
+    public function filter(Refine $instance, Closure $callback): bool
     {
         $applied = false;
+        $builder = $instance->getBuilder();
 
-        foreach ($this->instance->getFilters() as $filter) {
-            $key = $this->getParameter($filter);
+        foreach ($instance->getFilters() as $filter) {
+            $key = $instance->scoped($filter->getParameter());
 
-            $value = $callback($key, $filter);
+            $value = $callback($instance, $key, $filter);
 
             if ($filter->handle($builder, $value)) {
                 $applied = true;
 
-                $this->persist($key, $value);
+                $instance->getFilterDriver()?->put($key, $value);
             }
         }
 
@@ -55,52 +53,20 @@ class FilterQuery extends Pipe
 
     /**
      * Get the filter value from the request.
-     *
-     * @param  string  $key
-     * @param  \Honed\Refine\Filters\Filter  $filter
-     * @return mixed
      */
-    protected function getFilterValue($key, $filter)
+    public function getFilterValue(Refine $instance, string $key, Filter $filter): mixed
     {
 
         return $filter->interpret(
-            $this->instance->getRequest(),
-            $key,
-            $this->instance->getDelimiter()
+            $instance->getRequest(), $key, $instance->getDelimiter()
         );
     }
 
     /**
-     * Get the parameter of the filter.
-     *
-     * @param  \Honed\Refine\Filters\Filter  $filter
-     * @return string
-     */
-    protected function getParameter($filter)
-    {
-        return $this->instance->scoped($filter->getParameter());
-    }
-
-    /**
-     * Persist the filter value to the internal data store.
-     *
-     * @param  string  $key
-     * @param  mixed  $value
-     * @return void
-     */
-    protected function persist($key, $value)
-    {
-        $this->instance->getFilterDriver()?->put($key, $value);
-    }
-
-    /**
      * Get the sort data from the store.
-     *
-     * @param  string  $key
-     * @return mixed
      */
-    protected function persisted($key)
+    public function getPersistedValue(Refine $instance, string $key): mixed
     {
-        return $this->instance->getFilterDriver()?->get($key);
+        return $instance->getFilterDriver()?->get($key);
     }
 }
