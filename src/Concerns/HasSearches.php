@@ -207,7 +207,7 @@ trait HasSearches
     /**
      * Retrieve the columns to be used for searching.
      *
-     * @return array<int,Search>
+     * @return list<Search>
      */
     public function getSearches(): array
     {

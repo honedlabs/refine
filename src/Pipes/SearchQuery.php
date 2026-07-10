@@ -7,14 +7,14 @@ namespace Honed\Refine\Pipes;
 use Honed\Core\Interpret;
 use Honed\Core\Pipe;
 use Honed\Persist\Exceptions\DriverDataIntegrityException;
+use Honed\Refine\Contracts\Refine;
 use Honed\Refine\Contracts\UnionSearch;
 use Honed\Refine\Data\SearchData;
-use Honed\Refine\Refine;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 
 /**
- * @extends Pipe<\Honed\Refine\Refine>
+ * @extends Pipe<\Honed\Refine\Contracts\Refine&\Honed\Core\Primitive>
  */
 class SearchQuery extends Pipe
 {
@@ -23,7 +23,7 @@ class SearchQuery extends Pipe
      */
     public function run(Refine $instance): void
     {
-        if ($instance->isNotSearchable()) {
+        if (! $instance->isSearchable()) {
             return;
         }
 
@@ -72,7 +72,7 @@ class SearchQuery extends Pipe
      */
     public function getColumns(Refine $instance, Request $request): ?array
     {
-        if ($instance->isNotMatchable()) {
+        if (! $instance->isMatchable()) {
             return null;
         }
 

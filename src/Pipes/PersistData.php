@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Honed\Refine\Pipes;
 
 use Honed\Core\Pipe;
-use Honed\Refine\Refine;
+use Honed\Refine\Contracts\Refine;
 
 /**
- * @extends Pipe<\Honed\Refine\Refine>
+ * @extends Pipe<\Honed\Refine\Contracts\Refine&\Honed\Core\Primitive>
  */
 class PersistData extends Pipe
 {

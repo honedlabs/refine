@@ -95,7 +95,7 @@ trait HasFilters
     /**
      * Retrieve the filters.
      *
-     * @return array<int,Filter>
+     * @return list<Filter>
      */
     public function getFilters(): array
     {

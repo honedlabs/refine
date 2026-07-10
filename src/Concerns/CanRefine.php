@@ -20,24 +20,7 @@ use Honed\Refine\Pipes\SortQuery;
 use Illuminate\Http\Request;
 
 /**
- * @phpstan-require-implements \Honed\Core\Contracts\HooksIntoLifecycle
- * @phpstan-require-implements \Honed\Persist\Contracts\CanPersistData
- *
- * @method self persistSort(string|bool $driver = true)
- * @method self persistSortInSession()
- * @method self persistSortInCookie()
- * @method bool isPersistingSort()
- * @method \Honed\Persist\Drivers\Decorator|null getSortDriver()
- * @method self persistSearch(string|bool $driver = true)
- * @method self persistSearchInSession()
- * @method self persistSearchInCookie()
- * @method bool isPersistingSearch()
- * @method \Honed\Persist\Drivers\Decorator|null getSearchDriver()
- * @method self persistFilter(string|bool $driver = true)
- * @method self persistFilterInSession()
- * @method self persistFilterInCookie()
- * @method bool isPersistingFilter()
- * @method \Honed\Persist\Drivers\Decorator|null getFilterDriver()
+ * @phpstan-require-implements \Honed\Refine\Contracts\Refine
  */
 trait CanRefine
 {

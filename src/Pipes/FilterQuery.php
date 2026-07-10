@@ -6,11 +6,11 @@ namespace Honed\Refine\Pipes;
 
 use Closure;
 use Honed\Core\Pipe;
+use Honed\Refine\Contracts\Refine;
 use Honed\Refine\Filters\Filter;
-use Honed\Refine\Refine;
 
 /**
- * @extends \Honed\Core\Pipe<\Honed\Refine\Refine>
+ * @extends Pipe<\Honed\Refine\Contracts\Refine&\Honed\Core\Primitive>
  */
 class FilterQuery extends Pipe
 {

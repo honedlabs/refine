@@ -99,7 +99,7 @@ trait HasSorts
     /**
      * Retrieve the sorts.
      *
-     * @return array<int,Sort>
+     * @return list<Sort>
      */
     public function getSorts(): array
     {

@@ -7,12 +7,12 @@ namespace Honed\Refine\Pipes;
 use Honed\Core\Interpret;
 use Honed\Core\Pipe;
 use Honed\Persist\Exceptions\DriverDataIntegrityException;
+use Honed\Refine\Contracts\Refine;
 use Honed\Refine\Data\SortData;
-use Honed\Refine\Refine;
 use Illuminate\Http\Request;
 
 /**
- * @extends Pipe<\Honed\Refine\Refine>
+ * @extends Pipe<\Honed\Refine\Contracts\Refine&\Honed\Core\Primitive>
  */
 class SortQuery extends Pipe
 {
