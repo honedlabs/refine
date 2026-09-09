@@ -21,4 +21,12 @@ class BooleanFilter extends Filter
 
         $this->boolean();
     }
+
+    /**
+     * Transform the value for the filter.
+     */
+    protected function transformParameter(mixed $value): mixed
+    {
+        return is_bool($value) ? $value : $this->getDefault();
+    }
 }
