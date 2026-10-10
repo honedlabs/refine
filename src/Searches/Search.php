@@ -86,7 +86,7 @@ class Search extends Refiner
      * Union the search as a subquery.
      *
      * @param  TBuilder  $builder
-     * @return Builder<\Illuminate\Database\Eloquent\Model>
+     * @return TBuilder
      */
     public function unionAs(Builder $builder): Builder
     {
@@ -103,6 +103,7 @@ class Search extends Refiner
             $query->getQuery()->from($table);
         }
 
+        /** @var TBuilder */
         return $query;
     }
 

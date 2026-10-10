@@ -30,7 +30,7 @@ class SortData extends PersistData
             ! array_key_exists('dir', $value),
             static::invalidColumn($value['col']),
             static::invalidDirection($value['dir']) => null,
-            default => new self($value['col'], $value['dir']), // @phpstan-ignore-line
+            default => new self($value['col'], $value['dir']),
         };
     }
 

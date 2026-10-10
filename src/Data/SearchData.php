@@ -31,7 +31,7 @@ class SearchData extends PersistData
             ! array_key_exists('cols', $value),
             static::invalidTerm($value['term']),
             static::invalidColumns($value['cols']) => null,
-            default => new self($value['term'], $value['cols']) // @phpstan-ignore-line
+            default => new self($value['term'], $value['cols'])
         };
     }
 
